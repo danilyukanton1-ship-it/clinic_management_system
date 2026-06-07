@@ -21,6 +21,6 @@ bool_column = Annotated[bool, mapped_column(default=False)]
 date_column = Annotated[date, mapped_column(Date)]
 datetime_column = Annotated[datetime, mapped_column(DateTime(timezone=True))]
 
-email_column = Annotated[str, mapped_column(String(256), unique=True, index=True)]
+email_column = Annotated[str, mapped_column(String(256), unique=True)]
 phone_column = Annotated[str, mapped_column(String(20), index=True)]
 filename_column = Annotated[str, mapped_column(String(256))]

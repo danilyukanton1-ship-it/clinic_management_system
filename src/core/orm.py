@@ -11,6 +11,7 @@ uuid_pk = Annotated[UUID, mapped_column(primary_key=True)]
 
 str_64 = Annotated[str, mapped_column(String(64))]
 str_128 = Annotated[str, mapped_column(String(128))]
+unique_str_128 = Annotated[str, mapped_column(String(128), unique=True)]
 str_256 = Annotated[str, mapped_column(String(256))]
 str_512 = Annotated[str, mapped_column(String(512))]
 

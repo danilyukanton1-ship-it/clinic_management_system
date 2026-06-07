@@ -7,7 +7,7 @@ from sqlalchemy.orm import DeclarativeBase
 from core.config import settings
 
 engine = create_async_engine(
-    settings.async_db_uri,
+    settings.db.async_db_url,
     echo=True
 )
 

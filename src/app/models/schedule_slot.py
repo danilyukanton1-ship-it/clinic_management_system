@@ -1,11 +1,13 @@
+from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Enum, UniqueConstraint, CheckConstraint
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from core import orm as orm_fields
 from core.models import BaseModel
 
 from app.enums.slot_status import SlotStatus
-
+if TYPE_CHECKING:
+    from app.models.appointment import Appointment
 
 class ScheduleSlot(BaseModel):
     __tablename__ = 'schedule_slots'
@@ -25,6 +27,10 @@ class ScheduleSlot(BaseModel):
     schedule_id: Mapped[int] = mapped_column(ForeignKey('schedules.id', ondelete='RESTRICT'), nullable=False)
     doctor_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), nullable=False)
 
+    appointment: Mapped['Appointment'] = relationship(
+        'Appointment',
+        uselist=False,
+    )
 
     slot_start: Mapped[orm_fields.datetime_column]
     slot_end: Mapped[orm_fields.datetime_column]

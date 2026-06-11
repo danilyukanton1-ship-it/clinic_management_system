@@ -29,6 +29,7 @@ from app.models.schedule_absence import ScheduleAbsence
 from app.models.appointment import Appointment
 from app.models.prescription import Prescription
 from app.models.prescription_item import PrescriptionItem
+from app.models.diagnosis import Diagnosis
 
 target_metadata = Base.metadata
 

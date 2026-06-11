@@ -6,5 +6,6 @@ class AttachmentSchema(BaseModel):
 
     filename: str
     file_mime_type: str
+    file_size: int
 
     model_config = ConfigDict(from_attributes=True)

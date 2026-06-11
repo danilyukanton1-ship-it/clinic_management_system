@@ -2,7 +2,7 @@ import datetime
 
 from pydantic import BaseModel, ConfigDict
 from app.enums.appointment_status import AppointmentStatus
-from app.schemas.user import UserShortSchema
+from app.schemas.user import DoctorShortSchema, UserShortSchema
 
 class AppointmentCreateSchema(BaseModel):
 
@@ -10,11 +10,15 @@ class AppointmentCreateSchema(BaseModel):
 
     complaint: str | None = None
 
+class AppointmentUpdateSchema(BaseModel):
+    slot_id: int
+    complaint: str | None = None
+
 class AppointmentResponseSchema(BaseModel):
     id: int
 
     patient: UserShortSchema
-    doctor: UserShortSchema
+    doctor: DoctorShortSchema
 
     status: AppointmentStatus
 

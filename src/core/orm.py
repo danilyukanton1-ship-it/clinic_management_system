@@ -3,7 +3,7 @@ from typing import Annotated
 from uuid import UUID
 
 from sqlalchemy.orm import mapped_column
-from sqlalchemy import String, Text, Date, DateTime
+from sqlalchemy import String, Text, Date, DateTime, Integer
 
 id_pk = Annotated[int, mapped_column(primary_key=True)]
 
@@ -14,6 +14,8 @@ str_128 = Annotated[str, mapped_column(String(128))]
 unique_str_128 = Annotated[str, mapped_column(String(128), unique=True)]
 str_256 = Annotated[str, mapped_column(String(256))]
 str_512 = Annotated[str, mapped_column(String(512))]
+
+not_nullable_int = Annotated[int, mapped_column(Integer, nullable=False)]
 
 text_column = Annotated[str, mapped_column(Text)]
 

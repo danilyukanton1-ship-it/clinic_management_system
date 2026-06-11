@@ -21,6 +21,11 @@ from core.database import Base
 
 from app.models.user import User
 from app.models.specialization import Specialization
+from app.models.drugs import Drugs
+from app.models.disease import Disease
+from app.models.schedule import Schedule
+from app.models.schedule_slot import ScheduleSlot
+from app.models.schedule_absence import ScheduleAbsence
 
 target_metadata = Base.metadata
 

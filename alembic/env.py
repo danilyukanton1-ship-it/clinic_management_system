@@ -26,6 +26,7 @@ from app.models.disease import Disease
 from app.models.schedule import Schedule
 from app.models.schedule_slot import ScheduleSlot
 from app.models.schedule_absence import ScheduleAbsence
+from app.models.appointment import Appointment
 
 target_metadata = Base.metadata
 

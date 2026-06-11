@@ -12,12 +12,12 @@ class ScheduleAbsence(BaseModel):
 
     __table_args__ = (
         CheckConstraint(
-            'end_time > start_time',
+            'end_date > start_date',
             name='ck_schedule_absence_end_after_start'
         ),
     )
 
-    doctor_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    doctor_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete="RESTRICT"), nullable=False)
 
     start_date: Mapped[orm_fields.datetime_column]
     end_date: Mapped[orm_fields.datetime_column]

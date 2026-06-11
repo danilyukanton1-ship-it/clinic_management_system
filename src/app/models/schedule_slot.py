@@ -22,8 +22,9 @@ class ScheduleSlot(BaseModel):
         )
     )
 
-    schedule_id: Mapped[int] = mapped_column(ForeignKey('schedules.id'), nullable=False)
-    doctor_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    schedule_id: Mapped[int] = mapped_column(ForeignKey('schedules.id', ondelete='RESTRICT'), nullable=False)
+    doctor_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), nullable=False)
+
 
     slot_start: Mapped[orm_fields.datetime_column]
     slot_end: Mapped[orm_fields.datetime_column]

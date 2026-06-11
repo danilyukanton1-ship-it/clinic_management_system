@@ -18,7 +18,7 @@ class Schedule(BaseModel):
         ),
     )
 
-    doctor_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    doctor_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete="RESTRICT"), nullable=False)
     weekday: Mapped[Weekday] = mapped_column(Enum(Weekday, name='weekday_enums'), nullable=False)
     start_time: Mapped[datetime.time] = mapped_column(Time, nullable=False)
     end_time: Mapped[datetime.time] = mapped_column(Time, nullable=False)

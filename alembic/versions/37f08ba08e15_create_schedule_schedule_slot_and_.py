@@ -50,7 +50,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.CheckConstraint('end_time > start_time', name='ck_schedule_absence_end_after_start'),
+    sa.CheckConstraint('end_date > start_date', name='ck_schedule_absence_end_after_start'),
     sa.ForeignKeyConstraint(['doctor_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

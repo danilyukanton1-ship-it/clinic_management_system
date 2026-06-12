@@ -35,10 +35,6 @@ class Appointment(BaseModel):
         foreign_keys=[patient_id],
     )
 
-    appointments_as_patient: Mapped[list['Appointment']] = relationship(
-        foreign_keys='Appointment.patient_id',
-    )
-
     doctor_id: Mapped[int] = mapped_column(
         ForeignKey('users.id', ondelete='RESTRICT'),
         nullable=False,
@@ -47,10 +43,6 @@ class Appointment(BaseModel):
     doctor: Mapped["User"] = relationship(
         'User',
         foreign_keys=[doctor_id],
-    )
-
-    appointments_as_doctor: Mapped[list['Appointment']] = relationship(
-        foreign_keys='Appointment.patient_id',
     )
 
     slot_id: Mapped[int] = mapped_column(

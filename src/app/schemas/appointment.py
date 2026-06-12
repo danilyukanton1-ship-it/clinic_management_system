@@ -6,6 +6,8 @@ from app.schemas.schedule_slot import ScheduleSlotSchema
 from app.schemas.user import DoctorShortSchema, PatientShortSchema
 
 class AppointmentCreateSchema(BaseModel):
+    patient: int
+    doctor: int
 
     slot_id: int
 
@@ -29,4 +31,6 @@ class AppointmentResponseSchema(BaseModel):
     created_at: datetime.datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
 

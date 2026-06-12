@@ -9,6 +9,8 @@ class ScheduleSlotSchema(BaseModel):
     slot_start: datetime
     slot_end: datetime
 
+    doctor: int
+
     model_config = ConfigDict(
         from_attributes=True
     )

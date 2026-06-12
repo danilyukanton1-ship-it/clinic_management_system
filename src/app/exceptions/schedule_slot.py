@@ -1,10 +1,10 @@
 from app.exceptions.base import AppException
 
-class SlotNotFound(AppException):
+class SlotNotFoundException(AppException):
     message = 'Slot not found'
 
-class SlotNotAvailable(AppException):
+class SlotNotAvailableException(AppException):
     message = 'Slot is not available'
 
-class SlotAlreadyBooked(AppException):
+class SlotAlreadyBookedException(AppException):
     message = 'Slot already booked'

@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.post(
       path="/appointment",
-      tags=["appointment"],
+      tags=["Appointments"],
       status_code=status.HTTP_201_CREATED,
       response_model= AppointmentResponseSchema,
 )
@@ -24,7 +24,7 @@ async def create_appointment(
 
 @router.get(
       path='/appointment',
-      tags=["appointment"],
+      tags=["Appointments"],
       status_code=status.HTTP_200_OK,
       response_model= AppointmentResponseSchema,
 )

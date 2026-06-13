@@ -11,11 +11,17 @@ from app.routers.v1.schedule import router as schedule_router
 
 router = APIRouter()
 
-@router.get("/health")
+@router.get(
+    path="/health",
+    tags=["Health"],
+)
 async def health():
     return {"status": status.HTTP_200_OK}
 
-@router.get("/health/db")
+@router.get(
+    path="/health/db",
+    tags=["Health"],
+)
 async def db_health(session: AsyncSession = Depends(get_session)):
     result = await session.execute(text("SELECT 1"))
     return {"status": result.scalar()}

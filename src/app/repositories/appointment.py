@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.appointment import Appointment
@@ -19,3 +20,9 @@ class AppointmentRepository:
         await self.session.flush()
         return appointment
 
+    async def get_all_appointments(self) -> list[Appointment]:
+        stmt = (
+            select(Appointment).order_by(Appointment.created_at)
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())

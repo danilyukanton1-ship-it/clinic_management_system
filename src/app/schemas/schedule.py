@@ -33,3 +33,17 @@ class ScheduleResponseSchema(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
     )
+
+class ScheduleUpdateSchema(BaseModel):
+    doctor_id: int
+
+    weekday: Weekday
+
+    start_time: time
+    end_time: time
+
+    slot_duration_minutes: int
+
+    model_config = ConfigDict(
+        from_attributes=True,
+    )

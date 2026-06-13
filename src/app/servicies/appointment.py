@@ -26,4 +26,6 @@ class AppointmentService:
         appointment = await self.appointment_repo.create(appointment)
         return appointment
 
-
+    async def get_all_appointments(self):
+        appointments = await self.appointment_repo.get_all_appointments()
+        return appointments

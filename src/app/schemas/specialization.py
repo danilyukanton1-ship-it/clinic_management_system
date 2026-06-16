@@ -8,6 +8,11 @@ class SpecializationSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class SpecializationCreateSchema(BaseModel):
+    name: str
+
+    description: str
+
 class SpecializationShortSchema(BaseModel):
     name: str
     model_config = ConfigDict(from_attributes=True)

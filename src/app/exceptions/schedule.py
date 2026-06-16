@@ -1,7 +1,11 @@
+from fastapi import status
+
 from app.exceptions.base import AppException
 
 class ScheduleNotFoundException(AppException):
-    message = 'Schedule not found'
+    detail = 'Schedule not found'
+    status_code = status.HTTP_404_NOT_FOUND
 
 class ScheduleAlreadyExistsException(AppException):
-    message = 'Schedule already exists'
+    detail = 'Schedule already exists'
+    status_code = status.HTTP_409_CONFLICT

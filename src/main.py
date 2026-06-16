@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from core.router import router
 
 from app.handlers import register_exception_handlers
-app = FastAPI()
+app = FastAPI(title='Clinic Management System')
+app.include_router(router)
+register_exception_handlers(app)
 
 register_exception_handlers(app)
 app.include_router(router)

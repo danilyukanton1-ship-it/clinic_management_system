@@ -14,7 +14,7 @@ router = APIRouter()
     path="/doctor",
     tags=["Doctors"],
     status_code=status.HTTP_200_OK,
-    response_model=DoctorResponseSchema,
+    response_model=list[DoctorResponseSchema],
 )
 async def get_doctors(
     session: AsyncSession = Depends(get_session),
@@ -22,6 +22,19 @@ async def get_doctors(
     user_service = UserService(session)
     doctors = await user_service.get_all_doctors()
     return doctors
+
+@router.get(
+    path="/patient",
+    tags=["Patients"],
+    status_code=status.HTTP_200_OK,
+    response_model=list[PatientResponseSchema],
+)
+async def get_patients(
+    session: AsyncSession = Depends(get_session),
+) -> list[PatientResponseSchema]:
+    user_service = UserService(session)
+    patients = await user_service.get_all_patients()
+    return patients
 
 @router.post(
     path='/doctor',
@@ -32,7 +45,7 @@ async def get_doctors(
 async def create_doctor(
     doctor: DoctorCreateSchema,
     session: AsyncSession = Depends(get_session),
-):
+) -> DoctorResponseSchema:
     user_service = UserService(session)
     doctor = await user_service.create_doctor(doctor)
     return doctor
@@ -46,35 +59,63 @@ async def create_doctor(
 async def create_patient(
     patient: PatientCreateSchema,
     session: AsyncSession = Depends(get_session),
-):
+) -> PatientResponseSchema:
     user_service = UserService(session)
     patient = await user_service.create_patient(patient)
     return patient
 
 @router.get(
-    path='/patient/{patient_id}',
+    path='/patient/id/{patient_id}',
     tags=["Patients"],
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,
 )
-async def get_patient(
-    user: int | str,
+async def get_patient_by_id(
+    patient_id: int,
     session: AsyncSession = Depends(get_session),
-):
+) -> PatientResponseSchema:
     user_service = UserService(session)
-    patient = await user_service.get_user_by_id_or_email(user_role=UserRole.PATIENT, user=user)
+    patient = await user_service.get_user_by_id(user_role=UserRole.PATIENT, user_id=patient_id)
     return patient
 
 @router.get(
-    path='/doctor/{doctor_id}',
+    path='/patient/email/{patient_email}',
+    tags=["Patients"],
+    status_code=status.HTTP_200_OK,
+    response_model=PatientResponseSchema,
+)
+async def get_patient_by_email(
+    patient_email: str,
+    session: AsyncSession = Depends(get_session),
+) -> PatientResponseSchema:
+    user_service = UserService(session)
+    patient = await user_service.get_user_by_email(user_role=UserRole.PATIENT, user_email=patient_email)
+    return patient
+
+@router.get(
+    path='/doctor/id/{doctor_id}',
     tags=["Doctors"],
     status_code=status.HTTP_200_OK,
     response_model=DoctorResponseSchema,
 )
-async def get_doctor(
-    user: int | str,
+async def get_doctor_by_id(
+    doctor_id: int,
     session: AsyncSession = Depends(get_session),
-):
+) -> DoctorResponseSchema:
     user_service = UserService(session)
-    doctor = await user_service.get_user_by_id_or_email(user_role=UserRole.DOCTOR, user=user)
+    doctor = await user_service.get_user_by_id(user_role=UserRole.DOCTOR, user_id=doctor_id)
+    return doctor
+
+@router.get(
+    path='/doctor/email/{doctor_email}',
+    tags=['Doctors'],
+    status_code=status.HTTP_200_OK,
+    response_model=DoctorResponseSchema,
+)
+async def get_doctor_by_email(
+    doctor_email: str,
+    session: AsyncSession = Depends(get_session),
+) -> DoctorResponseSchema:
+    user_service = UserService(session)
+    doctor = await user_service.get_user_by_email(user_role=UserRole.DOCTOR, user_email=doctor_email)
     return doctor

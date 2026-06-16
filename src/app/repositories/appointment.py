@@ -17,7 +17,8 @@ class AppointmentRepository:
             complaint=appointment.complaint,
         )
         self.session.add(appointment)
-        await self.session.flush()
+        await self.session.commit()
+        await self.session.refresh(appointment)
         return appointment
 
     async def get_all_appointments(self) -> list[Appointment]:

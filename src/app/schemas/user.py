@@ -24,9 +24,9 @@ class UserCreateSchema(BaseModel):
     first_name: str
     last_name: str
     middle_name: str | None = None
-    phone_number: str | None = None
+    phone: str | None = None
     email: str
-    password: str
+    password_hash: str
     role: UserRole
 
 class PatientCreateSchema(UserCreateSchema):
@@ -34,10 +34,12 @@ class PatientCreateSchema(UserCreateSchema):
 
 class DoctorCreateSchema(UserCreateSchema):
     specialization_id: int
-    phone_number: str
+    phone: str
 
 class PatientResponseSchema(PatientCreateSchema):
+    id: int
     model_config = ConfigDict(from_attributes=True)
 
 class DoctorResponseSchema(DoctorCreateSchema):
+    id: int
     model_config = ConfigDict(from_attributes=True)

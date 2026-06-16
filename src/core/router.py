@@ -9,6 +9,7 @@ from app.routers.v1.appointment import router as appointment_router
 from app.routers.v1.schedule_slot import router as schedule_slot_router
 from app.routers.v1.schedule import router as schedule_router
 from app.routers.v1.user import router as user_router
+from app.routers.v1.specialization import router as specialization_router
 
 router = APIRouter()
 
@@ -31,3 +32,4 @@ router.include_router(appointment_router)
 router.include_router(schedule_slot_router)
 router.include_router(schedule_router)
 router.include_router(user_router)
+router.include_router(specialization_router)

@@ -19,12 +19,13 @@ class UserRepository:
             last_name=patient.last_name,
             middle_name=patient.middle_name,
             email=patient.email,
-            phone=patient.phone_number,
+            phone=patient.phone,
             role=patient.role,
-            password_hash=patient.password
+            password_hash=patient.password_hash
         )
         self.session.add(patient)
-        await self.session.flush()
+        await self.session.commit()
+        await self.session.refresh(patient)
         return patient
 
     async def create_doctor(self, doctor: DoctorCreateSchema) -> User:
@@ -33,13 +34,14 @@ class UserRepository:
             last_name=doctor.last_name,
             middle_name=doctor.middle_name,
             email=doctor.email,
-            phone=doctor.phone_number,
+            phone=doctor.phone,
             role=doctor.role,
-            password_hash=doctor.password,
+            password_hash=doctor.password_hash,
             specialization_id=doctor.specialization_id
         )
         self.session.add(doctor)
-        await self.session.flush()
+        await self.session.commit()
+        await self.session.refresh(doctor)
         return doctor
 
     async def get_user_by_id(self, user_id: int) -> User:

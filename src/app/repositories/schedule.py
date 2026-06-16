@@ -18,7 +18,8 @@ class ScheduleRepository:
             slot_duration_minutes=schedule.slot_duration_minutes,
         )
         self.session.add(schedule)
-        await self.session.flush()
+        await self.session.commit()
+        await self.session.refresh(schedule)
         return schedule
 
     async def get_schedule_by_doctor_id(self, doctor_id: int) -> list[Schedule]:
@@ -39,7 +40,8 @@ class ScheduleRepository:
         db_schedule.start_time = schedule.start_time
         db_schedule.end_time = schedule.end_time
         db_schedule.slot_duration_minutes = schedule.slot_duration_minutes
-
+        await self.session.commit()
+        await self.session.refresh(db_schedule)
         return db_schedule
 
     async def if_exists(self, doctor_id: int) -> bool:

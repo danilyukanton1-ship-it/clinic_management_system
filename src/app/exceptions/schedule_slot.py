@@ -1,10 +1,15 @@
+from fastapi import status
+
 from app.exceptions.base import AppException
 
 class SlotNotFoundException(AppException):
-    message = 'Slot not found'
+    detail = 'Slot not found'
+    status_code = status.HTTP_404_NOT_FOUND
 
 class SlotNotAvailableException(AppException):
-    message = 'Slot is not available'
+    detail = 'Slot is not available'
+    status_code = status.HTTP_403_FORBIDDEN
 
 class SlotAlreadyBookedException(AppException):
-    message = 'Slot already booked'
+    detail = 'Slot already booked'
+    status_code = status.HTTP_403_FORBIDDEN

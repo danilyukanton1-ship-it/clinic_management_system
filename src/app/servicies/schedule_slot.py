@@ -1,12 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories.appointment import AppointmentRepository
 from app.repositories.schedule_slot import ScheduleSlotRepository
-from app.schemas.schedule_slot import ScheduleSlotSchema
 
-from app.exceptions.schedule_slot import SlotNotFoundException, SlotNotAvailableException
-
-from app.enums.slot_status import SlotStatus
 
 class ScheduleSlotService:
 

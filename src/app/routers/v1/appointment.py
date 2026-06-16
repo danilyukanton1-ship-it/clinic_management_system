@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.dependencies import get_session
+from app.dependencies import get_appointment_service
 
 from app.servicies.appointment import AppointmentService
 from app.schemas.appointment import AppointmentCreateSchema, AppointmentResponseSchema
@@ -15,10 +14,9 @@ router = APIRouter()
       response_model= AppointmentResponseSchema,
 )
 async def create_appointment(
-        appointment: AppointmentCreateSchema,
-        session: AsyncSession = Depends(get_session),
+      appointment: AppointmentCreateSchema,
+      appointment_service: AppointmentService = Depends(get_appointment_service),
 ):
-      appointment_service = AppointmentService(session)
       appointment = await appointment_service.create_appointment(appointment)
       return appointment
 
@@ -29,8 +27,7 @@ async def create_appointment(
       response_model= AppointmentResponseSchema,
 )
 async def get_all_appointments(
-        session: AsyncSession = Depends(get_session),
+      appointment_service: AppointmentService = Depends(get_appointment_service),
 ):
-      appointment_service = AppointmentService(session)
       appointments = await appointment_service.get_all_appointments()
       return appointments

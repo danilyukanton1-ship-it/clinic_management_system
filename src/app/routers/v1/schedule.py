@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.dependencies import get_session
+from app.dependencies import get_schedule_service
 
 from app.servicies.schedule import ScheduleService
 from app.schemas.schedule import ScheduleResponseSchema, ScheduleCreateSchema, ScheduleUpdateSchema
@@ -21,9 +20,8 @@ router = APIRouter()
 )
 async def get_schedule(
         doctor_id: int,
-        session: AsyncSession = Depends(get_session)
+        schedule_service: ScheduleService = Depends(get_schedule_service)
 ) -> list[ScheduleResponseSchema]:
-    schedule_service = ScheduleService(session)
     if not await schedule_service.if_exists(doctor_id=doctor_id):
         raise ScheduleNotFoundException()
     schedule = await schedule_service.get_schedule_by_doctor_id(doctor_id)
@@ -37,9 +35,8 @@ async def get_schedule(
 )
 async def create_schedule(
     schedule: ScheduleCreateSchema,
-    session: AsyncSession = Depends(get_session)
+    schedule_service: ScheduleService = Depends(get_schedule_service)
 ):
-    schedule_service = ScheduleService(session)
     if await schedule_service.if_exists(doctor_id=schedule.doctor_id):
         raise ScheduleAlreadyExistsException()
     schedule = await schedule_service.create_schedule(schedule)
@@ -53,9 +50,8 @@ async def create_schedule(
 )
 async def update_schedule(
         schedule: ScheduleUpdateSchema,
-        session: AsyncSession = Depends(get_session)
+        schedule_service: ScheduleService = Depends(get_schedule_service)
 ):
-    schedule_service = ScheduleService(session)
     if not await schedule_service.if_exists(doctor_id=schedule.doctor_id):
         raise ScheduleNotFoundException()
     schedule = await schedule_service.update_schedule(schedule)

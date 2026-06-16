@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.dependencies import get_session
+from app.dependencies import get_schedule_slot_service
 
 from app.servicies.schedule_slot import ScheduleSlotService
 from app.schemas.schedule_slot import ScheduleSlotSchema
@@ -15,8 +14,7 @@ router = APIRouter()
     response_model=ScheduleSlotSchema
 )
 async def get_free_schedule_slot(
-        session: AsyncSession = Depends(get_session),
+        schedule_slot_service: ScheduleSlotService = Depends(get_schedule_slot_service),
 ):
-    schedule_slot_service = ScheduleSlotService(session)
     return schedule_slot_service.get_free_slots()
 

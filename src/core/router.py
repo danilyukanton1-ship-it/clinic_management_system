@@ -5,11 +5,11 @@ from starlette import status
 
 from core.dependencies import get_session
 
-from app.routers.v1.appointment import router as appointment_router
-from app.routers.v1.schedule_slot import router as schedule_slot_router
-from app.routers.v1.schedule import router as schedule_router
-from app.routers.v1.user import router as user_router
-from app.routers.v1.specialization import router as specialization_router
+from app.appoinments.routers.v1.appointment import router as appointment_router
+from app.scheduling.routers.v1.schedule_slot import router as schedule_slot_router
+from app.scheduling.routers.v1.schedule import router as schedule_router
+from app.users.routers.v1.user import router as user_router
+from app.users.routers.v1.specialization import router as specialization_router
 
 router = APIRouter()
 

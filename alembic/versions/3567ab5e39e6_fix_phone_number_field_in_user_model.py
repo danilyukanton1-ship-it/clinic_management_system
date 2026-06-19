@@ -1,4 +1,4 @@
-"""fix phone number field in user model
+"""fix phone number field in users model
 
 Revision ID: 3567ab5e39e6
 Revises: 2de33373d3f4

@@ -17,19 +17,7 @@ config.set_main_option("sqlalchemy.url", settings.db.async_db_url)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from core.database import Base
-
-from app.models.user import User
-from app.models.specialization import Specialization
-from app.models.drugs import Drugs
-from app.models.disease import Disease
-from app.models.schedule import Schedule
-from app.models.schedule_slot import ScheduleSlot
-from app.models.schedule_absence import ScheduleAbsence
-from app.models.appointment import Appointment
-from app.models.prescription import Prescription
-from app.models.prescription_item import PrescriptionItem
-from app.models.diagnosis import Diagnosis
+from db.database import Base
 
 target_metadata = Base.metadata
 

@@ -10,21 +10,24 @@ from app.scheduling.exceptions.schedule import (
     ScheduleAlreadyExistsException,
 )
 
+from common.enums.weekday import Weekday
+
 router = APIRouter()
 
 @router.get(
     path='/schedule/{doctor_id}',
     tags=['Schedule'],
     status_code=status.HTTP_200_OK,
-    response_model=list[ScheduleResponseSchema]
+    response_model=ScheduleResponseSchema
 )
 async def get_schedule(
         doctor_id: int,
+        weekday: Weekday,
         schedule_service: ScheduleService = Depends(get_schedule_service)
-) -> list[ScheduleResponseSchema]:
-    if not await schedule_service.if_exists(doctor_id=doctor_id):
+) -> ScheduleResponseSchema:
+    if not await schedule_service.if_exists(doctor_id=doctor_id, weekday=weekday):
         raise ScheduleNotFoundException()
-    schedule = await schedule_service.get_schedule_by_doctor_id(doctor_id)
+    schedule = await schedule_service.get_schedule_by_doctor_id(doctor_id=doctor_id, weekday=weekday)
     return schedule
 
 @router.post(

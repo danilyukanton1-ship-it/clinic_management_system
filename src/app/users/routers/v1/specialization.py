@@ -9,6 +9,17 @@ from app.users.schemas.specialization import SpecializationSchema, Specializatio
 router = APIRouter(tags=["Specializations"])
 
 @router.get(
+    path="/specialization",
+    status_code=status.HTTP_200_OK,
+    response_model=list[SpecializationSchema],
+)
+async def get_specializations(
+    specializations_service: SpecializationService = Depends(get_specialization_service),
+) -> list[SpecializationSchema]:
+    specializations = await specializations_service.get_all_specializations()
+    return specializations
+
+@router.get(
     path="/specialization/{specialization_id}",
     status_code=status.HTTP_200_OK,
     response_model=SpecializationSchema,

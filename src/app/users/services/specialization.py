@@ -22,6 +22,11 @@ class SpecializationService:
             raise SpecializationNotFoundException()
         return specialization
 
+    async def get_all_specializations(self) -> list[Specialization]:
+        specializations = await self.specialization_repo.get_all()
+        return specializations
+
+
     async def create(self, specialization: SpecializationCreateSchema) -> Specialization:
         specialization_name = specialization.name
         if await self.specialization_repo.get_by_name(specialization_name):

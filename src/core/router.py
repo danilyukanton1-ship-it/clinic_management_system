@@ -8,7 +8,8 @@ from core.dependencies import get_session
 from app.appoinments.routers.v1.appointment import router as appointment_router
 from app.scheduling.routers.v1.schedule_slot import router as schedule_slot_router
 from app.scheduling.routers.v1.schedule import router as schedule_router
-from app.users.routers.v1.user import router as user_router
+from app.users.routers.v1.doctor import router as doctors_router
+from app.users.routers.v1.patient import router as patient_router
 from app.users.routers.v1.specialization import router as specialization_router
 
 router = APIRouter()
@@ -31,5 +32,6 @@ async def db_health(session: AsyncSession = Depends(get_session)):
 router.include_router(appointment_router)
 router.include_router(schedule_slot_router)
 router.include_router(schedule_router)
-router.include_router(user_router)
+router.include_router(doctors_router)
+router.include_router(patient_router)
 router.include_router(specialization_router)

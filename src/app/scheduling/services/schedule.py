@@ -18,9 +18,9 @@ class ScheduleService:
     async def if_exists(self, weekday: Weekday, doctor_id: int) -> bool:
         return await self.schedule_repo.if_exists(doctor_id=doctor_id, weekday=weekday)
 
-    async def get_schedule_by_doctor_id(self, doctor_id: int) -> list[Schedule]:
+    async def get_schedule_by_doctor_id(self, doctor_id: int, weekday: Weekday) -> list[Schedule]:
 
-        schedule = await self.schedule_repo.get_schedule_by_doctor_id(doctor_id=doctor_id)
+        schedule = await self.schedule_repo.get_schedule_by_doctor_id(doctor_id=doctor_id, weekday=weekday)
         return schedule
 
     async def create_schedule(self, schedule: ScheduleCreateSchema) -> Schedule:

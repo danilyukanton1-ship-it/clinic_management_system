@@ -22,13 +22,13 @@ class ScheduleRepository:
         await self.session.refresh(schedule)
         return schedule
 
-    async def get_schedule_by_doctor_id(self, doctor_id: int) -> list[Schedule]:
+    async def get_schedule_by_doctor_id(self, doctor_id: int, weekday: Weekday) -> Schedule:
         stmt = (
             select(Schedule)
-            .where(Schedule.doctor_id == doctor_id)
+            .where(Schedule.doctor_id == doctor_id, Schedule.weekday == weekday)
         )
         result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return result.scalar_one_or_none()
 
     async def update_schedule_by_doctor_id(self, schedule: ScheduleUpdateSchema) -> Schedule:
         stmt = (

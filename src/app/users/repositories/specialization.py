@@ -11,6 +11,13 @@ class SpecializationRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
+    async def get_all(self) -> list[Specialization]:
+        stmt = (
+            select(Specialization)
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def get_by_id(self, specialization_id: int) -> Specialization:
         stmt = (
             select(Specialization)

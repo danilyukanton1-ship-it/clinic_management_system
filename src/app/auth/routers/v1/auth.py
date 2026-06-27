@@ -56,3 +56,14 @@ async def refresh(
 ):
     return await token_service.get_access_token(refresh_token.refresh_token)
 
+@router.post(
+    path='/logout',
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def logout(
+    refresh_token: RefreshTokenSchema,
+    token_service: TokenService = Depends(get_token_service),
+):
+    return await token_service.blacklist_token(refresh_token.refresh_token)
+
+

@@ -1,18 +1,22 @@
 import jwt
+from uuid import uuid4
 from datetime import datetime, timedelta, UTC
 from typing import Literal
 
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.exceptions.token import (
     InvalidTokenTypeException,
     InvalidTokenException,
-    TokenExpiredException,
+    TokenExpiredException, TokenBlacklistedException,
 )
 from app.auth.schemas.token import AccessTokenSchema
 from app.users.exceptions.user import UserNotFoundException, UserInactiveException
 from core.config import settings
 from db.unit_of_work import UnitOfWork
+
+cache = Redis(host=settings.redis.HOST, port=settings.redis.PORT, db=0, decode_responses=True)
 
 
 class TokenService:
@@ -46,6 +50,7 @@ class TokenService:
             )
             payload = {
                 'sub': str(user_id),
+                'jti': str(uuid4()),
                 'type': 'refresh',
                 'exp': expire,
             }
@@ -73,7 +78,12 @@ class TokenService:
         if payload['type'] != 'refresh':
             raise InvalidTokenException()
 
+        jti = payload['jti']
+        if await self.is_blacklisted(jti):
+            raise TokenBlacklistedException()
+
         user_id = int(payload['sub'])
+
 
         user = await self.uow.users.get_user_by_id(user_id)
 
@@ -91,3 +101,25 @@ class TokenService:
         )
 
         return AccessTokenSchema(access_token=access_token)
+
+    async def blacklist_token(
+            self,
+            refresh_token: str,
+    ) -> None:
+        decoded_token = self.decode_token(refresh_token)
+        jti = decoded_token['jti']
+        exp = decoded_token['exp']
+        ttl = exp - int(datetime.now(UTC).timestamp())
+        if ttl <= 0:
+            raise TokenExpiredException()
+        await cache.set(
+            f'blacklisted:{jti}',
+            '1',
+            ex=ttl,
+        )
+
+    @staticmethod
+    async def is_blacklisted(
+            jti: str,
+    ) -> bool:
+        return bool(await cache.exists(f'blacklisted:{jti}'))

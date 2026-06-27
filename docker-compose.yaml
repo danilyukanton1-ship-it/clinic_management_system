@@ -16,5 +16,14 @@ services:
 
     restart: unless-stopped
 
+  redis:
+    image: redis:7
+    container_name: clinic_management_redis
+
+    ports:
+      - "6379:6379"
+
+    restart: unless-stopped
+
 volumes:
   postgres_data:

@@ -12,6 +12,15 @@ class UserShortSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class UserResponseSchema(UserShortSchema):
+    email: str
+    phone: str | None = None
+    role: UserRole
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class DoctorShortSchema(UserShortSchema):
     specialization: SpecializationShortSchema | None
 
@@ -35,6 +44,7 @@ class PatientCreateSchema(UserCreateSchema):
 class DoctorCreateSchema(UserCreateSchema):
     specialization_id: int
     phone: str
+
 
 class PatientResponseSchema(PatientCreateSchema):
     id: int

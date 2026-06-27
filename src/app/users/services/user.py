@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from common.enums.user_role import UserRole
-from core.security import get_password_hash
+from app.auth.security import get_password_hash
 
 from app.users.models.user import User
 

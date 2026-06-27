@@ -22,18 +22,6 @@ async def get_patients(
     patients = await user_service.get_all_patients()
     return patients
 
-@router.post(
-    path='',
-    status_code=status.HTTP_201_CREATED,
-    response_model=PatientResponseSchema,
-)
-async def create_patient(
-    patient: PatientCreateSchema,
-    user_service: UserService = Depends(get_user_service),
-) -> PatientResponseSchema:
-    patient = await user_service.create_patient(patient)
-    return patient
-
 @router.get(
     path='/id/{patient_id}',
     status_code=status.HTTP_200_OK,

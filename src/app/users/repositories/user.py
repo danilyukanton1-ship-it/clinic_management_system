@@ -24,7 +24,7 @@ class UserRepository:
             password_hash=patient.password_hash
         )
         self.session.add(patient)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(patient)
         return patient
 
@@ -40,11 +40,11 @@ class UserRepository:
             specialization_id=doctor.specialization_id
         )
         self.session.add(doctor)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(doctor)
         return doctor
 
-    async def get_user_by_id(self, user_id: int) -> User:
+    async def get_user_by_id(self, user_id: int) -> User | None:
         stmt = (
             select(User)
             .where(User.id == user_id)
@@ -52,7 +52,7 @@ class UserRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_user_by_email(self, email: str) -> User:
+    async def get_user_by_email(self, email: str) -> User | None:
         stmt = (
             select(User)
             .where(User.email == email)
@@ -60,7 +60,15 @@ class UserRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_all_doctors(self) -> list[User]:
+    async def get_user_by_phone(self, phone: str) -> User | None:
+        stmt = (
+            select(User)
+            .where(User.phone == phone)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_all_doctors(self) -> list[User] | list[None]:
         stmt = (
             select(User)
             .where(User.role == UserRole.DOCTOR)
@@ -68,7 +76,7 @@ class UserRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_all_patient(self) -> list[User]:
+    async def get_all_patient(self) -> list[User] | list[None]:
         stmt = (
             select(User)
             .where(User.role == UserRole.PATIENT)

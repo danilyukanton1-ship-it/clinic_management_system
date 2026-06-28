@@ -12,6 +12,7 @@ from app.users.routers.v1.doctor import router as doctors_router
 from app.users.routers.v1.patient import router as patient_router
 from app.users.routers.v1.specialization import router as specialization_router
 from app.auth.routers.v1.auth import router as auth_router
+from app.medical_records.routers.v1.disease import router as disease_router
 router = APIRouter()
 
 @router.get(
@@ -36,3 +37,4 @@ router.include_router(doctors_router)
 router.include_router(patient_router)
 router.include_router(specialization_router)
 router.include_router(auth_router)
+router.include_router(disease_router)

@@ -5,6 +5,7 @@ from app.appoinments.repositories.appointment import AppointmentRepository
 from app.scheduling.repositories.schedule import ScheduleRepository
 from app.users.repositories.user import UserRepository
 from app.users.repositories.specialization import SpecializationRepository
+from app.medical_records.repositories.disease import DiseaseRepository
 
 class UnitOfWork:
     def __init__(self, session: AsyncSession):
@@ -15,6 +16,7 @@ class UnitOfWork:
         self.schedules = ScheduleRepository(session)
         self.users = UserRepository(session)
         self.specializations = SpecializationRepository(session)
+        self.disease = DiseaseRepository(session)
 
     async def __aenter__(self):
         return self

@@ -7,6 +7,7 @@ from app.users.repositories.user import UserRepository
 from app.users.repositories.specialization import SpecializationRepository
 from app.medical_records.repositories.disease import DiseaseRepository
 from app.medical_records.repositories.drug import DrugRepository
+from app.medical_records.repositories.diagnosis import DiagnosisRepository
 
 class UnitOfWork:
     def __init__(self, session: AsyncSession):
@@ -19,6 +20,7 @@ class UnitOfWork:
         self.specializations = SpecializationRepository(session)
         self.disease = DiseaseRepository(session)
         self.drugs = DrugRepository(session)
+        self.diagnosis = DiagnosisRepository(session)
 
     async def __aenter__(self):
         return self

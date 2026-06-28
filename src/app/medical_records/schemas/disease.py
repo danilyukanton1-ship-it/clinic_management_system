@@ -20,6 +20,7 @@ class DiseaseGetSchema(BaseModel):
     name: str | None = None
 
 class DiseaseResponseSchema(BaseModel):
+    id: int
     code: str
     name: str
     description: str

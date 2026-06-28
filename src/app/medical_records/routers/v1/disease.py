@@ -18,7 +18,7 @@ async def get_all(
     return await disease_service.get_all()
 
 @router.get(
-    path="/code",
+    path="/{disease_code}",
     status_code=status.HTTP_200_OK,
     response_model=DiseaseResponseSchema
 )
@@ -29,7 +29,7 @@ async def get_by_code(
     return await disease_service.get_by_code(disease_code=disease_code)
 
 @router.get(
-    path="/name",
+    path="/{name}",
     status_code=status.HTTP_200_OK,
     response_model=DiseaseResponseSchema
 )
@@ -51,7 +51,7 @@ async def create(
     return await disease_service.create(data=data)
 
 @router.put(
-    path="/",
+    path="/{disease_id}",
     status_code=status.HTTP_201_CREATED,
     response_model=DiseaseResponseSchema
 )
@@ -63,7 +63,7 @@ async def update(
     return await disease_service.update(disease_id=disease_id, data=data)
 
 @router.delete(
-    path="/",
+    path="/{disease_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(

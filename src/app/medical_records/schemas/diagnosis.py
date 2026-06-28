@@ -1,10 +1,20 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from app.medical_records.schemas.disease import DiseaseSchema
 
 class DiagnosisSchema(BaseModel):
+    appointment_id: int
+    disease_id: int
+    notes: str | None = None
+
+class DiagnosisCreateSchema(DiagnosisSchema):
+    pass
+
+class DiagnosisUpdateSchema(DiagnosisSchema):
+    pass
+
+class DiagnosisResponseSchema(DiagnosisSchema):
     id: int
 
-    disease: DiseaseSchema
-
-    notes: str | None
+    model_config = ConfigDict(
+        from_attributes=True,
+    )

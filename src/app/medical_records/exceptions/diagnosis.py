@@ -1,0 +1,6 @@
+from fastapi import status
+from common.exceptions.base import AppException
+
+class DiagnosisNotFoundException(AppException):
+    detail = 'Diagnosis not found'
+    status_code = status.HTTP_404_NOT_FOUND

@@ -18,9 +18,9 @@ class UnitOfWork:
         self.schedules = ScheduleRepository(session)
         self.users = UserRepository(session)
         self.specializations = SpecializationRepository(session)
-        self.disease = DiseaseRepository(session)
+        self.diseases = DiseaseRepository(session)
         self.drugs = DrugRepository(session)
-        self.diagnosis = DiagnosisRepository(session)
+        self.diagnoses = DiagnosisRepository(session)
 
     async def __aenter__(self):
         return self

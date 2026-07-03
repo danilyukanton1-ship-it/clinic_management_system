@@ -44,8 +44,8 @@ class DiagnosisService:
             raise DiagnosisNotFoundException()
         return diagnosis
 
-    async def get_by_appointment_id(self, appointment_id: int) -> Diagnosis:
-        diagnosis = await self.uow.diagnoses.get_diagnoses_by_appointment_id(appointment_id=appointment_id)
+    async def get_by_prescription_id(self, prescription_id: int) -> Diagnosis:
+        diagnosis = await self.uow.diagnoses.get_diagnoses_by_prescription_id(prescription_id=prescription_id)
         if not diagnosis:
             raise DiagnosisNotFoundException()
         return diagnosis

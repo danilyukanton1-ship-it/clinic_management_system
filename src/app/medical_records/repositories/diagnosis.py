@@ -10,7 +10,7 @@ class DiagnosisRepository:
 
     async def create_diagnosis(self, data: DiagnosisCreateSchema) -> Diagnosis:
         diagnosis = Diagnosis(
-            appointment_id=data.appointment_id,
+            prescription_id=data.prescription_id,
             disease_id=data.disease_id,
             notes=data.notes,
         )
@@ -20,7 +20,7 @@ class DiagnosisRepository:
         return diagnosis
 
     async def update_diagnosis(self,diagnosis: Diagnosis, data: DiagnosisUpdateSchema) -> Diagnosis:
-        diagnosis.appointment_id = data.appointment_id
+        diagnosis.prescription_id = data.prescription_id
         diagnosis.disease_id = data.disease_id
         diagnosis.notes = data.notes
         await self.session.flush()
@@ -42,10 +42,10 @@ class DiagnosisRepository:
         result = await self.session.execute(stmt)
         return result.scalars().one()
 
-    async def get_diagnoses_by_appointment_id(self, appointment_id: int) -> list[Diagnosis]:
+    async def get_diagnoses_by_prescription_id(self, prescription_id: int) -> list[Diagnosis]:
         stmt = (
             select(Diagnosis)
-            .where(Diagnosis.appointment_id == appointment_id)
+            .where(Diagnosis.prescription_id == prescription_id)
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

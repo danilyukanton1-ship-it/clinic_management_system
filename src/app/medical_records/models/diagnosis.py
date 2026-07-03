@@ -7,8 +7,8 @@ from db.base import BaseModel
 class Diagnosis(BaseModel):
     __tablename__ = 'diagnoses'
 
-    appointment_id: Mapped[int] = mapped_column(
-        ForeignKey('appointments.id'),
+    prescription_id: Mapped[int] = mapped_column(
+        ForeignKey('prescriptions.id'),
         nullable=False,
     )
 

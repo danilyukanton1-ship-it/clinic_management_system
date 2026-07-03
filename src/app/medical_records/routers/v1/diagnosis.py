@@ -30,15 +30,15 @@ async def get_by_id(
     return await diagnosis_service.get_by_id(diagnosis_id)
 
 @router.get(
-    path="/appointment/{appointment_id}",
+    path="/prescription/{prescription_id}",
     status_code=status.HTTP_200_OK,
     response_model=list[DiagnosisResponseSchema],
 )
 async def get_by_appointment_id(
-    appointment_id: int,
+    prescription_id: int,
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
 ):
-    return await diagnosis_service.get_by_appointment_id(appointment_id=appointment_id)
+    return await diagnosis_service.get_by_prescription_id(prescription_id=prescription_id)
 
 @router.get(
     path="/disease/{disease_id}",

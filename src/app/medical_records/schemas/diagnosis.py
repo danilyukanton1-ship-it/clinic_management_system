@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class DiagnosisSchema(BaseModel):
-    appointment_id: int
+    prescription_id: int
     disease_id: int
     notes: str | None = None
 

@@ -20,7 +20,6 @@ class DiagnosisRepository:
         return diagnosis
 
     async def update_diagnosis(self,diagnosis: Diagnosis, data: DiagnosisUpdateSchema) -> Diagnosis:
-        diagnosis.prescription_id = data.prescription_id
         diagnosis.disease_id = data.disease_id
         diagnosis.notes = data.notes
         await self.session.flush()

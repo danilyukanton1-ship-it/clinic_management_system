@@ -8,7 +8,7 @@ class Diagnosis(BaseModel):
     __tablename__ = 'diagnoses'
 
     prescription_id: Mapped[int] = mapped_column(
-        ForeignKey('prescriptions.id'),
+        ForeignKey('prescriptions.id', ondelete='CASCADE'),
         nullable=False,
     )
 

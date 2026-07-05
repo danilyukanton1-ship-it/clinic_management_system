@@ -26,3 +26,11 @@ class AppointmentRepository:
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_appointment_by_id(self, appointment_id: int) -> Appointment:
+        stmt = (
+            select(Appointment)
+            .where(Appointment.id == appointment_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()

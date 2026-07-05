@@ -50,6 +50,14 @@ class DiseaseRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
+    async def get_diseases_by_ids(self, disease_ids: list) -> list[Disease]:
+        stmt = (
+            select(Disease)
+            .where(Disease.id.in_(disease_ids))
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def update_disease(self, disease: Disease, data: DiseaseUpdateSchema) -> Disease:
         disease.code = data.code
         disease.name = data.name

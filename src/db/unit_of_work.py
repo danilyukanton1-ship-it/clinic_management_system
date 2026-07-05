@@ -8,6 +8,8 @@ from app.users.repositories.specialization import SpecializationRepository
 from app.medical_records.repositories.disease import DiseaseRepository
 from app.medical_records.repositories.drug import DrugRepository
 from app.medical_records.repositories.diagnosis import DiagnosisRepository
+from app.medical_records.repositories.prescription import PrescriptionRepository
+from app.medical_records.repositories.prescription_item import PrescriptionItemRepository
 
 class UnitOfWork:
     def __init__(self, session: AsyncSession):
@@ -21,6 +23,8 @@ class UnitOfWork:
         self.diseases = DiseaseRepository(session)
         self.drugs = DrugRepository(session)
         self.diagnoses = DiagnosisRepository(session)
+        self.prescriptions = PrescriptionRepository(session)
+        self.prescription_items = PrescriptionItemRepository(session)
 
     async def __aenter__(self):
         return self

@@ -34,7 +34,7 @@ async def get_by_id(
     status_code=status.HTTP_200_OK,
     response_model=list[DiagnosisResponseSchema],
 )
-async def get_by_appointment_id(
+async def get_by_prescription_id(
     prescription_id: int,
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
 ):
@@ -50,17 +50,6 @@ async def get_by_diagnosis_id(
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
 ):
     return await diagnosis_service.get_by_disease_id(disease_id=disease_id)
-
-@router.post(
-    path="/",
-    status_code=status.HTTP_201_CREATED,
-    response_model=DiagnosisResponseSchema,
-)
-async def create(
-    data: DiagnosisCreateSchema,
-    diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
-):
-    return await diagnosis_service.create(data)
 
 @router.put(
     path="/{diagnosis_id}",
@@ -83,3 +72,14 @@ async def delete(
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
 ):
     return await diagnosis_service.delete(diagnosis_id=diagnosis_id)
+
+@router.post(
+    path="/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=DiagnosisResponseSchema,
+)
+async def create(
+    data: DiagnosisCreateSchema,
+    diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
+):
+    return await diagnosis_service.create(data=data)

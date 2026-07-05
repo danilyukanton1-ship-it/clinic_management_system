@@ -9,8 +9,10 @@ class DiagnosisSchema(BaseModel):
 class DiagnosisCreateSchema(DiagnosisSchema):
     pass
 
-class DiagnosisUpdateSchema(DiagnosisSchema):
-    pass
+class DiagnosisUpdateSchema(BaseModel):
+    disease_id: int
+    notes: str | None = None
+
 
 class DiagnosisResponseSchema(DiagnosisSchema):
     id: int

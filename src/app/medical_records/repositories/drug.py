@@ -46,6 +46,14 @@ class DrugRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_drugs_by_ids(self, drug_ids: list) -> list[Drug]:
+        stmt = (
+            select(Drug)
+            .where(Drug.id.in_(drug_ids))
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def update_drug(self, drug: Drug, data: DrugUpdateSchema) -> Drug:
         drug.name = data.name
         drug.international_name = data.international_name

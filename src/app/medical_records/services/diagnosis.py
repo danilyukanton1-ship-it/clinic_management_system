@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.medical_records.schemas.diagnosis import DiagnosisCreateSchema, DiagnosisUpdateSchema
-from app.medical_records.exceptions.diagnosis import DiagnosisNotFoundException
+from app.medical_records.exceptions.diagnosis import DiagnosisNotFoundException, \
+    DiagnosisCantBeEmptyInPrescriptionException
 from app.medical_records.models.diagnosis import Diagnosis
 from db.unit_of_work import UnitOfWork
 
@@ -25,10 +26,13 @@ class DiagnosisService:
         return updated_diagnosis
 
     async def delete(self, diagnosis_id: int) -> None:
-        diagnosis = await self.uow.diagnoses.get_diagnosis_by_id(diagnosis_id=diagnosis_id)
-        if not diagnosis:
-            raise DiagnosisNotFoundException()
         async with self.uow:
+            diagnosis = await self.uow.diagnoses.get_diagnosis_by_id(diagnosis_id=diagnosis_id)
+            if not diagnosis:
+                raise DiagnosisNotFoundException()
+            diagnoses = await self.uow.diagnoses.get_diagnoses_by_prescription_id(prescription_id=diagnosis.prescription_id)
+            if len(diagnoses) == 1:
+                raise DiagnosisCantBeEmptyInPrescriptionException()
             await self.uow.diagnoses.delete_diagnosis(diagnosis=diagnosis)
         return None
 

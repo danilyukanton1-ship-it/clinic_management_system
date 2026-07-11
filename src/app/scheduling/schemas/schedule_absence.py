@@ -3,29 +3,26 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 from common.enums.absence_reason import AbsenceReason
-from app.users.schemas.user import DoctorShortSchema
 
 
-class ScheduleAbsenceCreateSchema(BaseModel):
-    doctor_id: int
+
+class ScheduleAbsenceSchema(BaseModel):
 
     start_date: datetime
     end_date: datetime
 
     reason: AbsenceReason
-    description: str
+    description: str | None
 
-class ScheduleAbsenceResponseSchema(BaseModel):
+class ScheduleAbsenceResponseSchema(ScheduleAbsenceSchema):
     id: int
-
-    doctor: DoctorShortSchema
-
-    start_date: datetime
-    end_date: datetime
-
-    reason: AbsenceReason
-    description: str
 
     model_config = ConfigDict(
         from_attributes=True,
     )
+
+class ScheduleAbsenceCreateSchema(ScheduleAbsenceSchema):
+    doctor_id: int
+
+class ScheduleAbsenceUpdateSchema(ScheduleAbsenceSchema):
+    pass

@@ -6,10 +6,10 @@ from app.users.dependencies import get_specialization_service
 
 from app.users.schemas.specialization import SpecializationSchema, SpecializationCreateSchema
 
-router = APIRouter(tags=["Specializations"])
+router = APIRouter(prefix="specializations",tags=["Specializations"])
 
 @router.get(
-    path="/specialization",
+    path="/",
     status_code=status.HTTP_200_OK,
     response_model=list[SpecializationSchema],
 )
@@ -20,7 +20,7 @@ async def get_specializations(
     return specializations
 
 @router.get(
-    path="/specialization/{specialization_id}",
+    path="/{specialization_id}",
     status_code=status.HTTP_200_OK,
     response_model=SpecializationSchema,
 )
@@ -32,7 +32,7 @@ async def get_specialization_by_id(
     return specialization
 
 @router.post(
-    path="/specialization",
+    path="/",
     status_code=status.HTTP_201_CREATED,
     response_model=SpecializationSchema,
 )
@@ -44,7 +44,7 @@ async def create_specialization(
     return specialization
 
 @router.delete(
-    path="/specialization/{specialization_id}",
+    path="/{specialization_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_specialization(

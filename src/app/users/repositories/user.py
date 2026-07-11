@@ -44,6 +44,14 @@ class UserRepository:
         await self.session.refresh(doctor)
         return doctor
 
+    async def get_doctor_by_id(self, doctor_id: int) -> User | None:
+        stmt = (
+            select(User)
+            .where(User.id == doctor_id, User.role == UserRole.DOCTOR)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def get_user_by_id(self, user_id: int) -> User | None:
         stmt = (
             select(User)

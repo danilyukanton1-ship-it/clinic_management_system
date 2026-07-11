@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.scheduling.exceptions.schedule import ScheduleNotFoundException, ScheduleAlreadyExistsException
 from app.scheduling.schemas.schedule import ScheduleCreateSchema, ScheduleUpdateSchema, ScheduleResponseSchema
 from app.scheduling.services.schedule_slot import ScheduleSlotService
+from app.users.exceptions.user import UserNotFoundException
 
 from common.enums.weekday import Weekday
 from db.unit_of_work import UnitOfWork
@@ -36,9 +37,12 @@ class ScheduleService:
             await self.schedule_slot_service.create_slots_for_schedule(schedule=schedule)
         return ScheduleResponseSchema.model_validate(schedule)
 
-    async def update_schedule(self, doctor_id: int, weekday: Weekday, data: ScheduleUpdateSchema) -> ScheduleResponseSchema:
+    async def update_schedule(self, doctor_id: int, data: ScheduleUpdateSchema) -> ScheduleResponseSchema:
         async with self.uow:
-            db_schedule = await self.uow.schedules.get_schedule_by_doctor_id(doctor_id=doctor_id, weekday=weekday)
+            doctor = await self.uow.users.get_doctor_by_id(doctor_id=doctor_id)
+            if not doctor:
+                raise UserNotFoundException()
+            db_schedule = await self.uow.schedules.get_schedule_by_doctor_id(doctor_id=doctor_id, weekday=data.weekday.value)
             if not db_schedule:
                 raise ScheduleNotFoundException()
             schedule = await self.uow.schedules.update_schedule(db_schedule=db_schedule, data=data)

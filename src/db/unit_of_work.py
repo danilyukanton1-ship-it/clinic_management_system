@@ -10,6 +10,7 @@ from app.medical_records.repositories.drug import DrugRepository
 from app.medical_records.repositories.diagnosis import DiagnosisRepository
 from app.medical_records.repositories.prescription import PrescriptionRepository
 from app.medical_records.repositories.prescription_item import PrescriptionItemRepository
+from app.scheduling.repositories.schedule_absence import ScheduleAbsenceRepository
 
 class UnitOfWork:
     def __init__(self, session: AsyncSession):
@@ -25,6 +26,7 @@ class UnitOfWork:
         self.diagnoses = DiagnosisRepository(session)
         self.prescriptions = PrescriptionRepository(session)
         self.prescription_items = PrescriptionItemRepository(session)
+        self.absences = ScheduleAbsenceRepository(session)
 
     async def __aenter__(self):
         return self

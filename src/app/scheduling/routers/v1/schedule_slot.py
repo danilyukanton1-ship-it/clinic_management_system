@@ -5,11 +5,10 @@ from app.scheduling.dependencies import get_schedule_slot_service
 from app.scheduling.services.schedule_slot import ScheduleSlotService
 from app.scheduling.schemas.schedule_slot import ScheduleSlotSchema
 
-router = APIRouter()
+router = APIRouter(prefix="/schedule_slots", tags=["Schedule slots"])
 
 @router.get(
-    path='/schedule-slot',
-    tags=['Schedule Slots'],
+    path='/',
     status_code=status.HTTP_200_OK,
     response_model=list[ScheduleSlotSchema]
 )

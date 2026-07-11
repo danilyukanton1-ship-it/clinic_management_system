@@ -5,18 +5,12 @@ from app.scheduling.dependencies import get_schedule_service
 from app.scheduling.services.schedule import ScheduleService
 from app.scheduling.schemas.schedule import ScheduleResponseSchema, ScheduleCreateSchema, ScheduleUpdateSchema
 
-from app.scheduling.exceptions.schedule import (
-    ScheduleNotFoundException,
-    ScheduleAlreadyExistsException,
-)
-
 from common.enums.weekday import Weekday
 
-router = APIRouter()
+router = APIRouter(prefix="/schedule", tags=["Schedules"])
 
 @router.get(
-    path='/schedule/{doctor_id}',
-    tags=['Schedule'],
+    path='/{doctor_id}',
     status_code=status.HTTP_200_OK,
     response_model=ScheduleResponseSchema
 )
@@ -29,12 +23,11 @@ async def get_schedule(
     return schedule
 
 @router.post(
-    path='/schedule',
-    tags=['Schedule'],
+    path='/',
     status_code=status.HTTP_201_CREATED,
     response_model=ScheduleResponseSchema
 )
-async def create_schedule(
+async def create(
     schedule: ScheduleCreateSchema,
     schedule_service: ScheduleService = Depends(get_schedule_service)
 ):
@@ -42,14 +35,14 @@ async def create_schedule(
     return schedule
 
 @router.put(
-    path='/schedule/{doctor_id}/{weekday}',
-    tags=['Schedule'],
+    path='/{doctor_id}/{weekday}',
     status_code=status.HTTP_202_ACCEPTED,
     response_model=ScheduleResponseSchema
 )
-async def update_schedule(
-        schedule: ScheduleUpdateSchema,
+async def update(
+        data: ScheduleUpdateSchema,
+        doctor_id: int,
         schedule_service: ScheduleService = Depends(get_schedule_service)
 ):
-    schedule = await schedule_service.update_schedule(schedule)
+    schedule = await schedule_service.update_schedule(doctor_id=doctor_id, data=data)
     return schedule

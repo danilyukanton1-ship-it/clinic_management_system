@@ -35,7 +35,6 @@ class ScheduleResponseSchema(BaseModel):
     )
 
 class ScheduleUpdateSchema(BaseModel):
-    doctor_id: int
 
     weekday: Weekday
 

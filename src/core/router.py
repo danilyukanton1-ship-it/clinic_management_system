@@ -18,6 +18,8 @@ from app.medical_records.routers.v1.diagnosis import router as diagnosis_router
 from app.medical_records.routers.v1.full_prescription import router as full_prescription_router
 from app.medical_records.routers.v1.prescription import router as prescription_router
 from app.medical_records.routers.v1.prescription_item import router as prescription_item_router
+from app.scheduling.routers.v1.schedule_absence import router as schedule_absence_router
+
 router = APIRouter()
 
 @router.get(
@@ -38,6 +40,7 @@ async def db_health(session: AsyncSession = Depends(get_session)):
 router.include_router(appointment_router)
 router.include_router(schedule_slot_router)
 router.include_router(schedule_router)
+router.include_router(schedule_absence_router)
 router.include_router(doctors_router)
 router.include_router(patient_router)
 router.include_router(specialization_router)

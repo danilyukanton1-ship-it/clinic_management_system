@@ -18,11 +18,19 @@ class ScheduleRepository:
             slot_duration_minutes=schedule.slot_duration_minutes,
         )
         self.session.add(schedule)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(schedule)
         return schedule
 
-    async def get_schedule_by_doctor_id(self, doctor_id: int, weekday: Weekday) -> Schedule:
+    async def get_schedule_by_id(self, schedule_id: int) -> Schedule | None:
+        stmt = (
+            select(Schedule)
+            .where(Schedule.id == schedule_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_schedule_by_doctor_id(self, doctor_id: int, weekday: Weekday) -> Schedule | None:
         stmt = (
             select(Schedule)
             .where(Schedule.doctor_id == doctor_id, Schedule.weekday == weekday)
@@ -30,17 +38,11 @@ class ScheduleRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def update_schedule_by_doctor_id(self, schedule: ScheduleUpdateSchema) -> Schedule:
-        stmt = (
-            select(Schedule)
-            .where(Schedule.doctor_id == schedule.doctor_id, Schedule.weekday == schedule.weekday)
-        )
-        result = await self.session.execute(stmt)
-        db_schedule = result.scalar_one_or_none()
-        db_schedule.start_time = schedule.start_time
-        db_schedule.end_time = schedule.end_time
-        db_schedule.slot_duration_minutes = schedule.slot_duration_minutes
-        await self.session.commit()
+    async def update_schedule(self, db_schedule: Schedule, data: ScheduleUpdateSchema) -> Schedule:
+        db_schedule.start_time = data.start_time
+        db_schedule.end_time = data.end_time
+        db_schedule.slot_duration_minutes = data.slot_duration_minutes
+        await self.session.flush()
         await self.session.refresh(db_schedule)
         return db_schedule
 
@@ -49,8 +51,5 @@ class ScheduleRepository:
             select(Schedule).where(Schedule.doctor_id == doctor_id, Schedule.weekday == weekday)
         )
         result = await self.session.execute(stmt)
-        schedule = list(result.scalars().all())
-        if len(schedule) > 0:
-            return True
-        return False
+        return result.scalar_one_or_none() is not None
 

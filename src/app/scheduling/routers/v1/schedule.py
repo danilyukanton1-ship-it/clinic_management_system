@@ -25,8 +25,6 @@ async def get_schedule(
         weekday: Weekday,
         schedule_service: ScheduleService = Depends(get_schedule_service)
 ) -> ScheduleResponseSchema:
-    if not await schedule_service.if_exists(doctor_id=doctor_id, weekday=weekday):
-        raise ScheduleNotFoundException()
     schedule = await schedule_service.get_schedule_by_doctor_id(doctor_id=doctor_id, weekday=weekday)
     return schedule
 
@@ -40,8 +38,6 @@ async def create_schedule(
     schedule: ScheduleCreateSchema,
     schedule_service: ScheduleService = Depends(get_schedule_service)
 ):
-    if await schedule_service.if_exists(doctor_id=schedule.doctor_id, weekday=schedule.weekday):
-        raise ScheduleAlreadyExistsException()
     schedule = await schedule_service.create_schedule(schedule)
     return schedule
 
@@ -55,7 +51,5 @@ async def update_schedule(
         schedule: ScheduleUpdateSchema,
         schedule_service: ScheduleService = Depends(get_schedule_service)
 ):
-    if not await schedule_service.if_exists(doctor_id=schedule.doctor_id, weekday=schedule.weekday):
-        raise ScheduleNotFoundException()
     schedule = await schedule_service.update_schedule(schedule)
     return schedule

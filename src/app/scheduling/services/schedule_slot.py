@@ -2,21 +2,22 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.scheduling.models.schedule import Schedule
-from app.scheduling.repositories.schedule_slot import ScheduleSlotRepository
 from app.scheduling.schemas.schedule_slot import ScheduleSlotCreateSchema
-from app.scheduling.exceptions.schedule_slot import SlotNotFoundException
+from app.scheduling.exceptions.schedule_slot import SlotAlreadyBookedException
 from common.constants import WEEKDAY_MAPPING
+from db.unit_of_work import UnitOfWork
+
 
 class ScheduleSlotService:
 
     def __init__(self, session: AsyncSession):
         self.session = session
 
-        self.schedule_slot_repo = ScheduleSlotRepository(session)
+        self.uow = UnitOfWork(session=self.session)
 
 
     async def get_free_slots(self):
-        slots = await self.schedule_slot_repo.get_free_slots()
+        slots = await self.uow.schedule_slots.get_free_slots()
         return list(slots)
 
     async def create_slots_for_schedule(self, schedule: Schedule):
@@ -26,7 +27,6 @@ class ScheduleSlotService:
         end_date = today + timedelta(days=30)
 
         current_date = today
-
         while current_date <= end_date:
 
             if current_date.weekday() == WEEKDAY_MAPPING[schedule.weekday]:
@@ -37,7 +37,7 @@ class ScheduleSlotService:
                 while slot_start < workday_end:
                     slot_end = slot_start + timedelta(minutes=schedule.slot_duration_minutes)
 
-                    slot = self.schedule_slot_repo.build_slot(
+                    slot = self.uow.schedule_slots.create_slot_instance(
                         schedule_slot=ScheduleSlotCreateSchema(
                             doctor_id=schedule.doctor_id,
                             schedule_id=schedule.id,
@@ -53,13 +53,14 @@ class ScheduleSlotService:
         print(f"slots count = {len(slots)}")
         if not slots:
             return []
-        await self.schedule_slot_repo.bulk_create_slots(slots)
+        await self.uow.schedule_slots.bulk_create_slots(slots)
         return slots
 
 
     async def maked_the_slot_booked(self, slot_id: int):
-        slot = await self.schedule_slot_repo.get_slot_by_id(slot_id)
-        if not slot:
-            raise SlotNotFoundException()
-        pass
-
+        async with self.uow:
+            slot = await self.uow.schedule_slots.get_slot_for_booking(slot_id)
+            if not slot:
+                raise SlotAlreadyBookedException()
+            booked_slot = await self.uow.schedule_slots.book_slot(slot=slot)
+            return booked_slot

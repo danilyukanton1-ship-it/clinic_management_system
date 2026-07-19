@@ -6,7 +6,7 @@ from app.users.dependencies import get_specialization_service
 
 from app.users.schemas.specialization import SpecializationSchema, SpecializationCreateSchema
 
-router = APIRouter(prefix="specializations",tags=["Specializations"])
+router = APIRouter(prefix="/specializations",tags=["Specializations"])
 
 @router.get(
     path="/",

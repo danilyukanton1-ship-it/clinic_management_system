@@ -17,10 +17,10 @@ dependencies = [
     "pyjwt (>=2.13.0,<3.0.0)",
     "pydantic[email] (>=2.13.4,<3.0.0)",
     "redis (>=8.0.1,<9.0.0)",
+    "sqlalchemy (>=2.0.51,<3.0.0)",
 ]
 
 [tool.poetry]
-packages = [{include = "clinic_management_system", from = "src"}]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

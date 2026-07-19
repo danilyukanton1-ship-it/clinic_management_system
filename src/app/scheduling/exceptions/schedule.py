@@ -9,3 +9,7 @@ class ScheduleNotFoundException(AppException):
 class ScheduleAlreadyExistsException(AppException):
     detail = 'Schedule already exists'
     status_code = status.HTTP_409_CONFLICT
+
+class ScheduleCanNotBeDeletedException(AppException):
+    detail = 'Schedule cannot be deleted'
+    status_code = status.HTTP_403_FORBIDDEN

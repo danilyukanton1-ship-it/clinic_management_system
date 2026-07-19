@@ -1,16 +1,31 @@
+from datetime import datetime
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.scheduling.schemas.schedule_absence import ScheduleAbsenceCreateSchema, ScheduleAbsenceResponseSchema, \
     ScheduleAbsenceUpdateSchema
 from app.scheduling.exceptions.schedule_absence import AbsenceAlreadyScheduledException, AbsenceNotFoundException
 from app.users.exceptions.user import UserNotFoundException
+from common.enums.slot_status import SlotStatus
 from db.unit_of_work import UnitOfWork
 
 
 class ScheduleAbsenceService:
 
-    def __init__(self,session):
+    def __init__(self,session: AsyncSession):
         self.session = session
 
         self.uow = UnitOfWork(self.session)
+
+    async def _make_slots_unavailable(self, doctor_id: int, start_date: datetime, end_date: datetime):
+        slots = await self.uow.schedule_slots.get_slots_overlapping_period(
+            doctor_id=doctor_id,
+            start_date=start_date,
+            end_date=end_date
+        )
+        if slots:
+            for slot in slots:
+                await self.uow.schedule_slots.change_slot_status(slot=slot, status=SlotStatus.BLOCKED)
 
     async def create(self, data: ScheduleAbsenceCreateSchema) -> ScheduleAbsenceResponseSchema:
         async with self.uow:
@@ -25,6 +40,11 @@ class ScheduleAbsenceService:
             if existing_absence:
                 raise AbsenceAlreadyScheduledException()
             absence = await self.uow.absences.create_absence(data=data)
+            await self._make_slots_unavailable(
+                doctor_id=data.doctor_id,
+                start_date=data.start_date,
+                end_date=data.end_date,
+            )
         return ScheduleAbsenceResponseSchema.model_validate(absence)
 
     async def update(self, absence_id: int, data: ScheduleAbsenceUpdateSchema) -> ScheduleAbsenceResponseSchema:
@@ -33,7 +53,20 @@ class ScheduleAbsenceService:
             if not absence:
                 raise AbsenceNotFoundException()
             updated_absence = await self.uow.absences.update_absence(absence=absence, data=data)
+            await self._make_slots_unavailable(
+                doctor_id=absence.doctor_id,
+                start_date=absence.start_date,
+                end_date=absence.end_date,
+            )
         return ScheduleAbsenceResponseSchema.model_validate(updated_absence)
+
+    async def delete(self, absence_id: int) -> None:
+        async with self.uow:
+            absence = await self.uow.absences.get_absence_by_id(absence_id)
+            if not absence:
+                raise AbsenceNotFoundException()
+            await self.uow.absences.delete_absence(absence)
+        return None
 
     async def get_future_by_doctor_id(self, doctor_id: int) -> list[ScheduleAbsenceResponseSchema]:
         async with self.uow:
@@ -43,7 +76,7 @@ class ScheduleAbsenceService:
             absences = await self.uow.absences.get_future_absences_by_doctor_id(doctor_id=doctor_id)
             if not absences:
                 raise AbsenceNotFoundException()
-        return absences
+        return [ScheduleAbsenceResponseSchema.model_validate(s) for s in absences]
 
     async def get_past_by_doctor_id(self, doctor_id: int) -> list[ScheduleAbsenceResponseSchema]:
         async with self.uow:
@@ -53,13 +86,4 @@ class ScheduleAbsenceService:
             absences = await self.uow.absences.get_past_absences_by_doctor_id(doctor_id=doctor_id)
             if not absences:
                 raise AbsenceNotFoundException()
-        return absences
-
-    async def delete(self, absence_id: int) -> None:
-        async with self.uow:
-            absence = await self.uow.absences.get_absence_by_id(absence_id=absence_id)
-            if not absence:
-                raise AbsenceNotFoundException()
-            await self.uow.absences.delete_absence(absence=absence)
-        return None
-
+            return [ScheduleAbsenceResponseSchema.model_validate(s) for s in absences]

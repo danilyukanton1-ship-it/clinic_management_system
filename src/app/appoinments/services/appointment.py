@@ -1,8 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.appoinments.models.appointment import Appointment
-from app.appoinments.repositories.appointment import AppointmentRepository
-from app.scheduling.repositories.schedule_slot import ScheduleSlotRepository
 from app.appoinments.schemas.appointment import AppointmentCreateSchema, AppointmentResponseSchema
 
 from app.scheduling.exceptions.schedule_slot import SlotNotFoundException, SlotNotAvailableException
@@ -27,7 +24,7 @@ class AppointmentService:
             if slot.status != SlotStatus.FREE:
                 raise SlotNotAvailableException()
 
-            await self.uow.schedule_slots.book_slot(slot=slot)
+            await self.uow.schedule_slots.change_slot_status(slot=slot, status=SlotStatus.BOOKED)
             appointment = await self.uow.appointments.create(appointment)
             return appointment
 
@@ -37,16 +34,16 @@ class AppointmentService:
 
     async def get_future_apps_by_user_id(self, user_id: int) -> list[AppointmentResponseSchema]:
         async with self.uow:
-            user = await self.uow.users.get_by_id(user_id)
+            user = await self.uow.users.get_user_by_id(user_id)
             if user is None:
                 raise UserNotFoundException()
             appointments = await self.uow.appointments.get_future_appointments_by_user_id(user_id=user_id)
-            return appointments
+            return [AppointmentResponseSchema.model_validate(appointment) for appointment in appointments]
 
     async def get_past_apps_by_user_id(self, user_id: int) -> list[AppointmentResponseSchema]:
         async with self.uow:
-            user = await self.uow.users.get_by_id(user_id)
+            user = await self.uow.users.get_user_by_id(user_id)
             if user is None:
                 raise UserNotFoundException()
             appointments = await self.uow.appointments.get_past_appointments_by_user_id(user_id=user_id)
-            return appointments
+            return [AppointmentResponseSchema.model_validate(appointment) for appointment in appointments]

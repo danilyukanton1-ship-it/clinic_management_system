@@ -22,7 +22,7 @@ class ScheduleRepository:
         await self.session.refresh(schedule)
         return schedule
 
-    async def get_schedule_by_id(self, schedule_id: int) -> Schedule | None:
+    async def get_by_id(self, schedule_id: int) -> Schedule | None:
         stmt = (
             select(Schedule)
             .where(Schedule.id == schedule_id)
@@ -30,13 +30,21 @@ class ScheduleRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_schedule_by_doctor_id(self, doctor_id: int, weekday: Weekday) -> Schedule | None:
+    async def get_by_doctor_id_and_weekday(self, doctor_id: int, weekday: Weekday) -> Schedule | None:
         stmt = (
             select(Schedule)
             .where(Schedule.doctor_id == doctor_id, Schedule.weekday == weekday)
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def get_all_by_doctor_id(self, doctor_id: int) -> list[Schedule] | None:
+        stmt = (
+            select(Schedule)
+            .where(Schedule.doctor_id == doctor_id)
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
     async def update_schedule(self, db_schedule: Schedule, data: ScheduleUpdateSchema) -> Schedule:
         db_schedule.start_time = data.start_time
@@ -53,3 +61,6 @@ class ScheduleRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none() is not None
 
+    async def delete_schedule(self, schedule: Schedule) -> None:
+        await self.session.delete(schedule)
+        return None

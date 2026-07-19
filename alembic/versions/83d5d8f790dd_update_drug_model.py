@@ -14,7 +14,7 @@ import sqlalchemy as sa
 # revision identifiers, used by Alembic.
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
-from common.enums.dosage_form import DosageForm
+from src.common.enums.dosage_form import DosageForm
 revision: str = '83d5d8f790dd'
 dosage_form_enum = postgresql.ENUM(
     DosageForm,

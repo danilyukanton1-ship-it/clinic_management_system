@@ -32,7 +32,7 @@ class ScheduleAbsenceRepository:
         await self.session.flush()
         return absence
 
-    async def get_absence_by_id(self, absence_id: int) -> ScheduleAbsence:
+    async def get_absence_by_id(self, absence_id: int) -> ScheduleAbsence | None:
         stmt = (
             select(ScheduleAbsence)
             .where(ScheduleAbsence.id == absence_id)
@@ -61,8 +61,8 @@ class ScheduleAbsenceRepository:
             select(ScheduleAbsence)
             .where(
                 ScheduleAbsence.doctor_id == doctor_id,
-                ScheduleAbsence.start_date < end_date,
-                ScheduleAbsence.end_date > start_date,
+                ScheduleAbsence.start_date <= end_date,
+                ScheduleAbsence.end_date >= start_date,
             )
         )
 
@@ -73,3 +73,4 @@ class ScheduleAbsenceRepository:
     async def delete_absence(self, absence: ScheduleAbsence) -> None:
         await self.session.delete(absence)
         await self.session.flush()
+        return None

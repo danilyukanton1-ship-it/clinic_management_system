@@ -16,17 +16,17 @@ class UnitOfWork:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-        self.schedule_slots = ScheduleSlotRepository(session)
-        self.appointments = AppointmentRepository(session)
-        self.schedules = ScheduleRepository(session)
-        self.users = UserRepository(session)
-        self.specializations = SpecializationRepository(session)
-        self.diseases = DiseaseRepository(session)
-        self.drugs = DrugRepository(session)
-        self.diagnoses = DiagnosisRepository(session)
-        self.prescriptions = PrescriptionRepository(session)
-        self.prescription_items = PrescriptionItemRepository(session)
-        self.absences = ScheduleAbsenceRepository(session)
+        self.schedule_slots: ScheduleSlotRepository = ScheduleSlotRepository(session)
+        self.appointments: AppointmentRepository = AppointmentRepository(session)
+        self.schedules: ScheduleRepository = ScheduleRepository(session)
+        self.users: UserRepository = UserRepository(session)
+        self.specializations: SpecializationRepository = SpecializationRepository(session)
+        self.diseases: DiseaseRepository = DiseaseRepository(session)
+        self.drugs: DrugRepository = DrugRepository(session)
+        self.diagnoses: DiagnosisRepository = DiagnosisRepository(session)
+        self.prescriptions: PrescriptionRepository = PrescriptionRepository(session)
+        self.prescription_items: PrescriptionItemRepository = PrescriptionItemRepository(session)
+        self.absences: ScheduleAbsenceRepository = ScheduleAbsenceRepository(session)
 
     async def __aenter__(self):
         return self

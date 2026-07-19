@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime, date
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.scheduling.models.schedule_slot import ScheduleSlot
-from app.scheduling.schemas.schedule_slot import ScheduleSlotCreateSchema
+from app.scheduling.schemas.schedule_slot import ScheduleSlotCreateSchema, ScheduleSlotUpdateSchema
 from common.enums.slot_status import SlotStatus
 
 class ScheduleSlotRepository:
@@ -28,14 +28,79 @@ class ScheduleSlotRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_free_slots(self) -> list[ScheduleSlot]:
+    async def get_last_booked_datetime(self, schedule_id: int, doctor_id: int) -> datetime | None:
+        stmt = (
+            select(func.max(ScheduleSlot.slot_start))
+            .where(
+                ScheduleSlot.doctor_id == doctor_id,
+                ScheduleSlot.schedule_id == schedule_id,
+                ScheduleSlot.status == SlotStatus.BOOKED,
+                ScheduleSlot.slot_start >= datetime.now()
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_slots_after_date(self, schedule_id: int, doctor_id: int, day: date) -> list[ScheduleSlot]:
         stmt = (
             select(ScheduleSlot)
-            .where(ScheduleSlot.status == SlotStatus.FREE
+            .where(
+                ScheduleSlot.doctor_id == doctor_id,
+                ScheduleSlot.schedule_id == schedule_id,
+                func.date(ScheduleSlot.slot_start) >= day,
+                ScheduleSlot.status == SlotStatus.FREE,
             )
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_slots_overlapping_period(
+            self,
+            doctor_id: int,
+            start_date: datetime,
+            end_date: datetime,
+            exclude_slot_id: int | None = None,
+    ) -> list[ScheduleSlot]:
+        stmt = (
+            select(ScheduleSlot)
+            .where(
+                ScheduleSlot.doctor_id == doctor_id,
+                ScheduleSlot.slot_start < end_date,
+                ScheduleSlot.slot_end > start_date,
+            )
+        )
+        if exclude_slot_id:
+            stmt = stmt.where(ScheduleSlot.id != exclude_slot_id)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_future_slots_by_doctor_id_status(self, doctor_id: int, status: SlotStatus) -> list[ScheduleSlot]:
+        stmt = (
+            select(ScheduleSlot)
+            .where(
+                ScheduleSlot.doctor_id == doctor_id,
+                ScheduleSlot.status == status,
+                ScheduleSlot.slot_start >= datetime.now(),
+            )
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_past_slots_by_doctor_id_status(self, doctor_id: int, status: SlotStatus) -> list[ScheduleSlot]:
+        stmt = (
+            select(ScheduleSlot)
+            .where(
+                ScheduleSlot.doctor_id == doctor_id,
+                ScheduleSlot.status == status,
+                ScheduleSlot.slot_start <= datetime.now(),
+            )
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def delete_slot(self, slot: ScheduleSlot) -> None:
+        await self.session.delete(slot)
+        return None
 
     async def create_slot(self, schedule_slot: ScheduleSlotCreateSchema) -> ScheduleSlot:
         slot = ScheduleSlot(
@@ -64,8 +129,16 @@ class ScheduleSlotRepository:
         await self.session.flush()
         return slots
 
-    async def book_slot(self, slot: ScheduleSlot) -> ScheduleSlot:
-        slot.status = SlotStatus.BOOKED
+    async def change_slot_status(self, slot: ScheduleSlot, status: SlotStatus) -> ScheduleSlot:
+        slot.status = status
+        slot.updated_at = datetime.now()
+        await self.session.flush()
+        return slot
+
+    async def update_slot(self, slot: ScheduleSlot, data: ScheduleSlotUpdateSchema) -> ScheduleSlot:
+        slot.slot_start = data.slot_start
+        slot.slot_end = data.slot_end
+        slot.status = data.status
         slot.updated_at = datetime.now()
         await self.session.flush()
         return slot

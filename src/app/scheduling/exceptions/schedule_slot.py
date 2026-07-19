@@ -13,3 +13,11 @@ class SlotNotAvailableException(AppException):
 class SlotAlreadyBookedException(AppException):
     detail = 'Slot already booked'
     status_code = status.HTTP_403_FORBIDDEN
+
+class SlotStatusCanNotBeChangedException(AppException):
+    detail = 'Slot status can\'t be changed'
+    status_code = status.HTTP_403_FORBIDDEN
+
+class SlotCanNotBeChangedException(AppException):
+    detail = 'Slot can not be changed'
+    status_code = status.HTTP_403_FORBIDDEN

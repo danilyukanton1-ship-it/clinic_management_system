@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.appoinments.repositories.attachment import AttachmentRepository
 from app.scheduling.repositories.schedule_slot import ScheduleSlotRepository
 from app.appoinments.repositories.appointment import AppointmentRepository
 from app.scheduling.repositories.schedule import ScheduleRepository
@@ -27,6 +28,7 @@ class UnitOfWork:
         self.prescriptions: PrescriptionRepository = PrescriptionRepository(session)
         self.prescription_items: PrescriptionItemRepository = PrescriptionItemRepository(session)
         self.absences: ScheduleAbsenceRepository = ScheduleAbsenceRepository(session)
+        self.attachments: AttachmentRepository = AttachmentRepository(session)
 
     async def __aenter__(self):
         return self

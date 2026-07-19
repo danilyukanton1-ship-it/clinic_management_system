@@ -12,6 +12,11 @@ class Attachment(BaseModel):
         nullable=False,
     )
 
+    appointment_id: Mapped[int] = mapped_column(
+        ForeignKey('appointments.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
     uploaded_by_id: Mapped[int] = mapped_column(
         ForeignKey('users.id', ondelete='RESTRICT'),
         nullable=False,

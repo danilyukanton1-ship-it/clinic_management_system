@@ -21,3 +21,7 @@ class UserNotFoundException(AppException):
 class UserInactiveException(AppException):
     detail = "User is inactive"
     status_code = status.HTTP_400_BAD_REQUEST
+
+class UserAlreadyInactiveException(AppException):
+    detail = "User is already inactive"
+    status_code = status.HTTP_400_BAD_REQUEST

@@ -19,7 +19,7 @@ class UserCreateSchema(BaseModel):
     middle_name: str | None = None
     phone: str | None = None
     email: str
-    password_hash: str
+    password: str
     role: UserRole
 
 class PatientCreateSchema(UserCreateSchema):
@@ -44,7 +44,6 @@ class UserUpdateSchema(BaseModel):
     middle_name: str | None = None
     phone: str | None = None
     email: str
-    is_active: bool
 
 
 class PatientUpdateSchema(UserUpdateSchema):

@@ -4,8 +4,15 @@ from app.users.services.specialization import SpecializationService
 
 from app.users.dependencies import get_specialization_service
 
-from app.users.schemas.specialization import SpecializationResponseSchema, SpecializationCreateSchema, \
-    SpecializationUpdateSchema
+from app.users.schemas.specialization import (
+    SpecializationResponseSchema,
+    SpecializationCreateSchema,
+    SpecializationUpdateSchema,
+)
+from app.auth.dependencies import get_current_user
+from app.users.models.user import User
+from common.enums.user_role import UserRole
+from common.permissions.checks import check_role
 
 router = APIRouter(prefix="/specializations",tags=["Specializations"])
 
@@ -50,7 +57,12 @@ async def get_by_name(
 async def create(
     specialization: SpecializationCreateSchema,
     specialization_service: SpecializationService = Depends(get_specialization_service),
+    current_user: User = Depends(get_current_user),
 ) -> SpecializationResponseSchema:
+    check_role(
+        current_user,
+        UserRole.ADMIN,
+    )
     return await specialization_service.create(data=specialization)
 
 @router.delete(
@@ -60,7 +72,12 @@ async def create(
 async def delete(
     specialization_id: int,
     specialization_service: SpecializationService = Depends(get_specialization_service),
+    current_user: User = Depends(get_current_user),
 ) -> None:
+    check_role(
+        current_user,
+        UserRole.ADMIN,
+    )
     return await specialization_service.delete(specialization_id=specialization_id)
 
 @router.put(
@@ -72,7 +89,12 @@ async def update(
     specialization_id: int,
     data: SpecializationUpdateSchema,
     specialization_service: SpecializationService = Depends(get_specialization_service),
+    current_user: User = Depends(get_current_user),
 ) -> SpecializationResponseSchema:
+    check_role(
+        current_user,
+        UserRole.ADMIN,
+    )
     return await specialization_service.update(
         specialization_id=specialization_id,
         data=data,

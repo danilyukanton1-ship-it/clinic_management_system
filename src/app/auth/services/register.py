@@ -26,16 +26,20 @@ class RegisterService:
             if existing_phone is not None:
                 raise PhoneAlreadyExistsException()
 
+            password_hash = get_password_hash(data.password)
+
             patient = PatientCreateSchema(
                 first_name=data.first_name,
                 last_name=data.last_name,
                 middle_name=data.middle_name,
                 email=data.email,
                 phone=data.phone,
-                password_hash=get_password_hash(data.password),
+                password=data.password,
                 role=UserRole.PATIENT,
             )
 
-            created_user = await self.uow.users.create_patient(patient)
-
+            created_user = await self.uow.users.create_patient(
+                patient=patient,
+                password_hash=password_hash,
+            )
         return created_user

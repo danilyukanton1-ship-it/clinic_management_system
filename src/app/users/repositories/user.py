@@ -13,7 +13,7 @@ class UserRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_patient(self, patient: PatientCreateSchema) -> User:
+    async def create_patient(self, patient: PatientCreateSchema, password_hash: str) -> User:
         patient = User(
             first_name=patient.first_name,
             last_name=patient.last_name,
@@ -21,23 +21,23 @@ class UserRepository:
             email=patient.email,
             phone=patient.phone,
             role=patient.role,
-            password_hash=patient.password_hash
+            password_hash=password_hash
         )
         self.session.add(patient)
         await self.session.flush()
         await self.session.refresh(patient)
         return patient
 
-    async def create_doctor(self, doctor: DoctorCreateSchema) -> User:
+    async def create_doctor(self, data: DoctorCreateSchema, password_hash: str, specialization_id: int) -> User:
         doctor = User(
-            first_name=doctor.first_name,
-            last_name=doctor.last_name,
-            middle_name=doctor.middle_name,
-            email=doctor.email,
-            phone=doctor.phone,
-            role=doctor.role,
-            password_hash=doctor.password_hash,
-            specialization_id=doctor.specialization_id
+            first_name=data.first_name,
+            last_name=data.last_name,
+            middle_name=data.middle_name,
+            email=data.email,
+            phone=data.phone,
+            role=data.role,
+            password_hash=password_hash,
+            specialization_id=specialization_id
         )
         self.session.add(doctor)
         await self.session.flush()
@@ -51,7 +51,6 @@ class UserRepository:
         doctor.email = data.email
         doctor.phone = data.phone
         doctor.specialization_id = data.specialization_id
-        doctor.is_active = data.is_active
         await self.session.flush()
         await self.session.refresh(doctor)
         return doctor
@@ -62,7 +61,6 @@ class UserRepository:
         patient.email = data.email
         patient.phone = data.phone
         patient.middle_name = data.middle_name
-        patient.is_active = data.is_active
         await self.session.flush()
         await self.session.refresh(patient)
         return patient
@@ -107,7 +105,7 @@ class UserRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_all_doctors(self) -> list[User] | list[None]:
+    async def get_all_doctors(self) -> list[User]:
         stmt = (
             select(User)
             .where(User.role == UserRole.DOCTOR)
@@ -115,7 +113,7 @@ class UserRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_all_patient(self) -> list[User] | list[None]:
+    async def get_all_patients(self) -> list[User]:
         stmt = (
             select(User)
             .where(User.role == UserRole.PATIENT)
@@ -139,7 +137,7 @@ class UserRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_doctors_by_specialization_id(self, specialization_id: int) -> list[User] | None:
+    async def get_doctors_by_specialization_id(self, specialization_id: int) -> list[User]:
         stmt = (
             select(User)
             .where(User.specialization_id == specialization_id, User.role == UserRole.DOCTOR)
@@ -163,5 +161,9 @@ class UserRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-
+    async def make_user_inactive(self, user: User) -> User:
+        user.is_active = False
+        await self.session.flush()
+        await self.session.refresh(user)
+        return user
 

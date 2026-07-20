@@ -4,6 +4,10 @@ from app.users.dependencies import get_user_service
 
 from app.users.services.user import UserService
 from app.users.schemas.user import DoctorCreateSchema, DoctorResponseSchema, DoctorUpdateSchema
+from app.auth.dependencies import get_current_user
+from app.users.models.user import User
+from common.enums.user_role import UserRole
+from common.permissions.checks import check_role
 
 router = APIRouter(
     prefix="/doctors",
@@ -27,11 +31,15 @@ async def get_doctors(
     response_model=DoctorResponseSchema,
 )
 async def create_doctor(
-    doctor: DoctorCreateSchema,
+    data: DoctorCreateSchema,
     user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
 ) -> DoctorResponseSchema:
-    doctor = await user_service.create_doctor(doctor)
-    return doctor
+    check_role(
+        current_user,
+        UserRole.ADMIN
+    )
+    return await user_service.create_doctor(data=data)
 
 @router.get(
     path='/id/{doctor_id}',
@@ -53,8 +61,12 @@ async def get_doctor_by_id(
 async def get_doctor_by_email(
     doctor_email: str,
     user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
 ) -> DoctorResponseSchema:
-    doctor = await user_service.get_doctor_by_email(email=doctor_email)
+    doctor = await user_service.get_doctor_by_email(
+        email=doctor_email,
+        current_user=current_user,
+    )
     return doctor
 
 
@@ -78,5 +90,26 @@ async def update(
     doctor_id: int,
     data: DoctorUpdateSchema,
     user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
 ):
-    return await user_service.update_doctor(doctor_id=doctor_id, data=data)
+    return await user_service.update_doctor(
+        doctor_id=doctor_id,
+        data=data,
+        current_user=current_user,
+    )
+
+@router.patch(
+    path="/{doctor_id}/deactivate",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=DoctorResponseSchema,
+)
+async def deactivate(
+    doctor_id: int,
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
+):
+    check_role(
+        current_user,
+        UserRole.ADMIN
+    )
+    return await user_service.deactivate_doctor(doctor_id=doctor_id)

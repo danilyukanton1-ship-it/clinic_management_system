@@ -26,7 +26,7 @@ class PrescriptionRepository:
             .where(Prescription.appointment_id == appointment_id)
         )
         result = await self.session.execute(stmt)
-        await result.scalar_one_or_none()
+        return result.scalar_one_or_none()
 
     async def get_prescription_by_id(self, prescription_id: int) -> Prescription | None:
         stmt = (
@@ -34,7 +34,7 @@ class PrescriptionRepository:
             .where(Prescription.id == prescription_id)
         )
         result = await self.session.execute(stmt)
-        await result.scalar_one_or_none()
+        return result.scalar_one_or_none()
 
     async def delete_prescription(self, prescription: Prescription) -> None:
         await self.session.delete(prescription)

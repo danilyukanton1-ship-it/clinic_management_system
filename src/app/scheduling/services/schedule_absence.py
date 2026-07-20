@@ -2,6 +2,8 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.users.models.user import User
+from app.scheduling.policy.schedule_absence import ScheduleAbsencePolicy
 from app.scheduling.schemas.schedule_absence import ScheduleAbsenceCreateSchema, ScheduleAbsenceResponseSchema, \
     ScheduleAbsenceUpdateSchema
 from app.scheduling.exceptions.schedule_absence import AbsenceAlreadyScheduledException, AbsenceNotFoundException
@@ -14,7 +16,7 @@ class ScheduleAbsenceService:
 
     def __init__(self,session: AsyncSession):
         self.session = session
-
+        self.policy = ScheduleAbsencePolicy()
         self.uow = UnitOfWork(self.session)
 
     async def _make_slots_unavailable(self, doctor_id: int, start_date: datetime, end_date: datetime):
@@ -68,7 +70,7 @@ class ScheduleAbsenceService:
             await self.uow.absences.delete_absence(absence)
         return None
 
-    async def get_future_by_doctor_id(self, doctor_id: int) -> list[ScheduleAbsenceResponseSchema]:
+    async def get_future_by_doctor_id(self, doctor_id: int, current_user: User) -> list[ScheduleAbsenceResponseSchema]:
         async with self.uow:
             doctor = await self.uow.users.get_doctor_by_id(doctor_id=doctor_id)
             if not doctor:
@@ -76,9 +78,10 @@ class ScheduleAbsenceService:
             absences = await self.uow.absences.get_future_absences_by_doctor_id(doctor_id=doctor_id)
             if not absences:
                 raise AbsenceNotFoundException()
+            self.policy.can_view(user=current_user, schedule_absence=absences[0])
         return [ScheduleAbsenceResponseSchema.model_validate(s) for s in absences]
 
-    async def get_past_by_doctor_id(self, doctor_id: int) -> list[ScheduleAbsenceResponseSchema]:
+    async def get_past_by_doctor_id(self, doctor_id: int, current_user: User) -> list[ScheduleAbsenceResponseSchema]:
         async with self.uow:
             doctor = await self.uow.users.get_doctor_by_id(doctor_id=doctor_id)
             if not doctor:
@@ -86,4 +89,13 @@ class ScheduleAbsenceService:
             absences = await self.uow.absences.get_past_absences_by_doctor_id(doctor_id=doctor_id)
             if not absences:
                 raise AbsenceNotFoundException()
+            self.policy.can_view(user=current_user, schedule_absence=absences[0])
             return [ScheduleAbsenceResponseSchema.model_validate(s) for s in absences]
+
+    async def get_absence_by_id(self, absence_id: int, current_user: User) -> ScheduleAbsenceResponseSchema:
+        async with self.uow:
+            absence = await self.uow.absences.get_absence_by_id(absence_id=absence_id)
+            if not absence:
+                raise AbsenceNotFoundException()
+            self.policy.can_view(user=current_user, schedule_absence=absence)
+            return ScheduleAbsenceResponseSchema.model_validate(absence)

@@ -1,9 +1,16 @@
 from fastapi import APIRouter, Depends, status
 
 from app.scheduling.dependencies import get_schedule_absence_service
-from app.scheduling.schemas.schedule_absence import ScheduleAbsenceResponseSchema, ScheduleAbsenceCreateSchema, \
+from app.scheduling.schemas.schedule_absence import (
+    ScheduleAbsenceResponseSchema,
+    ScheduleAbsenceCreateSchema,
     ScheduleAbsenceUpdateSchema
+)
 from app.scheduling.services.schedule_absence import ScheduleAbsenceService
+from app.auth.dependencies import get_current_user
+from app.users.models.user import User
+from common.enums.user_role import UserRole
+from common.permissions.checks import check_role
 
 router = APIRouter(
     prefix="/absence",
@@ -18,7 +25,9 @@ router = APIRouter(
 async def create(
     data: ScheduleAbsenceCreateSchema,
     schedule_absence_service: ScheduleAbsenceService = Depends(get_schedule_absence_service),
+    current_user: User = Depends(get_current_user),
 ):
+    check_role(current_user, UserRole.ADMIN)
     return await schedule_absence_service.create(data=data)
 
 @router.put(
@@ -30,7 +39,9 @@ async def update(
     absence_id: int,
     data: ScheduleAbsenceUpdateSchema,
     schedule_absence_service: ScheduleAbsenceService = Depends(get_schedule_absence_service),
+    current_user: User = Depends(get_current_user),
 ):
+    check_role(current_user, UserRole.ADMIN)
     return await schedule_absence_service.update(absence_id=absence_id, data=data)
 
 @router.delete(
@@ -40,7 +51,9 @@ async def update(
 async def delete(
     absence_id: int,
     schedule_absence_service: ScheduleAbsenceService = Depends(get_schedule_absence_service),
+    current_user: User = Depends(get_current_user),
 ):
+    check_role(current_user, UserRole.ADMIN)
     return await schedule_absence_service.delete(absence_id=absence_id)
 
 @router.get(
@@ -51,8 +64,12 @@ async def delete(
 async def get_past(
     doctor_id: int,
     schedule_absence_service: ScheduleAbsenceService = Depends(get_schedule_absence_service),
+    current_user: User = Depends(get_current_user),
 ):
-    return await schedule_absence_service.get_past_by_doctor_id(doctor_id=doctor_id)
+    return await schedule_absence_service.get_past_by_doctor_id(
+        doctor_id=doctor_id,
+        current_user=current_user,
+    )
 
 @router.get(
     path="/future/{doctor_id}",
@@ -62,6 +79,25 @@ async def get_past(
 async def get_future(
     doctor_id: int,
     schedule_absence_service: ScheduleAbsenceService = Depends(get_schedule_absence_service),
+    current_user: User = Depends(get_current_user),
 ):
-    return await schedule_absence_service.get_future_by_doctor_id(doctor_id=doctor_id)
+    return await schedule_absence_service.get_future_by_doctor_id(
+        doctor_id=doctor_id,
+        current_user=current_user,
+    )
+
+@router.get(
+    path="/{absence_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=ScheduleAbsenceResponseSchema,
+)
+async def get_absence(
+    absence_id: int,
+    schedule_absence_service: ScheduleAbsenceService = Depends(get_schedule_absence_service),
+    current_user: User = Depends(get_current_user),
+):
+    return await schedule_absence_service.get_absence_by_id(
+        absence_id=absence_id,
+        current_user=current_user,
+    )
 

@@ -6,10 +6,13 @@ from app.medical_records.exceptions.drug import DrugNotFoundException
 from app.medical_records.models.diagnosis import Diagnosis
 from app.medical_records.models.prescription import Prescription
 from app.medical_records.models.prescription_item import PrescriptionItem
-from app.medical_records.schemas.diagnosis import DiagnosisCreateSchema
+from app.medical_records.schemas.diagnosis import DiagnosisCreateSchema, DiagnosisResponseSchema
 from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
-from app.medical_records.schemas.prescription import FullPrescriptionCreateSchema, PrescriptionCreateSchema, FullPrescriptionResponseSchema
+from app.medical_records.schemas.prescription import FullPrescriptionCreateSchema, PrescriptionCreateSchema, FullPrescriptionResponseSchema, PrescriptionSchema
 from app.medical_records.schemas.prescription import PrescriptionItemCreateSchema
+from app.medical_records.schemas.prescription_item import PrescriptionItemResponseSchema
+from app.medical_records.policy.prescription import PrescriptionPolicy
+from app.users.models.user import User
 
 from db.unit_of_work import UnitOfWork
 
@@ -17,7 +20,7 @@ class FullPrescriptionService:
 
     def __init__(self, session: AsyncSession):
         self.session = session
-
+        self.policy = PrescriptionPolicy()
         self.uow = UnitOfWork(self.session)
 
 
@@ -79,9 +82,9 @@ class FullPrescriptionService:
             prescription_id=prescription.id,
         )
         schema = FullPrescriptionResponseSchema(
-            prescription=prescription,
-            diagnoses=diagnoses,
-            prescription_items=prescription_items,
+            prescription=PrescriptionSchema.model_validate(prescription),
+            diagnoses=[DiagnosisResponseSchema.model_validate(diagnosis) for diagnosis in diagnoses],
+            prescription_items=[PrescriptionItemResponseSchema.model_validate(item) for item in prescription_items],
         )
         return schema
 
@@ -92,29 +95,49 @@ class FullPrescriptionService:
             diagnoses = await self._create_diagnoses(data=data, prescription_id=prescription.id)
             prescription_items = await self._create_prescription_items(data=data, prescription_id=prescription.id)
         schema = FullPrescriptionResponseSchema(
-            prescription=prescription,
-            diagnoses=diagnoses,
-            prescription_items=prescription_items,
+            prescription=PrescriptionSchema.model_validate(prescription),
+            diagnoses=[DiagnosisResponseSchema.model_validate(diagnosis) for diagnosis in diagnoses],
+            prescription_items=[PrescriptionItemResponseSchema.model_validate(item) for item in prescription_items],
         )
         return schema
 
-    async def get_full_prescription_by_appointment_id(self, appointment_id: int) -> FullPrescriptionResponseSchema:
+    async def get_full_prescription_by_appointment_id(self, appointment_id: int, current_user: User) -> FullPrescriptionResponseSchema:
         async with self.uow:
             prescription = await self.uow.prescriptions.get_prescription_by_appointment_id(appointment_id=appointment_id)
+            if not prescription:
+                raise PrescriptionNotFoundException()
+            appointment = await self.uow.appointments.get_appointment_by_id(appointment_id=appointment_id)
+            if not appointment:
+                raise AppointmentNotFoundException()
+            self.policy.can_view(user=current_user, appointment=appointment)
             schema = await self._get_prescription_response(prescription=prescription)
         return schema
 
-    async def get_full_prescription_by_prescription_id(self, prescription_id: int) -> FullPrescriptionResponseSchema:
-        async with self.uow:
-            prescription = await self.uow.prescriptions.get_prescription_by_id(prescription_id=prescription_id)
-            schema = await self._get_prescription_response(prescription=prescription)
-            return schema
-
-
-    async def delete_full_prescription(self, prescription_id: int) -> None:
+    async def get_full_prescription_by_prescription_id(self, prescription_id: int, current_user: User) -> FullPrescriptionResponseSchema:
         async with self.uow:
             prescription = await self.uow.prescriptions.get_prescription_by_id(prescription_id=prescription_id)
             if not prescription:
                 raise PrescriptionNotFoundException()
+            appointment = await self.uow.appointments.get_appointment_by_prescription_id(
+                prescription_id=prescription.id
+            )
+            if not appointment:
+                raise AppointmentNotFoundException()
+            self.policy.can_view(user=current_user, appointment=appointment)
+            schema = await self._get_prescription_response(prescription=prescription)
+            return schema
+
+
+    async def delete_full_prescription(self, prescription_id: int, current_user: User) -> None:
+        async with self.uow:
+            prescription = await self.uow.prescriptions.get_prescription_by_id(prescription_id=prescription_id)
+            if not prescription:
+                raise PrescriptionNotFoundException()
+            appointment = await self.uow.appointments.get_appointment_by_prescription_id(
+                prescription_id=prescription.id
+            )
+            if not appointment:
+                raise AppointmentNotFoundException()
+            self.policy.can_delete(user=current_user, appointment=appointment)
             await self.uow.prescriptions.delete_prescription(prescription=prescription)
         return None

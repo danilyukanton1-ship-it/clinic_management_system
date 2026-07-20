@@ -12,7 +12,7 @@ class ScheduleAbsenceSchema(BaseModel):
     end_date: datetime
 
     reason: AbsenceReason
-    description: str | None
+    description: str
 
 class ScheduleAbsenceResponseSchema(ScheduleAbsenceSchema):
     id: int

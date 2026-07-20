@@ -7,6 +7,10 @@ from app.scheduling.dependencies import get_schedule_slot_service
 from app.scheduling.services.schedule_slot import ScheduleSlotService
 from app.scheduling.schemas.schedule_slot import ScheduleSlotResponseSchema, ScheduleSlotUpdateSchema
 from common.enums.slot_status import SlotStatus
+from app.auth.dependencies import get_current_user
+from app.users.models.user import User
+from common.enums.user_role import UserRole
+from common.permissions.checks import check_role
 
 router = APIRouter(prefix="/schedule_slots", tags=["Schedule slots"])
 
@@ -52,7 +56,9 @@ async def create_schedule_slots(
     start_date: date,
     end_date: date,
     schedule_slot_service: ScheduleSlotService = Depends(get_schedule_slot_service),
+    current_user: User = Depends(get_current_user),
 ):
+    check_role(current_user, UserRole.ADMIN)
     slots = await schedule_slot_service.create_slots(
         doctor_id=doctor_id,
         start_date=start_date,
@@ -69,7 +75,9 @@ async def update_slot(
     slot_id: int,
     data: ScheduleSlotUpdateSchema,
     slot_schedule_service: ScheduleSlotService = Depends(get_schedule_slot_service),
+    current_user: User = Depends(get_current_user),
 ):
+    check_role(current_user, UserRole.ADMIN)
     slot = await slot_schedule_service.update(slot_id=slot_id, data=data)
     return slot
 
@@ -82,7 +90,13 @@ async def change_slot_status(
     slot_id: int,
     slot_status: SlotStatus,
     slot_schedule_service: ScheduleSlotService = Depends(get_schedule_slot_service),
+    current_user: User = Depends(get_current_user),
 ):
+    check_role(
+        current_user,
+        UserRole.ADMIN,
+        UserRole.PATIENT
+    )
     slot = await slot_schedule_service.change_slot_status(
         slot_id=slot_id,
         status=slot_status,

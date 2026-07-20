@@ -22,7 +22,7 @@ str_512 = Annotated[str, mapped_column(String(512))]
 not_nullable_int = Annotated[int, mapped_column(Integer, nullable=False)]
 
 text_column = Annotated[str, mapped_column(Text)]
-nullable_text_column = Annotated[str, mapped_column(Text, nullable=True)]
+nullable_text_column = Annotated[str | None, mapped_column(Text, nullable=True)]
 
 bool_column = Annotated[bool, mapped_column(default=False)]
 
@@ -30,5 +30,5 @@ date_column = Annotated[date, mapped_column(Date)]
 datetime_column = Annotated[datetime, mapped_column(DateTime(timezone=True))]
 
 email_column = Annotated[str, mapped_column(String(256), unique=True)]
-phone_column = Annotated[str, mapped_column(String(20), index=True, nullable=True)]
+phone_column = Annotated[str | None, mapped_column(String(20), index=True, nullable=True)]
 filename_column = Annotated[str, mapped_column(String(256))]

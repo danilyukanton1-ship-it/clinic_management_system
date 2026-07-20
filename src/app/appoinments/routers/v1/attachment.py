@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, status
 
 from app.appoinments.dependencies import get_attachment_service
-
+from common.permissions.checks import check_role
+from common.enums.user_role import UserRole
 
 from app.appoinments.schemas.attachment import AttachmentUpdateSchema, AttachmentCreateSchema, AttachmentResponseSchema
 from app.appoinments.services.attachment import AttachmentService
@@ -23,9 +24,14 @@ async def create(
     current_user: User = Depends(get_current_user),
     attachment_service: AttachmentService = Depends(get_attachment_service)
 ):
+    check_role(
+        current_user,
+        UserRole.DOCTOR,
+        UserRole.ADMIN,
+    )
     attachment = await attachment_service.create(
         data=data,
-        uploaded_by_id=current_user.id
+        current_user=current_user
     )
     return attachment
 
@@ -37,11 +43,18 @@ async def create(
 async def update(
     attachment_id: int,
     data: AttachmentUpdateSchema,
+    current_user: User = Depends(get_current_user),
     attachment_service: AttachmentService = Depends(get_attachment_service)
 ):
+    check_role(
+        current_user,
+        UserRole.DOCTOR,
+        UserRole.ADMIN,
+    )
     attachment = await attachment_service.update(
         data=data,
-        attachment_id=attachment_id
+        attachment_id=attachment_id,
+        current_user=current_user
     )
     return attachment
 
@@ -52,8 +65,14 @@ async def update(
 )
 async def get_by_id(
     attachment_id: int,
+    current_user: User = Depends(get_current_user),
     attachment_service: AttachmentService = Depends(get_attachment_service)
 ):
+    check_role(
+        current_user,
+        UserRole.DOCTOR,
+        UserRole.ADMIN,
+    )
     return await attachment_service.get_by_id(attachment_id)
 
 @router.get(
@@ -63,8 +82,14 @@ async def get_by_id(
 )
 async def get_by_appointment_id(
     appointment_id: int,
+    current_user: User = Depends(get_current_user),
     attachment_service: AttachmentService = Depends(get_attachment_service)
 ):
+    check_role(
+        current_user,
+        UserRole.DOCTOR,
+        UserRole.ADMIN,
+    )
     return await attachment_service.get_by_appointment_id(appointment_id)
 
 @router.get(
@@ -74,6 +99,28 @@ async def get_by_appointment_id(
 )
 async def get_by_patient_id(
     patient_id: int,
+    current_user: User = Depends(get_current_user),
     attachment_service: AttachmentService = Depends(get_attachment_service)
 ):
+    check_role(
+        current_user,
+        UserRole.DOCTOR,
+        UserRole.ADMIN,
+    )
     return await attachment_service.get_by_patient_id(patient_id)
+
+@router.delete(
+    path="/{attachment_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete(
+    attachment_id: int,
+    current_user: User = Depends(get_current_user),
+    attachment_service: AttachmentService = Depends(get_attachment_service)
+):
+    check_role(
+        current_user,
+        UserRole.DOCTOR,
+        UserRole.ADMIN,
+    )
+    return await attachment_service.delete(attachment_id=attachment_id, current_user=current_user)

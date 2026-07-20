@@ -2,10 +2,12 @@ from datetime import datetime
 
 from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.appoinments.models.appointment import Appointment
 from app.appoinments.schemas.appointment import AppointmentCreateSchema
 from app.scheduling.models.schedule_slot import ScheduleSlot
+from app.medical_records.models.diagnosis import Diagnosis
+from app.medical_records.models.prescription import Prescription
+from app.medical_records.models.prescription_item import PrescriptionItem
 
 class AppointmentRepository:
 
@@ -23,14 +25,7 @@ class AppointmentRepository:
         await self.session.flush()
         return appointment
 
-    async def get_appointments(self) -> list[Appointment]:
-        stmt = (
-            select(Appointment).order_by(Appointment.created_at)
-        )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def get_appointment_by_id(self, appointment_id: int) -> Appointment:
+    async def get_appointment_by_id(self, appointment_id: int) -> Appointment | None:
         stmt = (
             select(Appointment)
             .where(Appointment.id == appointment_id)
@@ -67,3 +62,64 @@ class AppointmentRepository:
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_appointment_by_diagnosis_id(
+            self,
+            diagnosis_id: int,
+    ) -> Appointment | None:
+        stmt = (
+            select(Appointment)
+            .join(
+                Prescription,
+                Prescription.appointment_id == Appointment.id,
+            )
+            .join(
+                Diagnosis,
+                Diagnosis.prescription_id == Prescription.id,
+            )
+            .where(Diagnosis.id == diagnosis_id)
+        )
+
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_appointment_by_prescription_id(
+        self,
+        prescription_id: int,
+    ) -> Appointment | None:
+        stmt = (
+            select(Appointment)
+            .join(
+                Prescription,
+                Prescription.appointment_id == Appointment.id,
+            )
+            .where(Prescription.id == prescription_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_appointment_by_prescription_item_id(
+        self,
+        prescription_item_id: int,
+    ) -> Appointment | None:
+        stmt = (
+            select(Appointment)
+            .join(
+                Prescription,
+                Prescription.appointment_id == Appointment.id,
+            )
+            .join(
+                PrescriptionItem,
+                PrescriptionItem.prescription_id == Prescription.id,
+            )
+            .where(PrescriptionItem.id == prescription_item_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+
+    async def delete_appointment(self, appointment: Appointment) -> None:
+        await self.session.delete(appointment)
+        await self.session.flush()
+        return None
+

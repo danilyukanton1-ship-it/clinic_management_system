@@ -4,6 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from db import orm as orm_fields
 from db.base import BaseModel
 
+
 class Prescription(BaseModel):
     __tablename__ = 'prescriptions'
 

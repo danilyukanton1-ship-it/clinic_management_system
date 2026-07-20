@@ -1,10 +1,18 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import timedelta, date
-from app.scheduling.exceptions.schedule import ScheduleNotFoundException, ScheduleAlreadyExistsException, \
+from app.scheduling.exceptions.schedule import (
+    ScheduleNotFoundException,
+    ScheduleAlreadyExistsException,
     ScheduleCanNotBeDeletedException
-from app.scheduling.schemas.schedule import ScheduleCreateSchema, ScheduleUpdateSchema, ScheduleResponseSchema
-from app.users.exceptions.user import UserNotFoundException
+)
 
+from app.scheduling.schemas.schedule import (
+    ScheduleCreateSchema,
+    ScheduleUpdateSchema,
+    ScheduleResponseSchema
+)
+from app.users.exceptions.user import UserNotFoundException
+from common.enums.slot_status import SlotStatus
 from common.enums.weekday import Weekday
 from db.unit_of_work import UnitOfWork
 
@@ -32,7 +40,7 @@ class ScheduleService:
         schedules = await self.uow.schedules.get_all_by_doctor_id(doctor_id)
         if not schedules:
             raise ScheduleNotFoundException()
-        return schedules
+        return [ScheduleResponseSchema.model_validate(schedule) for schedule in schedules]
 
     async def create(self, data: ScheduleCreateSchema) -> ScheduleResponseSchema:
         async with self.uow:
@@ -45,7 +53,7 @@ class ScheduleService:
 
     async def update(self, doctor_id: int, data: ScheduleUpdateSchema) -> ScheduleResponseSchema:
         async with self.uow:
-            db_schedule = await self.uow.schedules.get_schedule_by_doctor_id(doctor_id=doctor_id, weekday=data.weekday)
+            db_schedule = await self.uow.schedules.get_by_doctor_id_and_weekday(doctor_id=doctor_id, weekday=data.weekday)
             if not db_schedule:
                 raise ScheduleNotFoundException()
             last_booked = await self.uow.schedule_slots.get_last_booked_datetime(
@@ -72,7 +80,10 @@ class ScheduleService:
             schedule = await self.uow.schedules.get_by_id(schedule_id=schedule_id)
             if not schedule:
                 raise ScheduleNotFoundException()
-            booked_slots = await self.uow.schedule_slots.get_booked_slots(schedule_id=schedule_id)
+            booked_slots = await self.uow.schedule_slots.get_future_slots_by_doctor_id_status(
+                doctor_id=schedule.doctor_id,
+                status=SlotStatus.BOOKED
+            )
             if not booked_slots:
                 slots_to_delete = await self.uow.schedule_slots.get_slots_after_date(
                     doctor_id=schedule.doctor_id,

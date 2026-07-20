@@ -1,18 +1,17 @@
 from pydantic import BaseModel, ConfigDict
 
-
 class SpecializationSchema(BaseModel):
-    id: int
-
-    name: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-class SpecializationCreateSchema(BaseModel):
     name: str
 
     description: str
 
-class SpecializationShortSchema(BaseModel):
-    name: str
+class SpecializationResponseSchema(SpecializationSchema):
+    id: int
+
     model_config = ConfigDict(from_attributes=True)
+
+class SpecializationCreateSchema(SpecializationSchema):
+    pass
+
+class SpecializationUpdateSchema(SpecializationSchema):
+    pass

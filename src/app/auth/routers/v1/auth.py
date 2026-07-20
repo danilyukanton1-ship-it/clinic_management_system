@@ -42,7 +42,7 @@ async def login(
 async def me(
     current_user: User = Depends(get_current_user),
 ) -> UserResponseSchema:
-    return current_user
+    return UserResponseSchema.model_validate(current_user)
 
 
 @router.post(

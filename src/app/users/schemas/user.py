@@ -1,33 +1,17 @@
 from pydantic import BaseModel, ConfigDict
 
-from app.users.schemas.specialization import SpecializationShortSchema
-
 from common.enums.user_role import UserRole
 
-class UserShortSchema(BaseModel):
+class UserResponseSchema(BaseModel):
     id: int
     first_name: str
     last_name: str
     middle_name: str | None = None
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class UserResponseSchema(UserShortSchema):
     email: str
     phone: str | None = None
     role: UserRole
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class DoctorShortSchema(UserShortSchema):
-    specialization: SpecializationShortSchema | None
-
-
-class PatientShortSchema(UserShortSchema):
-    pass
-
 
 class UserCreateSchema(BaseModel):
     first_name: str
@@ -46,10 +30,26 @@ class DoctorCreateSchema(UserCreateSchema):
     phone: str
 
 
-class PatientResponseSchema(PatientCreateSchema):
-    id: int
+class PatientResponseSchema(UserResponseSchema):
+
     model_config = ConfigDict(from_attributes=True)
 
-class DoctorResponseSchema(DoctorCreateSchema):
-    id: int
+class DoctorResponseSchema(UserResponseSchema):
+    specialization_id: int
     model_config = ConfigDict(from_attributes=True)
+
+class UserUpdateSchema(BaseModel):
+    first_name: str
+    last_name: str
+    middle_name: str | None = None
+    phone: str | None = None
+    email: str
+    is_active: bool
+
+
+class PatientUpdateSchema(UserUpdateSchema):
+    pass
+
+
+class DoctorUpdateSchema(UserUpdateSchema):
+    specialization_id: int

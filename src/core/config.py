@@ -38,6 +38,10 @@ class Redis(BaseSettings):
     HOST: str
     PORT: int
 
+class Celery(BaseSettings):
+    BROKER_URL: str
+    RESULT_BACKEND: str | None = None
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",
@@ -48,5 +52,6 @@ class Settings(BaseSettings):
     db: DBSettings
     jwt: JWT
     redis: Redis
+    celery: Celery
 
 settings = Settings()

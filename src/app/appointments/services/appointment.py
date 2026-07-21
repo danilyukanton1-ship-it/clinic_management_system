@@ -1,11 +1,13 @@
+from datetime import datetime, timedelta
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.appoinments.exceptions.appointment import AppointmentNotFoundException
-from app.appoinments.schemas.appointment import AppointmentCreateSchema, AppointmentResponseSchema
+from app.appointments.exceptions.appointment import AppointmentNotFoundException
+from app.appointments.schemas.appointment import AppointmentCreateSchema, AppointmentResponseSchema
 from app.users.models.user import User
 from app.scheduling.exceptions.schedule_slot import SlotNotFoundException, SlotNotAvailableException
 from app.users.exceptions.user import UserNotFoundException
-from app.appoinments.policy.appointment import AppointmentPolicy
+from app.appointments.policy.appointment import AppointmentPolicy
 from common.enums.slot_status import SlotStatus
 from db.unit_of_work import UnitOfWork
 
@@ -63,3 +65,13 @@ class AppointmentService:
                 raise AppointmentNotFoundException()
             await self.uow.appointments.delete_appointment(appointment=appointment)
         return None
+
+    async def get_upcoming_for_reminder(self):
+        start = datetime.now() + timedelta(hours=24)
+        end = start + timedelta(minutes=5)
+
+        appointments = await self.uow.appointments.get_upcoming_appointments_for_reminder(
+            start=start,
+            end=end,
+        )
+        return appointments

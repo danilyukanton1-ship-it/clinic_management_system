@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.appoinments.models.appointment import Appointment
-from app.appoinments.schemas.appointment import AppointmentCreateSchema
+from app.appointments.models.appointment import Appointment
+from app.appointments.schemas.appointment import AppointmentCreateSchema
 from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.medical_records.models.diagnosis import Diagnosis
 from app.medical_records.models.prescription import Prescription
@@ -32,6 +32,18 @@ class AppointmentRepository:
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def get_upcoming_appointments_for_reminder(self, start: datetime, end: datetime) -> list[Appointment]:
+        stmt = (
+            select(Appointment)
+            .join(Appointment.slot)
+            .where(
+                ScheduleSlot.slot_start >= start,
+                ScheduleSlot.slot_start <= end
+            )
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
     async def get_future_appointments_by_user_id(self, user_id: int) -> list[Appointment]:
         stmt = (

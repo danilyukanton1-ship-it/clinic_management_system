@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.users.models.user import User
-from app.appoinments.exceptions.appointment import AppointmentNotFoundException
+from app.appointments.exceptions.appointment import AppointmentNotFoundException
 from app.medical_records.exceptions.drug import DrugNotFoundException
 from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
 from app.medical_records.exceptions.prescription_items import PrescriptionItemNotFoundException

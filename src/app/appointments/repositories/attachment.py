@@ -3,8 +3,8 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.appoinments.models.attachment import Attachment
-from app.appoinments.schemas.attachment import AttachmentCreateSchema, AttachmentUpdateSchema
+from app.appointments.models.attachment import Attachment
+from app.appointments.schemas.attachment import AttachmentCreateSchema, AttachmentUpdateSchema
 
 
 class AttachmentRepository:

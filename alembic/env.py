@@ -31,8 +31,8 @@ from app.medical_records.models.drug import Drug
 from app.medical_records.models.diagnosis import Diagnosis
 from app.medical_records.models.prescription import Prescription
 from app.medical_records.models.prescription_item import PrescriptionItem
-from app.appoinments.models.appointment import Appointment
-from app.appoinments.models.attachment import Attachment
+from app.appointments.models.appointment import Appointment
+from app.appointments.models.attachment import Attachment
 target_metadata = Base.metadata
 
 print(target_metadata.tables.keys())

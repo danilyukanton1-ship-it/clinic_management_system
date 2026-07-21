@@ -7,7 +7,7 @@ from db.base import BaseModel
 
 from common.enums.slot_status import SlotStatus
 if TYPE_CHECKING:
-    from app.appoinments.models.appointment import Appointment
+    from app.appointments.models.appointment import Appointment
 
 class ScheduleSlot(BaseModel):
     __tablename__ = 'schedule_slots'

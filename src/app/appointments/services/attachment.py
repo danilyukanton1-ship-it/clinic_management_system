@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.appoinments.schemas.attachment import AttachmentCreateSchema, AttachmentUpdateSchema, AttachmentResponseSchema
-from app.appoinments.exceptions.attachment import AttachmentDoesNotExistException
+from app.appointments.schemas.attachment import AttachmentCreateSchema, AttachmentUpdateSchema, AttachmentResponseSchema
+from app.appointments.exceptions.attachment import AttachmentDoesNotExistException
 from app.users.models.user import User
-from app.appoinments.policy.attachments import AttachmentPolicy
+from app.appointments.policy.attachments import AttachmentPolicy
 
 from db.unit_of_work import UnitOfWork
 

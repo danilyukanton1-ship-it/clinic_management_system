@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.appoinments.exceptions.appointment import AppointmentNotFoundException
+from app.appointments.exceptions.appointment import AppointmentNotFoundException
 from app.medical_records.schemas.diagnosis import DiagnosisCreateSchema, DiagnosisUpdateSchema
 from app.medical_records.exceptions.diagnosis import DiagnosisNotFoundException, \
     DiagnosisCantBeEmptyInPrescriptionException

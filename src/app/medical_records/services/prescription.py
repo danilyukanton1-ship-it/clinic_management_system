@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.users.models.user import User
-from app.appoinments.exceptions.appointment import AppointmentNotFoundException
+from app.appointments.exceptions.appointment import AppointmentNotFoundException
 from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
 from app.medical_records.schemas.prescription import PrescriptionResponseSchema, PrescriptionUpdateSchema
 from db.unit_of_work import UnitOfWork

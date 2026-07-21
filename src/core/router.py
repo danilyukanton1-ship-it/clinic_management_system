@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette import status
 
 from core.dependencies import get_session
 
-from app.appoinments.routers.v1.appointment import router as appointment_router
+from app.appointments.routers.v1.appointment import router as appointment_router
 from app.scheduling.routers.v1.schedule_slot import router as schedule_slot_router
 from app.scheduling.routers.v1.schedule import router as schedule_router
 from app.users.routers.v1.doctor import router as doctors_router
@@ -19,6 +18,8 @@ from app.medical_records.routers.v1.full_prescription import router as full_pres
 from app.medical_records.routers.v1.prescription import router as prescription_router
 from app.medical_records.routers.v1.prescription_item import router as prescription_item_router
 from app.scheduling.routers.v1.schedule_absence import router as schedule_absence_router
+from app.appointments.routers.v1.attachment import router as attachment_router
+from app.users.routers.v1.admin import router as admin_router
 
 router = APIRouter()
 
@@ -51,3 +52,5 @@ router.include_router(diagnosis_router)
 router.include_router(full_prescription_router)
 router.include_router(prescription_router)
 router.include_router(prescription_item_router)
+router.include_router(attachment_router)
+router.include_router(admin_router)

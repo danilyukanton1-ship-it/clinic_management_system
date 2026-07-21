@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, status
 
-from app.appoinments.dependencies import get_attachment_service
+from app.appointments.dependencies import get_attachment_service
 from common.permissions.checks import check_role
 from common.enums.user_role import UserRole
 
-from app.appoinments.schemas.attachment import AttachmentUpdateSchema, AttachmentCreateSchema, AttachmentResponseSchema
-from app.appoinments.services.attachment import AttachmentService
+from app.appointments.schemas.attachment import AttachmentUpdateSchema, AttachmentCreateSchema, AttachmentResponseSchema
+from app.appointments.services.attachment import AttachmentService
 from app.auth.dependencies import get_current_user
 from app.users.models.user import User
 

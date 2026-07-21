@@ -30,14 +30,22 @@ services:
     container_name: clinic_management_rabbitmq
 
     ports:
-      - "5672:5672"    # AMQP
-      - "15672:15672"  # Web UI
+      - "5672:5672"
+      - "15672:15672"
 
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
 
     restart: unless-stopped
+
+  maildev:
+    image: maildev/maildev:latest
+    container_name: maildev
+    restart: unless-stopped
+    ports:
+      - "1080:1080"
+      - "1025:1025"
 
 volumes:
   postgres_data:

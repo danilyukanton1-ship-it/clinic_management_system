@@ -42,6 +42,20 @@ class Celery(BaseSettings):
     BROKER_URL: str
     RESULT_BACKEND: str | None = None
 
+class SMTP(BaseSettings):
+    HOST: str
+    PORT: int
+    USERNAME: str
+    PASSWORD: str
+    USE_TLS: bool
+    USE_SSL: bool
+    FROM: str
+
+# class Vonage(BaseSettings):
+#     ACCOUNT_SID: str
+#     AUTH_TOKEN: str
+#     PHONE_NUMBER: str
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",
@@ -53,5 +67,6 @@ class Settings(BaseSettings):
     jwt: JWT
     redis: Redis
     celery: Celery
+    smtp: SMTP
 
 settings = Settings()

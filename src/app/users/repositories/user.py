@@ -1,11 +1,15 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from pydantic import BaseModel
+from app.auth.schemas.register import RegisterSchema
 from common.enums.user_role import UserRole
 from app.users.models.user import User
 from app.users.schemas.user import (
-    PatientCreateSchema,
-    DoctorCreateSchema, DoctorUpdateSchema, PatientUpdateSchema,
+    DoctorCreateSchema,
+    DoctorUpdateSchema,
+    PatientUpdateSchema,
+    AdminCreateSchema,
+    AdminUpdateSchema,
 )
 
 class UserRepository:
@@ -13,129 +17,152 @@ class UserRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_patient(self, patient: PatientCreateSchema, password_hash: str) -> User:
-        patient = User(
-            first_name=patient.first_name,
-            last_name=patient.last_name,
-            middle_name=patient.middle_name,
-            email=patient.email,
-            phone=patient.phone,
-            role=patient.role,
-            password_hash=password_hash
+    async def _create_user(
+            self,
+            data,
+            role: UserRole,
+            password_hash: str,
+            specialization_id: int | None = None,
+    ) -> User:
+        user = User(
+            **data.model_dump(),
+            role=role,
+            password_hash=password_hash,
+            specialization_id=specialization_id,
         )
-        self.session.add(patient)
+        self.session.add(user)
         await self.session.flush()
-        await self.session.refresh(patient)
-        return patient
+        await self.session.refresh(user)
+        return user
+
+    async def _update_user(
+            self,
+            user: User,
+            data: BaseModel,
+    ) -> User:
+        for field, value in data.model_dump().items():
+            setattr(user, field, value)
+
+        await self.session.flush()
+        await self.session.refresh(user)
+        return user
+
+    async def _get_by_id(
+        self,
+        user_id: int,
+        role: UserRole | None = None,
+    ) -> User | None:
+        stmt = select(User).where(User.id == user_id)
+
+        if role is not None:
+            stmt = stmt.where(User.role == role)
+
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def _get_by_email(
+        self,
+        email: str,
+        role: UserRole | None = None,
+    ) -> User | None:
+        stmt = select(User).where(User.email == email)
+
+        if role is not None:
+            stmt = stmt.where(User.role == role)
+
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def _get_by_phone(
+        self,
+        phone: str,
+        role: UserRole | None = None,
+    ) -> User | None:
+        stmt = select(User).where(User.phone == phone)
+
+        if role is not None:
+            stmt = stmt.where(User.role == role)
+
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def _get_all(self, role: UserRole) -> list[User]:
+        stmt =(
+            select(User)
+            .where(User.role == role)
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def create_patient(self, data: RegisterSchema, password_hash: str) -> User:
+        return await self._create_user(
+            data=data,
+            role=UserRole.PATIENT,
+            password_hash=password_hash,
+        )
 
     async def create_doctor(self, data: DoctorCreateSchema, password_hash: str, specialization_id: int) -> User:
-        doctor = User(
-            first_name=data.first_name,
-            last_name=data.last_name,
-            middle_name=data.middle_name,
-            email=data.email,
-            phone=data.phone,
-            role=data.role,
+        return await self._create_user(
+            data=data,
+            role=UserRole.DOCTOR,
             password_hash=password_hash,
-            specialization_id=specialization_id
+            specialization_id=specialization_id,
         )
-        self.session.add(doctor)
-        await self.session.flush()
-        await self.session.refresh(doctor)
-        return doctor
+
+    async def create_admin(self, data: AdminCreateSchema, password_hash: str) -> User:
+        return await self._create_user(
+            data=data,
+            role=UserRole.ADMIN,
+            password_hash=password_hash,
+        )
 
     async def update_doctor(self, doctor: User, data: DoctorUpdateSchema) -> User:
-        doctor.first_name = data.first_name
-        doctor.last_name = data.last_name
-        doctor.middle_name = data.middle_name
-        doctor.email = data.email
-        doctor.phone = data.phone
-        doctor.specialization_id = data.specialization_id
-        await self.session.flush()
-        await self.session.refresh(doctor)
-        return doctor
+        return await self._update_user(user=doctor, data=data)
 
     async def update_patient(self, patient: User, data: PatientUpdateSchema) -> User:
-        patient.first_name = data.first_name
-        patient.last_name = data.last_name
-        patient.email = data.email
-        patient.phone = data.phone
-        patient.middle_name = data.middle_name
-        await self.session.flush()
-        await self.session.refresh(patient)
-        return patient
+        return await self._update_user(user=patient, data=data)
+
+    async def update_admin(self, admin: User, data: AdminUpdateSchema) -> User:
+        return await self._update_user(user=admin, data=data)
 
     async def get_doctor_by_id(self, doctor_id: int) -> User | None:
-        stmt = (
-            select(User)
-            .where(User.id == doctor_id, User.role == UserRole.DOCTOR)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._get_by_id(user_id=doctor_id, role=UserRole.DOCTOR)
 
     async def get_patient_by_id(self, patient_id: int) -> User | None:
-        stmt = (
-            select(User)
-            .where(User.id == patient_id, User.role == UserRole.PATIENT)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._get_by_id(user_id=patient_id, role=UserRole.PATIENT)
+
+    async def get_admin_by_id(self, admin_id: int) -> User | None:
+        return await self._get_by_id(user_id=admin_id, role=UserRole.ADMIN)
 
     async def get_user_by_id(self, user_id: int) -> User | None:
-        stmt = (
-            select(User)
-            .where(User.id == user_id)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._get_by_id(user_id=user_id)
 
     async def get_user_by_email(self, email: str) -> User | None:
-        stmt = (
-            select(User)
-            .where(User.email == email)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
-
-    async def get_user_by_phone(self, phone: str) -> User | None:
-        stmt = (
-            select(User)
-            .where(User.phone == phone)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
-
-    async def get_all_doctors(self) -> list[User]:
-        stmt = (
-            select(User)
-            .where(User.role == UserRole.DOCTOR)
-        )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def get_all_patients(self) -> list[User]:
-        stmt = (
-            select(User)
-            .where(User.role == UserRole.PATIENT)
-        )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self._get_by_email(email=email)
 
     async def get_doctor_by_email(self, email: str) -> User | None:
-        stmt = (
-            select(User)
-            .where(User.email == email, User.role == UserRole.DOCTOR)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._get_by_email(email=email, role=UserRole.DOCTOR)
 
     async def get_patient_by_email(self, email: str) -> User | None:
-        stmt = (
-            select(User)
-            .where(User.email == email, User.role == UserRole.PATIENT)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._get_by_email(email=email, role=UserRole.PATIENT)
+
+    async def get_user_by_phone(self, phone: str) -> User | None:
+        return await self._get_by_phone(phone=phone)
+
+    async def get_patient_by_phone(self, phone: str) -> User | None:
+        return await self._get_by_phone(phone=phone, role=UserRole.PATIENT)
+
+    async def get_doctor_by_phone(self, phone: str) -> User | None:
+        return await self._get_by_phone(phone=phone, role=UserRole.DOCTOR)
+
+    async def get_all_doctors(self) -> list[User]:
+        return await self._get_all(role=UserRole.DOCTOR)
+
+    async def get_all_patients(self) -> list[User]:
+        return await self._get_all(role=UserRole.PATIENT)
+
+    async def get_all_admins(self) -> list[User]:
+        return await self._get_all(role=UserRole.ADMIN)
 
     async def get_doctors_by_specialization_id(self, specialization_id: int) -> list[User]:
         stmt = (
@@ -144,22 +171,6 @@ class UserRepository:
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
-
-    async def get_patient_by_phone(self, phone: str) -> User | None:
-        stmt = (
-            select(User)
-            .where(User.phone == phone, User.role == UserRole.PATIENT)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
-
-    async def get_doctor_by_phone(self, phone: str) -> User | None:
-        stmt = (
-            select(User)
-            .where(User.phone == phone, User.role == UserRole.DOCTOR)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
 
     async def make_user_inactive(self, user: User) -> User:
         user.is_active = False

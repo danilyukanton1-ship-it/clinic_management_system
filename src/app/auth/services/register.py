@@ -1,8 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.users.schemas.user import PatientCreateSchema
 from app.users.models.user import User
-from common.enums.user_role import UserRole
 from db.unit_of_work import UnitOfWork
 from app.auth.security import get_password_hash
 from app.auth.schemas.register import RegisterSchema
@@ -11,9 +9,7 @@ from app.auth.exceptions.register import EmailAlreadyExistsException, PhoneAlrea
 class RegisterService:
 
     def __init__(self, session: AsyncSession):
-        self.session = session
-
-        self.uow = UnitOfWork(self.session)
+        self.uow = UnitOfWork(session)
 
     async def register(self, data: RegisterSchema) -> User:
         async with self.uow:
@@ -28,18 +24,8 @@ class RegisterService:
 
             password_hash = get_password_hash(data.password)
 
-            patient = PatientCreateSchema(
-                first_name=data.first_name,
-                last_name=data.last_name,
-                middle_name=data.middle_name,
-                email=data.email,
-                phone=data.phone,
-                password=data.password,
-                role=UserRole.PATIENT,
-            )
-
             created_user = await self.uow.users.create_patient(
-                patient=patient,
+                data=data,
                 password_hash=password_hash,
             )
         return created_user

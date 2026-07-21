@@ -1,11 +1,10 @@
 import jwt
 from uuid import uuid4
 from datetime import datetime, timedelta, UTC
-from typing import Literal
 
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from common.enums.token_type import TokenType
 from app.auth.exceptions.token import (
     InvalidTokenTypeException,
     InvalidTokenException,
@@ -16,51 +15,50 @@ from app.users.exceptions.user import UserNotFoundException, UserInactiveExcepti
 from core.config import settings
 from db.unit_of_work import UnitOfWork
 
-cache = Redis(host=settings.redis.HOST, port=settings.redis.PORT, db=0, decode_responses=True)
-
-
 class TokenService:
 
-    def __init__(self, session: AsyncSession):
-        self.session = session
-
+    def __init__(self, session: AsyncSession, redis: Redis) -> None:
         self.uow = UnitOfWork(session)
+        self.redis = redis
 
     @staticmethod
     def create_token(
             user_id: int,
             email: str,
             role: str,
-            token_type: Literal["access", "refresh"] = 'access',
+            token_type: TokenType,
     ) -> str:
-        if token_type == 'access':
+
+        if token_type == TokenType.ACCESS:
             expire = datetime.now(UTC) + timedelta(
                 minutes=settings.jwt.ACCESS_TOKEN_EXPIRE_MINUTES
             )
-            payload = {
-                'sub': str(user_id),
-                'role': role,
-                'email': email,
-                'type': 'access',
-                'exp': expire,
-            }
-        elif token_type == 'refresh':
+        elif token_type == TokenType.REFRESH:
             expire = datetime.now(UTC) + timedelta(
                 minutes=settings.jwt.REFRESH_TOKEN_EXPIRE_MINUTES
             )
-            payload = {
-                'sub': str(user_id),
-                'jti': str(uuid4()),
-                'type': 'refresh',
-                'exp': expire,
-            }
         else:
             raise InvalidTokenTypeException()
+
+        payload = {
+            "sub": str(user_id),
+            "type": token_type.value,
+            "exp": expire,
+        }
+
+        if token_type == TokenType.ACCESS:
+            payload.update({
+                "email": email,
+                "role": role,
+            })
+
+        elif token_type == TokenType.REFRESH:
+            payload["jti"] = str(uuid4())
 
         return jwt.encode(
             payload,
             settings.jwt.SECRET_KEY,
-            algorithm=settings.jwt.ALGORITHM
+            algorithm=settings.jwt.ALGORITHM,
         )
 
     @staticmethod
@@ -75,7 +73,7 @@ class TokenService:
     async def get_access_token(self, refresh_token: str) -> AccessTokenSchema:
         payload = self.decode_token(refresh_token)
 
-        if payload['type'] != 'refresh':
+        if payload['type'] != TokenType.REFRESH.value:
             raise InvalidTokenException()
 
         jti = payload['jti']
@@ -97,7 +95,7 @@ class TokenService:
             user_id=user.id,
             email=user.email,
             role=user.role.value,
-            token_type='access',
+            token_type=TokenType.ACCESS,
         )
 
         return AccessTokenSchema(access_token=access_token)
@@ -112,14 +110,14 @@ class TokenService:
         ttl = exp - int(datetime.now(UTC).timestamp())
         if ttl <= 0:
             raise TokenExpiredException()
-        await cache.set(
+        await self.redis.set(
             f'blacklisted:{jti}',
             '1',
             ex=ttl,
         )
 
-    @staticmethod
     async def is_blacklisted(
+            self,
             jti: str,
     ) -> bool:
-        return bool(await cache.exists(f'blacklisted:{jti}'))
+        return bool(await self.redis.exists(f'blacklisted:{jti}'))

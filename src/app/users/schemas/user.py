@@ -17,17 +17,15 @@ class UserCreateSchema(BaseModel):
     first_name: str
     last_name: str
     middle_name: str | None = None
-    phone: str | None = None
+    phone: str
     email: str
     password: str
-    role: UserRole
-
-class PatientCreateSchema(UserCreateSchema):
-    pass
 
 class DoctorCreateSchema(UserCreateSchema):
     specialization_id: int
-    phone: str
+
+class AdminCreateSchema(UserCreateSchema):
+    pass
 
 
 class PatientResponseSchema(UserResponseSchema):
@@ -36,6 +34,9 @@ class PatientResponseSchema(UserResponseSchema):
 
 class DoctorResponseSchema(UserResponseSchema):
     specialization_id: int
+    model_config = ConfigDict(from_attributes=True)
+
+class AdminResponseSchema(UserResponseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 class UserUpdateSchema(BaseModel):
@@ -49,6 +50,8 @@ class UserUpdateSchema(BaseModel):
 class PatientUpdateSchema(UserUpdateSchema):
     pass
 
+class AdminUpdateSchema(UserUpdateSchema):
+    pass
 
 class DoctorUpdateSchema(UserUpdateSchema):
     specialization_id: int

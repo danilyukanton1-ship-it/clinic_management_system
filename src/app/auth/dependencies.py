@@ -1,5 +1,6 @@
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.exceptions.token import InvalidTokenException
@@ -10,6 +11,10 @@ from app.auth.services.register import RegisterService
 from core.dependencies import get_uow
 from db.unit_of_work import UnitOfWork
 from app.users.exceptions.user import UserNotFoundException
+from db.redis import redis_client
+
+async def get_redis() -> Redis:
+    return redis_client
 
 
 async def get_login_service(
@@ -23,9 +28,10 @@ async def get_register_service(
     return RegisterService(session)
 
 async def get_token_service(
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
+    redis: Redis = Depends(get_redis)
 ):
-    return TokenService(session)
+    return TokenService(session=session, redis=redis)
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login",

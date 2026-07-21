@@ -25,3 +25,7 @@ class UserInactiveException(AppException):
 class UserAlreadyInactiveException(AppException):
     detail = "User is already inactive"
     status_code = status.HTTP_400_BAD_REQUEST
+
+class AdminCanNotHaveSpecializationException(AppException):
+    detail = "Admin can not have specialization"
+    status_code = status.HTTP_400_BAD_REQUEST

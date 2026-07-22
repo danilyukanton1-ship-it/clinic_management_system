@@ -8,13 +8,10 @@ from app.auth.services.token import TokenService
 from core.dependencies import get_session
 from app.auth.services.login import LoginService
 from app.auth.services.register import RegisterService
-from core.dependencies import get_uow
+from core.dependencies import get_uow, get_redis
 from db.unit_of_work import UnitOfWork
 from app.users.exceptions.user import UserNotFoundException
-from db.redis import redis_client
 
-async def get_redis() -> Redis:
-    return redis_client
 
 
 async def get_login_service(
@@ -23,9 +20,10 @@ async def get_login_service(
     return LoginService(session)
 
 async def get_register_service(
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
+    redis: Redis = Depends(get_redis),
 ):
-    return RegisterService(session)
+    return RegisterService(session=session, redis=redis)
 
 async def get_token_service(
     session: AsyncSession = Depends(get_session),

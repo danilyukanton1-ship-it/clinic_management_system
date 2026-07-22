@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from email.message import EmailMessage
 
 class SMSService(ABC):
 

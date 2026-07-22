@@ -25,7 +25,11 @@ class UserRepository:
             specialization_id: int | None = None,
     ) -> User:
         user = User(
-            **data.model_dump(),
+            first_name=data.first_name,
+            last_name=data.last_name,
+            middle_name=data.middle_name,
+            email=data.email,
+            phone=data.phone,
             role=role,
             password_hash=password_hash,
             specialization_id=specialization_id,
@@ -174,6 +178,18 @@ class UserRepository:
 
     async def make_user_inactive(self, user: User) -> User:
         user.is_active = False
+        await self.session.flush()
+        await self.session.refresh(user)
+        return user
+
+    async def make_user_verified(self, user: User) -> User:
+        user.is_verified = True
+        await self.session.flush()
+        await self.session.refresh(user)
+        return user
+
+    async def reset_password(self, user: User, password_hash: str) -> User:
+        user.password_hash = password_hash
         await self.session.flush()
         await self.session.refresh(user)
         return user

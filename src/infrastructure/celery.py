@@ -1,5 +1,6 @@
 from celery import Celery
 from core.config import settings
+
 celery_app = Celery(
     'Clinic_management_system',
     broker=settings.celery.BROKER_URL,
@@ -16,4 +17,5 @@ celery_app.conf.update(
 
 celery_app.conf.imports = (
     "app.appointments.tasks",
+    "app.auth.tasks",
 )

@@ -18,3 +18,14 @@ class RegisterResponseSchema(BaseModel):
     last_name: str
 
     phone: str
+
+class VerifyEmailSchema(BaseModel):
+    email: EmailStr
+    verification_code: str
+
+class ForgotPasswordSchema(BaseModel):
+    email: EmailStr
+
+class ResetPasswordSchema(VerifyEmailSchema):
+    password: str
+

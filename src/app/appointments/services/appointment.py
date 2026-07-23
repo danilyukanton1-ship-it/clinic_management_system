@@ -15,9 +15,8 @@ from db.unit_of_work import UnitOfWork
 class AppointmentService:
 
     def __init__(self, session: AsyncSession):
-        self.session = session
         self.policy = AppointmentPolicy()
-        self.uow = UnitOfWork(session=self.session)
+        self.uow = UnitOfWork(session=session)
 
     async def create_appointment(self, appointment: AppointmentCreateSchema):
         async with self.uow:

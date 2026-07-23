@@ -1,7 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.appointments.exceptions.appointment import AppointmentNotFoundException, \
+    AppointmentRelatesToDifferentPatientException
 from app.appointments.schemas.attachment import AttachmentCreateSchema, AttachmentUpdateSchema, AttachmentResponseSchema
 from app.appointments.exceptions.attachment import AttachmentDoesNotExistException
+from app.users.exceptions.user import UserNotFoundException
 from app.users.models.user import User
 from app.appointments.policy.attachments import AttachmentPolicy
 
@@ -16,7 +19,14 @@ class AttachmentService:
 
     async def create(self, data: AttachmentCreateSchema, current_user: User) -> AttachmentResponseSchema:
         async with self.uow:
-
+            patient = await self.uow.users.get_patient_by_id(patient_id=data.patient_id)
+            if not patient:
+                raise UserNotFoundException()
+            appointment = await self.uow.appointments.get_appointment_by_id(appointment_id=data.appointment_id)
+            if not appointment:
+                raise AppointmentNotFoundException()
+            if appointment.patient_id != patient.id:
+                raise AppointmentRelatesToDifferentPatientException()
             attachment = await self.uow.attachments.create_attachment(data=data, uploaded_by_id=current_user.id)
         return AttachmentResponseSchema.model_validate(attachment)
 
@@ -41,7 +51,7 @@ class AttachmentService:
                 raise AttachmentDoesNotExistException()
             self.policy.can_delete(current_user, attachment)
             await self.uow.attachments.delete_attachment(attachment=attachment)
-        return None
+
 
     async def get_by_id(self, attachment_id: int, current_user: User) -> AttachmentResponseSchema:
         attachment = await self.uow.attachments.get_attachment_by_id(attachment_id=attachment_id)

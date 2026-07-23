@@ -1,7 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
-from app.medical_records.schemas.diagnosis import DiagnosisCreateSchema, DiagnosisUpdateSchema
+from app.medical_records.exceptions.disease import DiseaseNotFoundException
+from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
+from app.medical_records.schemas.diagnosis import DiagnosisCreateSchema, DiagnosisUpdateSchema, DiagnosisResponseSchema
 from app.medical_records.exceptions.diagnosis import DiagnosisNotFoundException, \
     DiagnosisCantBeEmptyInPrescriptionException
 from app.medical_records.models.diagnosis import Diagnosis
@@ -12,14 +14,23 @@ from db.unit_of_work import UnitOfWork
 class DiagnosisService:
 
     def __init__(self, session: AsyncSession):
-        self.session = session
         self.policy = DiagnosisPolicy()
         self.uow = UnitOfWork(session)
 
-    async def create(self, data: DiagnosisCreateSchema) -> Diagnosis:
+    async def create(self, data: DiagnosisCreateSchema) -> DiagnosisResponseSchema:
         async with self.uow:
+            prescription = await self.uow.prescriptions.get_prescription_by_id(
+                prescription_id=data.prescription_id,
+            )
+            if not prescription:
+                raise PrescriptionNotFoundException()
+            disease = await self.uow.diseases.get_disease_by_id(
+                disease_id=data.disease_id
+            )
+            if not disease:
+                raise DiseaseNotFoundException()
             diagnosis = await self.uow.diagnoses.create_diagnosis(data=data)
-        return diagnosis
+        return DiagnosisResponseSchema.model_validate(diagnosis)
 
     async def update(self, diagnosis_id: int, current_user: User, data: DiagnosisUpdateSchema) -> Diagnosis:
         async with self.uow:

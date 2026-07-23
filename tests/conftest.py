@@ -12,6 +12,7 @@ pytest_plugins = [
     "tests.fixtures.users",
     "tests.fixtures.appointments",
     "tests.fixtures.scheduling",
+    "tests.fixtures.medical_records"
 ]
 
 @pytest.fixture

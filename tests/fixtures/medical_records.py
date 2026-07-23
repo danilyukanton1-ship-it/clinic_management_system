@@ -9,8 +9,10 @@ from app.medical_records.models.prescription import Prescription
 from app.medical_records.models.prescription_item import PrescriptionItem
 from app.medical_records.schemas.diagnosis import DiagnosisCreateSchema, DiagnosisUpdateSchema
 from app.medical_records.schemas.disease import DiseaseUpdateSchema, DiseaseCreateSchema
+from app.medical_records.schemas.drug import DrugCreateSchema, DrugUpdateSchema
 from app.medical_records.services.diagnosis import DiagnosisService
 from app.medical_records.services.disease import DiseaseService
+from app.medical_records.services.drug import DrugService
 from common.enums.dosage_form import DosageForm
 
 @pytest.fixture
@@ -23,6 +25,12 @@ def diagnosis_service(mock_async_session, mock_uow):
 @pytest.fixture
 def disease_service(mock_async_session, mock_uow):
     service = DiseaseService(mock_async_session)
+    service.uow = mock_uow
+    return service
+
+@pytest.fixture
+def drug_service(mock_async_session, mock_uow):
+    service = DrugService(mock_async_session)
     service.uow = mock_uow
     return service
 
@@ -104,7 +112,27 @@ def prescription():
     )
 
 @pytest.fixture
-def drug():
+def drug_create_schema():
+    return DrugCreateSchema(
+        name="test name",
+        international_name="test international name",
+        dosage_form=DosageForm.CAPSULE,
+        strength='test strength',
+        description='test description',
+    )
+
+@pytest.fixture
+def drug_update_schema():
+    return DrugUpdateSchema(
+        name="test name 2",
+        international_name="test international name 2",
+        dosage_form=DosageForm.DROPS,
+        strength='test strength 2',
+        description='test description 2',
+    )
+
+@pytest.fixture
+def drug_1():
     return Drug(
         id=1,
         name="test name",
@@ -112,6 +140,17 @@ def drug():
         dosage_form=DosageForm.CAPSULE,
         strength='test strength',
         description='test description',
+    )
+
+@pytest.fixture
+def drug_1_updated():
+    return Drug(
+        id=1,
+        name="test name 2",
+        international_name="test international name 2",
+        dosage_form=DosageForm.DROPS,
+        strength='test strength 2',
+        description='test description 2',
     )
 
 @pytest.fixture

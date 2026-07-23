@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock
 
 from app.medical_records.exceptions.disease import DiseaseAlreadyExistsException, DiseaseNotFoundException
 from app.medical_records.schemas.disease import DiseaseResponseSchema

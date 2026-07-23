@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.medical_records.schemas.drug import DrugCreateSchema, DrugUpdateSchema
-from app.medical_records.models.drug import Drug
+from app.medical_records.schemas.drug import DrugCreateSchema, DrugUpdateSchema, DrugResponseSchema
 from app.medical_records.exceptions.drug import DrugAlreadyExistsException, DrugNotFoundException
 from db.unit_of_work import UnitOfWork
 
@@ -11,15 +10,15 @@ class DrugService:
 
         self.uow = UnitOfWork(session=session)
 
-    async def create(self, data: DrugCreateSchema) -> Drug:
+    async def create(self, data: DrugCreateSchema) -> DrugResponseSchema:
         drug_by_name = await self.uow.drugs.get_drug_by_name(drug_name=data.name)
         if drug_by_name:
             raise DrugAlreadyExistsException()
         async with self.uow:
-            drug = await self.uow.drugs.create_drug(data)
-        return drug
+            drug = await self.uow.drugs.create_drug(data=data)
+        return DrugResponseSchema.model_validate(drug)
 
-    async def update(self, drug_id: int, data: DrugUpdateSchema) -> Drug:
+    async def update(self, drug_id: int, data: DrugUpdateSchema) -> DrugResponseSchema:
         drug = await self.uow.drugs.get_drug_by_id(drug_id=drug_id)
         if not drug:
             raise DrugNotFoundException()
@@ -28,19 +27,19 @@ class DrugService:
             raise DrugAlreadyExistsException()
         async with self.uow:
             drug = await self.uow.drugs.update_drug(drug=drug, data=data)
-        return drug
+        return DrugResponseSchema.model_validate(drug)
 
-    async def get_all(self) -> list[Drug]:
+    async def get_all(self) -> list[DrugResponseSchema]:
         drugs = await self.uow.drugs.get_all_drugs()
         if not drugs:
             raise DrugNotFoundException()
-        return drugs
+        return [DrugResponseSchema.model_validate(drug) for drug in drugs]
 
-    async def get_by_name(self, name: str) -> Drug:
-        drug = await self.uow.drugs.get_drug_by_name(name)
+    async def get_by_name(self, name: str) -> DrugResponseSchema:
+        drug = await self.uow.drugs.get_drug_by_name(drug_name=name)
         if not drug:
             raise DrugNotFoundException()
-        return drug
+        return DrugResponseSchema.model_validate(drug)
 
     async def delete(self, drug_id: int) -> None:
         drug = await self.uow.drugs.get_drug_by_id(drug_id=drug_id)

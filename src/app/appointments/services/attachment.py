@@ -40,7 +40,7 @@ class AttachmentService:
             attachment = await self.uow.attachments.get_attachment_by_id(attachment_id=attachment_id)
             if not attachment:
                 raise AttachmentDoesNotExistException()
-            self.policy.can_update(current_user, attachment)
+            self.policy.can_update(user=current_user, attachment=attachment)
             updated_attachment = await self.uow.attachments.update_attachment(attachment=attachment, data=data)
         return AttachmentResponseSchema.model_validate(updated_attachment)
 
@@ -49,7 +49,10 @@ class AttachmentService:
             attachment = await self.uow.attachments.get_attachment_by_id(attachment_id=attachment_id)
             if not attachment:
                 raise AttachmentDoesNotExistException()
-            self.policy.can_delete(current_user, attachment)
+            self.policy.can_delete(
+                user=current_user,
+                attachment=attachment
+            )
             await self.uow.attachments.delete_attachment(attachment=attachment)
 
 
@@ -57,17 +60,26 @@ class AttachmentService:
         attachment = await self.uow.attachments.get_attachment_by_id(attachment_id=attachment_id)
         if not attachment:
             raise AttachmentDoesNotExistException()
-        self.policy.can_view(current_user, attachment)
+        self.policy.can_view(
+            user=current_user,
+            attachment=attachment
+        )
         return AttachmentResponseSchema.model_validate(attachment)
 
     async def get_by_appointment_id(self, appointment_id: int, current_user: User) -> list[AttachmentResponseSchema]:
         attachments = await self.uow.attachments.get_attachments_by_appointment_id(appointment_id=appointment_id)
         for attachment in attachments:
-            self.policy.can_view(current_user, attachment)
+            self.policy.can_view(
+                user=current_user,
+                attachment=attachment
+            )
         return [AttachmentResponseSchema.model_validate(attachment) for attachment in attachments]
 
     async def get_by_patient_id(self, patient_id: int, current_user: User) -> list[AttachmentResponseSchema]:
         attachments = await self.uow.attachments.get_attachments_by_patient_id(patient_id=patient_id)
         for attachment in attachments:
-            self.policy.can_view(current_user, attachment)
+            self.policy.can_view(
+                user=current_user,
+                attachment=attachment
+            )
         return [AttachmentResponseSchema.model_validate(attachment) for attachment in attachments]

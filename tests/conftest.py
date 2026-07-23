@@ -11,6 +11,7 @@ from common.enums.user_role import UserRole
 pytest_plugins = [
     "tests.fixtures.users",
     "tests.fixtures.appointments",
+    "tests.fixtures.scheduling",
 ]
 
 @pytest.fixture

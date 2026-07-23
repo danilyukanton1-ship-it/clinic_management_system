@@ -5,8 +5,8 @@ from common.enums.appointment_status import AppointmentStatus
 
 
 class AppointmentCreateSchema(BaseModel):
-    patient: int
-    doctor: int
+    patient_id: int
+    doctor_id: int
 
     slot_id: int
 

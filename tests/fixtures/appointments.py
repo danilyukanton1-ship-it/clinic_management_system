@@ -1,9 +1,12 @@
+from datetime import datetime
+
 import pytest
 
 from unittest.mock import MagicMock
 
 from app.appointments.models.attachment import Attachment
 from app.appointments.models.appointment import Appointment
+from app.appointments.schemas.appointment import AppointmentCreateSchema
 from app.appointments.services.attachment import AttachmentService
 from app.appointments.services.appointment import AppointmentService
 from common.enums.appointment_status import AppointmentStatus
@@ -19,6 +22,22 @@ def attachment_service(mock_async_session, mock_uow):
     service.uow = mock_uow
     service.policy = MagicMock()
     return service
+
+@pytest.fixture
+def appointment_service(mock_async_session, mock_uow):
+    service = AppointmentService(mock_async_session)
+    service.uow = mock_uow
+    service.policy = MagicMock()
+    return service
+
+@pytest.fixture
+def appointment_create_schema():
+    return AppointmentCreateSchema(
+        patient_id=1,
+        doctor_id=1,
+        slot_id=1,
+    )
+
 
 @pytest.fixture
 def attachment_create_schema():
@@ -78,6 +97,8 @@ def attachment_1():
         patient_id=1,
         appointment_id=1,
         uploaded_by_id=10,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
     )
 
 @pytest.fixture
@@ -91,6 +112,8 @@ def attachment_2():
         patient_id=1,
         appointment_id=1,
         uploaded_by_id=10,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
     )
 
 @pytest.fixture
@@ -101,6 +124,8 @@ def appointment_patient_1():
         doctor_id=1,
         slot_id=1,
         status=AppointmentStatus.SCHEDULED,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
     )
 
 @pytest.fixture
@@ -112,10 +137,3 @@ def appointment_patient_2():
         slot_id=1,
         status=AppointmentStatus.SCHEDULED,
     )
-
-@pytest.fixture
-def appointment_service(mock_async_session, mock_uow):
-    service = AppointmentService(mock_async_session)
-    service.uow = mock_uow
-    service.policy = MagicMock()
-    return service

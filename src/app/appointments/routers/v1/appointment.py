@@ -35,7 +35,7 @@ async def get_by_id(
       response_model= AppointmentResponseSchema,
 )
 async def create_appointment(
-      appointment: AppointmentCreateSchema,
+      data: AppointmentCreateSchema,
       appointment_service: AppointmentService = Depends(get_appointment_service),
       current_user: User = Depends(get_current_user),
 ):
@@ -44,7 +44,7 @@ async def create_appointment(
             UserRole.PATIENT,
             UserRole.ADMIN,
       )
-      appointment = await appointment_service.create_appointment(appointment)
+      appointment = await appointment_service.create_appointment(data=data)
       return appointment
 
 @router.get(

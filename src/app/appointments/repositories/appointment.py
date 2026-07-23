@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,12 +14,12 @@ class AppointmentRepository:
     def __init__(self, session: AsyncSession ):
         self.session = session
 
-    async def create(self, appointment: AppointmentCreateSchema) -> Appointment:
+    async def create(self, data: AppointmentCreateSchema) -> Appointment:
         appointment = Appointment(
-            patient_id=appointment.patient,
-            doctor_id=appointment.doctor,
-            slot_id=appointment.slot_id,
-            complaint=appointment.complaint,
+            patient_id=data.patient_id,
+            doctor_id=data.doctor_id,
+            slot_id=data.slot_id,
+            complaint=data.complaint,
         )
         self.session.add(appointment)
         await self.session.flush()

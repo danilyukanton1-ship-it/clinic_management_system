@@ -12,11 +12,11 @@ class ScheduleAbsenceSchema(BaseModel):
     end_date: datetime
 
     reason: AbsenceReason
-    description: str
+    description: str | None = None
 
 class ScheduleAbsenceResponseSchema(ScheduleAbsenceSchema):
     id: int
-
+    doctor_id: int
     model_config = ConfigDict(
         from_attributes=True,
     )

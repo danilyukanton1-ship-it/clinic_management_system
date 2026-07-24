@@ -30,4 +30,4 @@ class ScheduleAbsence(BaseModel):
         nullable=False
     )
 
-    description: Mapped[orm_fields.text_column]
+    description: Mapped[orm_fields.nullable_text_column]

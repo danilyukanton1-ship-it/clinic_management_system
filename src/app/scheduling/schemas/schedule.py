@@ -13,7 +13,8 @@ class ScheduleCreateSchema(BaseModel):
 
     start_time: time
     end_time: time
-
+    lunch_start_time: time
+    lunch_end_time: time
     slot_duration_minutes: int
 
 
@@ -25,6 +26,8 @@ class ScheduleResponseSchema(BaseModel):
     weekday: Weekday
     start_time: time
     end_time: time
+    lunch_start_time: time
+    lunch_end_time: time
 
     slot_duration_minutes: int
 
@@ -36,10 +39,11 @@ class ScheduleResponseSchema(BaseModel):
 
 class ScheduleUpdateSchema(BaseModel):
 
-    weekday: Weekday
 
     start_time: time
     end_time: time
+    lunch_start_time: time
+    lunch_end_time: time
 
     slot_duration_minutes: int
 

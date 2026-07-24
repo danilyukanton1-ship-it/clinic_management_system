@@ -17,14 +17,14 @@ from app.appointments.schemas.attachment import (
 )
 
 @pytest.fixture
-def attachment_service(mock_async_session, mock_uow):
+def attachment_service(mock_async_session, mock_uow) -> AttachmentService:
     service = AttachmentService(mock_async_session)
     service.uow = mock_uow
     service.policy = MagicMock()
     return service
 
 @pytest.fixture
-def appointment_service(mock_async_session, mock_uow):
+def appointment_service(mock_async_session, mock_uow) -> AppointmentService:
     service = AppointmentService(mock_async_session)
     service.uow = mock_uow
     service.policy = MagicMock()

@@ -74,6 +74,25 @@ class ScheduleSlotRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
+    async def get_future_blocked_slots_in_period(
+            self,
+            doctor_id: int,
+            start_date: datetime,
+            end_date: datetime,
+    ) -> list[ScheduleSlot]:
+        stmt = (
+            select(ScheduleSlot)
+            .where(
+                ScheduleSlot.doctor_id == doctor_id,
+                ScheduleSlot.status == SlotStatus.BLOCKED,
+                ScheduleSlot.slot_start >= datetime.now(),
+                ScheduleSlot.slot_start < end_date,
+                ScheduleSlot.slot_end > start_date,
+            )
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def get_future_slots_by_doctor_id_status(self, doctor_id: int, status: SlotStatus) -> list[ScheduleSlot]:
         stmt = (
             select(ScheduleSlot)

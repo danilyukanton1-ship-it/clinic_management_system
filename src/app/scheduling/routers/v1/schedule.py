@@ -27,7 +27,6 @@ async def get_by_doctor_id_and_weekday(
     schedule = await schedule_service.get_schedule_by_doctor_id_and_weekday(
         doctor_id=doctor_id,
         weekday=weekday,
-        current_user=current_user
     )
     return schedule
 
@@ -42,8 +41,7 @@ async def get_all_by_doctor_id(
     current_user: User = Depends(get_current_user),
 ):
     return await schedule_service.get_all_schedule_by_doctor_id(
-        doctor_id=doctor_id,
-        current_user=current_user
+        doctor_id=doctor_id
     )
 
 
@@ -71,6 +69,7 @@ async def create(
 async def update(
     data: ScheduleUpdateSchema,
     doctor_id: int,
+    weekday: Weekday,
     schedule_service: ScheduleService = Depends(get_schedule_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -78,7 +77,7 @@ async def update(
         current_user,
         UserRole.ADMIN,
     )
-    return await schedule_service.update(doctor_id=doctor_id, data=data)
+    return await schedule_service.update(doctor_id=doctor_id, data=data, weekday=weekday)
 
 @router.delete(
     path="/{schedule_id}",

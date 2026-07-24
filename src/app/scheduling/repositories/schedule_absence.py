@@ -56,7 +56,13 @@ class ScheduleAbsenceRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_overlapping_absence(self, doctor_id: int, start_date: datetime, end_date: datetime) -> ScheduleAbsence | None:
+    async def get_overlapping_absence(
+            self,
+            doctor_id: int,
+            start_date: datetime,
+            end_date: datetime,
+            exclude_absence_id: int | None = None,
+    ) -> list[ScheduleAbsence]:
         stmt = (
             select(ScheduleAbsence)
             .where(
@@ -65,10 +71,12 @@ class ScheduleAbsenceRepository:
                 ScheduleAbsence.end_date >= start_date,
             )
         )
+        if exclude_absence_id:
+            stmt = stmt.where(ScheduleAbsence.id != exclude_absence_id)
 
         result = await self.session.execute(stmt)
 
-        return result.scalar_one_or_none()
+        return list(result.scalars().all())
 
     async def delete_absence(self, absence: ScheduleAbsence) -> None:
         await self.session.delete(absence)

@@ -21,40 +21,40 @@ from app.medical_records.services.prescription_item import PrescriptionItemServi
 from common.enums.dosage_form import DosageForm
 
 @pytest.fixture
-def diagnosis_service(mock_async_session, mock_uow):
+def diagnosis_service(mock_async_session, mock_uow) -> DiagnosisService:
     service = DiagnosisService(mock_async_session)
     service.uow = mock_uow
     service.policy = MagicMock()
     return service
 
 @pytest.fixture
-def disease_service(mock_async_session, mock_uow):
+def disease_service(mock_async_session, mock_uow) -> DiseaseService:
     service = DiseaseService(mock_async_session)
     service.uow = mock_uow
     return service
 
 @pytest.fixture
-def drug_service(mock_async_session, mock_uow):
+def drug_service(mock_async_session, mock_uow) -> DrugService:
     service = DrugService(mock_async_session)
     service.uow = mock_uow
     return service
 
 @pytest.fixture
-def prescription_service(mock_async_session, mock_uow):
+def prescription_service(mock_async_session, mock_uow) -> PrescriptionService:
     service = PrescriptionService(mock_async_session)
     service.uow = mock_uow
     service.policy = MagicMock()
     return service
 
 @pytest.fixture
-def full_prescription_service(mock_async_session, mock_uow):
+def full_prescription_service(mock_async_session, mock_uow) -> FullPrescriptionService:
     service = FullPrescriptionService(mock_async_session)
     service.uow = mock_uow
     service.policy = MagicMock()
     return service
 
 @pytest.fixture
-def prescription_item_service(mock_async_session, mock_uow):
+def prescription_item_service(mock_async_session, mock_uow) -> PrescriptionItemService:
     service = PrescriptionItemService(mock_async_session)
     service.uow = mock_uow
     service.policy = MagicMock()

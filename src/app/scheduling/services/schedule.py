@@ -20,9 +20,7 @@ from db.unit_of_work import UnitOfWork
 class ScheduleService:
 
     def __init__(self, session: AsyncSession):
-        self.session = session
-
-        self.uow = UnitOfWork(session=self.session)
+        self.uow = UnitOfWork(session=session)
 
     async def get_schedule_by_doctor_id_and_weekday(self, doctor_id: int, weekday: Weekday) -> ScheduleResponseSchema:
         schedule = await self.uow.schedules.get_by_doctor_id_and_weekday(doctor_id=doctor_id, weekday=weekday)
@@ -51,9 +49,9 @@ class ScheduleService:
             schedule = await self.uow.schedules.create_schedule(schedule=data)
         return ScheduleResponseSchema.model_validate(schedule)
 
-    async def update(self, doctor_id: int, data: ScheduleUpdateSchema) -> ScheduleResponseSchema:
+    async def update(self, doctor_id: int, weekday: Weekday, data: ScheduleUpdateSchema) -> ScheduleResponseSchema:
         async with self.uow:
-            db_schedule = await self.uow.schedules.get_by_doctor_id_and_weekday(doctor_id=doctor_id, weekday=data.weekday)
+            db_schedule = await self.uow.schedules.get_by_doctor_id_and_weekday(doctor_id=doctor_id, weekday=weekday)
             if not db_schedule:
                 raise ScheduleNotFoundException()
             last_booked = await self.uow.schedule_slots.get_last_booked_datetime(

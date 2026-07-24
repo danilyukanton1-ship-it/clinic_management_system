@@ -15,6 +15,8 @@ class ScheduleRepository:
             weekday=schedule.weekday,
             start_time=schedule.start_time,
             end_time=schedule.end_time,
+            lunch_start_time=schedule.lunch_start_time,
+            lunch_end_time=schedule.lunch_end_time,
             slot_duration_minutes=schedule.slot_duration_minutes,
         )
         self.session.add(schedule)
@@ -49,6 +51,8 @@ class ScheduleRepository:
     async def update_schedule(self, db_schedule: Schedule, data: ScheduleUpdateSchema) -> Schedule:
         db_schedule.start_time = data.start_time
         db_schedule.end_time = data.end_time
+        db_schedule.lunch_start_time = data.lunch_start_time
+        db_schedule.lunch_end_time = data.lunch_end_time
         db_schedule.slot_duration_minutes = data.slot_duration_minutes
         await self.session.flush()
         await self.session.refresh(db_schedule)

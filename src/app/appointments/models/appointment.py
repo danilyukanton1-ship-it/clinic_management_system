@@ -52,7 +52,7 @@ class Appointment(BaseModel):
 
     slot: Mapped["ScheduleSlot"] = relationship(
         'ScheduleSlot',
-        foreign_keys=[slot_id],
+        back_populates="appointment",
     )
 
     status: Mapped[AppointmentStatus] = mapped_column(

@@ -14,27 +14,26 @@ from db.unit_of_work import UnitOfWork
 class PrescriptionItemService:
 
     def __init__(self, session: AsyncSession):
-        self.session = session
         self.policy = PrescriptionItemPolicy()
-        self.uow = UnitOfWork(session=self.session)
+        self.uow = UnitOfWork(session=session)
 
     async def get_by_prescription_id(
             self,
             prescription_id: int,
             current_user: User
-    ) -> PrescriptionItemResponseSchema:
-        prescription_item = await self.uow.prescription_items.get_prescription_items_by_prescription_id(
+    ) -> list[PrescriptionItemResponseSchema]:
+        prescription_items = await self.uow.prescription_items.get_prescription_items_by_prescription_id(
             prescription_id=prescription_id
         )
-        if not prescription_item:
+        if not prescription_items:
             raise PrescriptionItemNotFoundException()
         appointment = await self.uow.appointments.get_appointment_by_prescription_item_id(
-            prescription_item_id=prescription_item[0].id
+            prescription_item_id=prescription_items[0].id
         )
         if not appointment:
             raise AppointmentNotFoundException()
         self.policy.can_view(user=current_user, appointment=appointment)
-        return PrescriptionItemResponseSchema.model_validate(prescription_item)
+        return [PrescriptionItemResponseSchema.model_validate(item) for item in prescription_items]
 
     async def get_by_id(
             self,
@@ -96,7 +95,6 @@ class PrescriptionItemService:
                 raise AppointmentNotFoundException()
             self.policy.can_delete(user=current_user, appointment=appointment)
             await self.uow.prescription_items.delete_prescription_item(prescription_item=prescription_item)
-        return None
 
     async def create(self, data: PrescriptionItemCreateSchema) -> PrescriptionItemResponseSchema:
         async with self.uow:

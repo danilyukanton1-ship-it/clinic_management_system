@@ -19,9 +19,8 @@ from db.unit_of_work import UnitOfWork
 class FullPrescriptionService:
 
     def __init__(self, session: AsyncSession):
-        self.session = session
         self.policy = PrescriptionPolicy()
-        self.uow = UnitOfWork(self.session)
+        self.uow = UnitOfWork(session)
 
 
     async def _create_prescription(self, data: FullPrescriptionCreateSchema) -> Prescription:
@@ -99,7 +98,7 @@ class FullPrescriptionService:
             diagnoses=[DiagnosisResponseSchema.model_validate(diagnosis) for diagnosis in diagnoses],
             prescription_items=[PrescriptionItemResponseSchema.model_validate(item) for item in prescription_items],
         )
-        return schema
+        return FullPrescriptionResponseSchema.model_validate(schema)
 
     async def get_full_prescription_by_appointment_id(self, appointment_id: int, current_user: User) -> FullPrescriptionResponseSchema:
         async with self.uow:
@@ -111,7 +110,7 @@ class FullPrescriptionService:
                 raise AppointmentNotFoundException()
             self.policy.can_view(user=current_user, appointment=appointment)
             schema = await self._get_prescription_response(prescription=prescription)
-        return schema
+        return FullPrescriptionResponseSchema.model_validate(schema)
 
     async def get_full_prescription_by_prescription_id(self, prescription_id: int, current_user: User) -> FullPrescriptionResponseSchema:
         async with self.uow:
@@ -125,7 +124,7 @@ class FullPrescriptionService:
                 raise AppointmentNotFoundException()
             self.policy.can_view(user=current_user, appointment=appointment)
             schema = await self._get_prescription_response(prescription=prescription)
-            return schema
+            return FullPrescriptionResponseSchema.model_validate(schema)
 
 
     async def delete_full_prescription(self, prescription_id: int, current_user: User) -> None:

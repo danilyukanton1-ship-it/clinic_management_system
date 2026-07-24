@@ -10,9 +10,8 @@ from app.medical_records.policy.prescription import PrescriptionPolicy
 class PrescriptionService:
 
     def __init__(self, session: AsyncSession):
-        self.session = session
         self.policy = PrescriptionPolicy()
-        self.uow = UnitOfWork(self.session)
+        self.uow = UnitOfWork(session)
 
 
     async def update(self, prescription_id: int, data: PrescriptionUpdateSchema, current_user: User) -> PrescriptionResponseSchema:
@@ -26,6 +25,6 @@ class PrescriptionService:
             if not appointment:
                 raise AppointmentNotFoundException()
             self.policy.can_update(user=current_user, appointment=appointment)
-            await self.uow.prescriptions.update_prescription(prescription=prescription, data=data)
+            prescription = await self.uow.prescriptions.update_prescription(prescription=prescription, data=data)
         return PrescriptionResponseSchema.model_validate(prescription)
 

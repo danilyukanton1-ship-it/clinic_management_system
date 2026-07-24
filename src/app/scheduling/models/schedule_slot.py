@@ -29,6 +29,7 @@ class ScheduleSlot(BaseModel):
 
     appointment: Mapped['Appointment'] = relationship(
         'Appointment',
+        back_populates="slot",
         uselist=False,
     )
 

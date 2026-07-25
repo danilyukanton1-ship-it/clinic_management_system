@@ -27,9 +27,11 @@ class AppointmentService:
                 raise SlotNotAvailableException()
             appointment = await self.uow.appointments.create(data=data)
             await self.uow.schedule_slots.change_slot_status(slot=slot, status=SlotStatus.BOOKED)
-            specialization = await self.uow.specializations.get_specialization_by_id(
-                specialization_id=appointment.doctor.specialization_id
+            appointment = await self.uow.appointments.get_appointment_by_id_with_relations(
+                appointment_id=appointment.id,
             )
+            if not appointment:
+                raise AppointmentNotFoundException()
             send_appointment_created_notification.delay(
                 email=appointment.patient.email,
                 username=appointment.patient.first_name,
@@ -37,7 +39,7 @@ class AppointmentService:
                 appointment_time=appointment.slot.slot_start.time(),
                 doctor_last_name=appointment.doctor.last_name,
                 doctor_first_name=appointment.doctor.first_name,
-                doctor_specialization=specialization
+                doctor_specialization=appointment.doctor.specialization.name
             )
             return AppointmentResponseSchema.model_validate(appointment)
 

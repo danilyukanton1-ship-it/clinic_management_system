@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
 from app.appointments.schemas.appointment import AppointmentResponseSchema
@@ -18,28 +18,54 @@ class TestAppointmentService:
             schedule_slot_free,
             schedule_slot_booked,
             appointment_create_schema,
-            appointment_patient_1
+            appointment_patient_1,
     ):
         appointment_service.uow.schedule_slots.get_slot_by_id = AsyncMock(
             return_value=schedule_slot_free
         )
+
         appointment_service.uow.schedule_slots.change_slot_status = AsyncMock(
             return_value=schedule_slot_booked
         )
+
+        # create возвращает только созданную запись
         appointment_service.uow.appointments.create = AsyncMock(
             return_value=appointment_patient_1
         )
-        result = await appointment_service.create_appointment(
-            data=appointment_create_schema
+
+        # а затем сервис получает объект со всеми relationship
+        appointment_service.uow.appointments.get_appointment_by_id_with_relations = AsyncMock(
+            return_value=appointment_patient_1
         )
-        appointment_service.uow.schedule_slots.get_slot_by_id.assert_called_once_with(slot_id=1)
+
+        with patch(
+                "app.appointments.services.appointment.send_appointment_created_notification"
+        ) as mock_task:
+            mock_task.delay = MagicMock()
+
+            result = await appointment_service.create_appointment(
+                data=appointment_create_schema
+            )
+
+        appointment_service.uow.schedule_slots.get_slot_by_id.assert_called_once_with(
+            slot_id=1
+        )
+
         appointment_service.uow.schedule_slots.change_slot_status.assert_called_once_with(
             slot=schedule_slot_free,
             status=SlotStatus.BOOKED,
         )
+
         appointment_service.uow.appointments.create.assert_called_once_with(
             data=appointment_create_schema
         )
+
+        appointment_service.uow.appointments.get_appointment_by_id_with_relations.assert_called_once_with(
+            appointment_id=appointment_patient_1.id,
+        )
+
+        mock_task.delay.assert_called_once()
+
         assert isinstance(result, AppointmentResponseSchema)
         assert result.id == appointment_patient_1.id
 
@@ -349,6 +375,6 @@ class TestAppointmentService:
         appointment_service.uow.appointments.get_upcoming_appointments_for_reminder = AsyncMock(
             return_value=[appointment_patient_1]
         )
-        result = await appointment_service.get_upcoming_for_reminder()
+        result = await appointment_service.get_upcoming_for_reminder(1)
         assert result == [appointment_patient_1]
         appointment_service.uow.appointments.get_upcoming_appointments_for_reminder.assert_awaited_once()

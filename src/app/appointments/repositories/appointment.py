@@ -27,11 +27,26 @@ class AppointmentRepository:
         await self.session.flush()
         return appointment
 
+    async def get_appointment_by_id_with_relations(self, appointment_id: int) -> Appointment | None:
+        stmt = (
+            select(Appointment)
+            .where(
+                Appointment.id == appointment_id,
+            )
+            .options(
+                joinedload(Appointment.patient),
+                joinedload(Appointment.slot),
+                joinedload(Appointment.doctor).joinedload(User.specialization),
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def get_appointment_by_id(self, appointment_id: int) -> Appointment | None:
         stmt = (
             select(Appointment)
             .where(Appointment.id == appointment_id)
-        )
+            )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 

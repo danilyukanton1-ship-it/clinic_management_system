@@ -148,7 +148,7 @@ def doctor_create_schema():
         middle_name = "test",
         phone = "+375291234567",
         email = "doctor@test.com",
-        password = "qwerty",
+        password = "qwertyyyyyyyy",
         specialization_id=1,
     )
 
@@ -160,7 +160,7 @@ def admin_create_schema():
         middle_name="Admin",
         last_name="Admin",
         phone="+375297777777",
-        password="qwerty",
+        password="qwertyyyyyyyy",
     )
 
 @pytest.fixture

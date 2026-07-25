@@ -15,10 +15,10 @@ class DiseaseSchema(BaseModel):
         max_length=1000,
     )
 
-class DiseaseCreateSchema(BaseModel):
+class DiseaseCreateSchema(DiseaseSchema):
     pass
 
-class DiseaseUpdateSchema(BaseModel):
+class DiseaseUpdateSchema(DiseaseSchema):
     pass
 
 class DiseaseResponseSchema(BaseModel):

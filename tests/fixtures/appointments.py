@@ -71,6 +71,8 @@ def attachment_response_schema_1():
         patient_id=1,
         appointment_id=1,
         uploaded_by_id=10,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
     )
 
 @pytest.fixture
@@ -84,6 +86,8 @@ def attachment_response_schema_2():
         patient_id=1,
         appointment_id=1,
         uploaded_by_id=10,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
     )
 
 @pytest.fixture
@@ -117,16 +121,24 @@ def attachment_2():
     )
 
 @pytest.fixture
-def appointment_patient_1():
-    return Appointment(
+def appointment_patient_1(patient_1, doctor_1, schedule_slot_1, specialization):
+    doctor_1.specialization = specialization
+
+    appointment = Appointment(
         id=1,
-        patient_id=1,
-        doctor_id=1,
-        slot_id=1,
+        patient_id=patient_1.id,
+        doctor_id=doctor_1.id,
+        slot_id=schedule_slot_1.id,
         status=AppointmentStatus.SCHEDULED,
         created_at=datetime.now(),
         updated_at=datetime.now(),
     )
+
+    appointment.patient = patient_1
+    appointment.doctor = doctor_1
+    appointment.slot = schedule_slot_1
+
+    return appointment
 
 @pytest.fixture
 def appointment_patient_2():

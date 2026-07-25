@@ -20,7 +20,9 @@ class UserService:
         self.uow = UnitOfWork(session)
 
     async def _check_email_exists(self, email: str):
-        if await self.uow.users.get_user_by_email(email):
+        if await self.uow.users.get_user_by_email(
+                email=email
+        ):
             raise UserAlreadyExistsException()
 
     async def _validate_user_contacts(
@@ -29,35 +31,45 @@ class UserService:
         email: str,
         phone: str | None,
     ) -> None:
-        email_user = await self.uow.users.get_user_by_email(email)
+        email_user = await self.uow.users.get_user_by_email(
+            email=email
+        )
         if email_user and email_user.id != user_id:
             raise UserAlreadyExistsException()
         if phone:
-            phone_user = await self.uow.users.get_user_by_phone(phone)
+            phone_user = await self.uow.users.get_user_by_phone(
+                phone=phone
+            )
             if phone_user and phone_user.id != user_id:
                 raise UserAlreadyExistsException()
 
     async def _get_doctor(self, doctor_id: int) -> User:
-        doctor = await self.uow.users.get_doctor_by_id(doctor_id)
+        doctor = await self.uow.users.get_doctor_by_id(
+            doctor_id=doctor_id
+        )
         if not doctor:
             raise UserNotFoundException()
         return doctor
 
     async def _get_patient(self, patient_id: int) -> User:
-        patient = await self.uow.users.get_patient_by_id(patient_id)
+        patient = await self.uow.users.get_patient_by_id(
+            patient_id=patient_id
+        )
         if not patient:
             raise UserNotFoundException()
         return patient
 
     async def _get_admin(self, admin_id: int) -> User:
-        admin = await self.uow.users.get_admin_by_id(admin_id)
+        admin = await self.uow.users.get_admin_by_id(
+            admin_id=admin_id
+        )
         if not admin:
             raise UserNotFoundException()
         return admin
 
     async def _get_specialization(self, specialization_id: int) -> Specialization:
         specialization = await self.uow.specializations.get_specialization_by_id(
-            specialization_id
+            specialization_id=specialization_id
         )
         if specialization is None:
             raise SpecializationNotFoundException()
@@ -67,13 +79,13 @@ class UserService:
         if not user.is_active:
             raise UserAlreadyInactiveException()
 
-        return await self.uow.users.make_user_inactive(user)
+        return await self.uow.users.make_user_inactive(user=user)
 
     async def create_doctor(self, data: DoctorCreateSchema) -> DoctorResponseSchema:
         async with self.uow:
-            await self._check_email_exists(data.email)
+            await self._check_email_exists(email=data.email)
             specialization = await self._get_specialization(specialization_id=data.specialization_id)
-            hashed_password = get_password_hash(data.password)
+            hashed_password = get_password_hash(password=data.password)
             doctor = await self.uow.users.create_doctor(
                 data=data,
                 specialization_id=specialization.id,
@@ -83,8 +95,8 @@ class UserService:
 
     async def create_admin(self, data: AdminCreateSchema) -> AdminResponseSchema:
         async with self.uow:
-            await self._check_email_exists(data.email)
-            hashed_password = get_password_hash(data.password)
+            await self._check_email_exists(email=data.email)
+            hashed_password = get_password_hash(password=data.password)
             admin = await self.uow.users.create_admin(
                 data=data,
                 password_hash=hashed_password

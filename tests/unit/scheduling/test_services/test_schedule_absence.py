@@ -494,7 +494,7 @@ class TestScheduleAbsence:
             self,
             schedule_absence_service,
             doctor_1,
-            admin,
+            admin_1,
             schedule_absence_1,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
@@ -507,7 +507,7 @@ class TestScheduleAbsence:
 
         result = await schedule_absence_service.get_future_by_doctor_id(
             doctor_id=doctor_1.id,
-            current_user=admin,
+            current_user=admin_1,
         )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
@@ -517,7 +517,7 @@ class TestScheduleAbsence:
             doctor_id=doctor_1.id
         )
         schedule_absence_service.policy.can_view.assert_called_once_with(
-            user=admin,
+            user=admin_1,
             schedule_absence=schedule_absence_1,
         )
 
@@ -529,7 +529,7 @@ class TestScheduleAbsence:
     async def test_get_future_by_doctor_id_doctor_not_found(
             self,
             schedule_absence_service,
-            admin,
+            admin_1,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=None
@@ -540,7 +540,7 @@ class TestScheduleAbsence:
         with pytest.raises(UserNotFoundException):
             await schedule_absence_service.get_future_by_doctor_id(
                 doctor_id=1,
-                current_user=admin,
+                current_user=admin_1,
             )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
@@ -554,7 +554,7 @@ class TestScheduleAbsence:
             self,
             schedule_absence_service,
             doctor_1,
-            admin,
+            admin_1,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1
@@ -567,7 +567,7 @@ class TestScheduleAbsence:
         with pytest.raises(AbsenceNotFoundException):
             await schedule_absence_service.get_future_by_doctor_id(
                 doctor_id=doctor_1.id,
-                current_user=admin,
+                current_user=admin_1,
             )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
@@ -618,7 +618,7 @@ class TestScheduleAbsence:
             self,
             schedule_absence_service,
             doctor_1,
-            admin,
+            admin_1,
             schedule_absence_ended,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
@@ -631,7 +631,7 @@ class TestScheduleAbsence:
 
         result = await schedule_absence_service.get_past_by_doctor_id(
             doctor_id=doctor_1.id,
-            current_user=admin,
+            current_user=admin_1,
         )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
@@ -641,7 +641,7 @@ class TestScheduleAbsence:
             doctor_id=doctor_1.id
         )
         schedule_absence_service.policy.can_view.assert_called_once_with(
-            user=admin,
+            user=admin_1,
             schedule_absence=schedule_absence_ended,
         )
 
@@ -653,7 +653,7 @@ class TestScheduleAbsence:
     async def test_get_past_by_doctor_id_doctor_not_found(
             self,
             schedule_absence_service,
-            admin,
+            admin_1,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=None
@@ -664,7 +664,7 @@ class TestScheduleAbsence:
         with pytest.raises(UserNotFoundException):
             await schedule_absence_service.get_past_by_doctor_id(
                 doctor_id=1,
-                current_user=admin,
+                current_user=admin_1,
             )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
@@ -678,7 +678,7 @@ class TestScheduleAbsence:
             self,
             schedule_absence_service,
             doctor_1,
-            admin,
+            admin_1,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1
@@ -691,7 +691,7 @@ class TestScheduleAbsence:
         with pytest.raises(AbsenceNotFoundException):
             await schedule_absence_service.get_past_by_doctor_id(
                 doctor_id=doctor_1.id,
-                current_user=admin,
+                current_user=admin_1,
             )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
@@ -741,7 +741,7 @@ class TestScheduleAbsence:
     async def test_get_absence_by_id_success(
             self,
             schedule_absence_service,
-            admin,
+            admin_1,
             schedule_absence_1,
     ):
         schedule_absence_service.uow.absences.get_absence_by_id = AsyncMock(
@@ -751,14 +751,14 @@ class TestScheduleAbsence:
 
         result = await schedule_absence_service.get_absence_by_id(
             absence_id=schedule_absence_1.id,
-            current_user=admin,
+            current_user=admin_1,
         )
 
         schedule_absence_service.uow.absences.get_absence_by_id.assert_awaited_once_with(
             absence_id=schedule_absence_1.id
         )
         schedule_absence_service.policy.can_view.assert_called_once_with(
-            user=admin,
+            user=admin_1,
             schedule_absence=schedule_absence_1,
         )
 
@@ -772,7 +772,7 @@ class TestScheduleAbsence:
     async def test_get_absence_by_id_not_found(
             self,
             schedule_absence_service,
-            admin,
+            admin_1,
     ):
         schedule_absence_service.uow.absences.get_absence_by_id = AsyncMock(
             return_value=None
@@ -782,7 +782,7 @@ class TestScheduleAbsence:
         with pytest.raises(AbsenceNotFoundException):
             await schedule_absence_service.get_absence_by_id(
                 absence_id=1,
-                current_user=admin,
+                current_user=admin_1,
             )
 
         schedule_absence_service.uow.absences.get_absence_by_id.assert_awaited_once_with(

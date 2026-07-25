@@ -34,8 +34,6 @@ class SpecializationService:
 
     async def get_all(self) -> list[SpecializationResponseSchema]:
         specializations = await self.uow.specializations.get_all_specializations()
-        if not specializations:
-            raise SpecializationNotFoundException()
         return [SpecializationResponseSchema.model_validate(specialization) for specialization in specializations]
 
 

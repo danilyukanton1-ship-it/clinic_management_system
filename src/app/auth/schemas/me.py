@@ -1,9 +1,9 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, PositiveInt
 
 from common.enums.user_role import UserRole
 
 class MeSchema(BaseModel):
-    id: int
+    id: PositiveInt
     email: EmailStr
     phone: str
 
@@ -12,7 +12,7 @@ class MeSchema(BaseModel):
     middle_name: str | None = None
 
     role: UserRole
-    specialization: int | None = None
+    specialization: PositiveInt | None = None
 
     is_active: bool
     is_verified: bool

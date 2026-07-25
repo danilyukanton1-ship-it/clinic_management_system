@@ -1,31 +1,40 @@
 import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic import PositiveInt
 from common.enums.appointment_status import AppointmentStatus
 
 
 class AppointmentCreateSchema(BaseModel):
-    patient_id: int
-    doctor_id: int
+    patient_id: PositiveInt
+    doctor_id: PositiveInt
 
-    slot_id: int
+    slot_id: PositiveInt
 
-    complaint: str | None = None
+    complaint: str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=1000,
+    )
 
 class AppointmentUpdateSchema(BaseModel):
-    complaint: str | None = None
+    complaint: str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=1000,
+    )
     status: AppointmentStatus | None = None
 
 class AppointmentResponseSchema(BaseModel):
-    id: int
+    id: PositiveInt
 
-    patient_id: int
-    doctor_id: int
+    patient_id: PositiveInt
+    doctor_id: PositiveInt
 
     status: AppointmentStatus
-    slot_id: int
+    slot_id: PositiveInt
 
-    complaint: str | None
+    complaint: str | None = None
 
     created_at: datetime.datetime
 

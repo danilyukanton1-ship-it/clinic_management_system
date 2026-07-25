@@ -1,31 +1,29 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    Field,
+)
 
-class RegisterSchema(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+from app.users.schemas.user import UserCreateSchema
 
-    first_name: str = Field(min_length=1, max_length=100)
-    last_name: str = Field(min_length=1, max_length=100)
-    middle_name: str | None = Field(min_length=1, max_length=100)
 
-    phone: str = Field(min_length=1, max_length=20)
-
-class RegisterResponseSchema(BaseModel):
-    id: int
-    email: EmailStr
-
-    first_name: str
-    last_name: str
-
-    phone: str
+class RegisterSchema(UserCreateSchema):
+    pass
 
 class VerifyEmailSchema(BaseModel):
     email: EmailStr
-    verification_code: str
+    verification_code: str = Field(
+        min_length=6,
+        max_length=6,
+        pattern=r"^\d{6}$",
+    )
 
 class ForgotPasswordSchema(BaseModel):
     email: EmailStr
 
 class ResetPasswordSchema(VerifyEmailSchema):
-    password: str
+    password: str = Field(
+        min_length=8,
+        max_length=128,
+    )
 

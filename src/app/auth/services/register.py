@@ -41,7 +41,7 @@ class RegisterService:
             raise IncorrectVerificationCodeException()
         await self.redis.delete(email)
 
-    async def verify_email(self, data: VerifyEmailSchema):
+    async def verify_email(self, data: VerifyEmailSchema) -> PatientResponseSchema:
         async with self.uow:
             user = await self.uow.users.get_patient_by_email(
                 email=data.email,
@@ -55,7 +55,7 @@ class RegisterService:
                 verification_code=data.verification_code,
             )
             verified_user = await self.uow.users.make_user_verified(user=user)
-        return verified_user
+        return PatientResponseSchema.model_validate(verified_user)
 
     async def forgot_password(self, data: ForgotPasswordSchema) -> None:
         async with self.uow:
@@ -92,7 +92,7 @@ class RegisterService:
                 username=user.first_name,
                 changed_at=datetime.now(),
             )
-        return user
+        return PatientResponseSchema.model_validate(user)
 
 
     async def register(self, data: RegisterSchema) -> PatientResponseSchema:

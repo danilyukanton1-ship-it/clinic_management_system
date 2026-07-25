@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, status, Request
 
+from app.auth.schemas.me import MeSchema
 from app.auth.schemas.register import RegisterSchema, VerifyEmailSchema, ForgotPasswordSchema, ResetPasswordSchema
 from app.auth.services.register import RegisterService
 from app.auth.services.token import TokenService
@@ -36,7 +37,7 @@ async def verify_email(
     request: Request,
     data: VerifyEmailSchema,
     service: RegisterService = Depends(get_register_service),
-):
+) -> PatientResponseSchema:
     return await service.verify_email(data=data)
 
 @router.post(
@@ -47,7 +48,7 @@ async def verify_email(
 async def resend_email_verification_code(
     email: str,
     service: RegisterService = Depends(get_register_service),
-):
+) -> dict:
     await service.resend_verification_email(email=email)
     return {"detail": "Email verification sent."}
 
@@ -60,7 +61,7 @@ async def forgot_password(
     request: Request,
     data: ForgotPasswordSchema,
     service: RegisterService = Depends(get_register_service),
-):
+) -> None:
     return await service.forgot_password(data=data)
 
 @router.post(
@@ -73,7 +74,7 @@ async def reset_password(
     request: Request,
     data: ResetPasswordSchema,
     service: RegisterService = Depends(get_register_service),
-):
+) -> PatientResponseSchema:
     return await service.reset_password(data=data)
 
 @router.post(
@@ -86,7 +87,7 @@ async def login(
     request: Request,
     data: LoginSchema,
     service: LoginService = Depends(get_login_service),
-):
+) -> TokenResponseSchema:
     return await service.login(data)
 
 @router.get(
@@ -96,7 +97,7 @@ async def login(
 )
 async def me(
     current_user: User = Depends(get_current_user),
-) -> UserResponseSchema:
+) -> MeSchema:
     return UserResponseSchema.model_validate(current_user)
 
 
@@ -108,7 +109,7 @@ async def me(
 async def refresh(
     refresh_token: RefreshTokenSchema,
     token_service: TokenService = Depends(get_token_service),
-):
+) -> AccessTokenSchema:
     return await token_service.get_access_token(refresh_token.refresh_token)
 
 @router.post(
@@ -118,7 +119,7 @@ async def refresh(
 async def logout(
     refresh_token: RefreshTokenSchema,
     token_service: TokenService = Depends(get_token_service),
-):
+) -> None:
     return await token_service.blacklist_token(refresh_token.refresh_token)
 
 

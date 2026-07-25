@@ -1,16 +1,5 @@
 from abc import ABC, abstractmethod
 
-class SMSService(ABC):
-
-    @abstractmethod
-    async def send(
-        self,
-        phone: str,
-        message: str,
-        html: str | None = None,
-    ) -> None:
-        pass
-
 class EmailService(ABC):
 
 

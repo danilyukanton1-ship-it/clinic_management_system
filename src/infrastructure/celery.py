@@ -1,4 +1,6 @@
 from celery import Celery
+from celery.schedules import crontab
+
 from core.config import settings
 
 celery_app = Celery(
@@ -19,3 +21,16 @@ celery_app.conf.imports = (
     "app.appointments.tasks",
     "app.auth.tasks",
 )
+
+celery_app.conf.beat_schedule = {
+    "appointment-reminder-24h": {
+        "task": "app.appointments.tasks.appointment_reminder",
+        "schedule": crontab(minute="*/5"),
+        "args": (24,),
+    },
+    "appointment-reminder-1h": {
+        "task": "app.appointments.tasks.appointment_reminder",
+        "schedule": crontab(minute="*/5"),
+        "args": (1,),
+    }
+}

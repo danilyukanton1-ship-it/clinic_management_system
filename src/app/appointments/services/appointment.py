@@ -10,7 +10,7 @@ from app.users.exceptions.user import UserNotFoundException
 from app.appointments.policy.appointment import AppointmentPolicy
 from common.enums.slot_status import SlotStatus
 from db.unit_of_work import UnitOfWork
-
+from app.appointments.tasks import send_appointment_created_notification
 
 class AppointmentService:
 
@@ -27,6 +27,18 @@ class AppointmentService:
                 raise SlotNotAvailableException()
             appointment = await self.uow.appointments.create(data=data)
             await self.uow.schedule_slots.change_slot_status(slot=slot, status=SlotStatus.BOOKED)
+            specialization = await self.uow.specializations.get_specialization_by_id(
+                specialization_id=appointment.doctor.specialization_id
+            )
+            send_appointment_created_notification.delay(
+                email=appointment.patient.email,
+                username=appointment.patient.first_name,
+                appointment_date=appointment.slot.slot_start.date(),
+                appointment_time=appointment.slot.slot_start.time(),
+                doctor_last_name=appointment.doctor.last_name,
+                doctor_first_name=appointment.doctor.first_name,
+                doctor_specialization=specialization
+            )
             return AppointmentResponseSchema.model_validate(appointment)
 
     async def get_future_apps_by_user_id(self, user_id: int) -> list[AppointmentResponseSchema]:
@@ -66,8 +78,8 @@ class AppointmentService:
             await self.uow.appointments.delete_appointment(appointment=appointment)
         return None
 
-    async def get_upcoming_for_reminder(self):
-        start = datetime.now() + timedelta(hours=24)
+    async def get_upcoming_for_reminder(self, hours: int):
+        start = datetime.now() + timedelta(hours=hours)
         end = start + timedelta(minutes=5)
 
         appointments = await self.uow.appointments.get_upcoming_appointments_for_reminder(
@@ -75,4 +87,3 @@ class AppointmentService:
             end=end,
         )
         return appointments
-

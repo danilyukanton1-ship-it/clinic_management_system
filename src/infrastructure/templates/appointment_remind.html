@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointment Reminder</title>
+</head>
+<body style="margin:0;padding:40px 0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+        <td align="center">
+
+            <table role="presentation"
+                   width="600"
+                   cellpadding="0"
+                   cellspacing="0"
+                   style="background:#ffffff;border-radius:16px;padding:40px;box-shadow:0 10px 30px rgba(0,0,0,.08);">
+
+                <tr>
+                    <td align="center">
+
+                        <div style="width:70px;height:70px;background:#2563eb;border-radius:50%;line-height:70px;font-size:32px;color:white;">
+                            ⏰
+                        </div>
+
+                        <h1 style="margin:25px 0 10px;font-size:28px;color:#222;">
+                            Appointment Reminder
+                        </h1>
+
+                        <p style="font-size:16px;color:#666;margin:0;">
+                            Hello,
+                            <strong>{{ username }}</strong>
+                        </p>
+
+                        <p style="margin:25px 0;color:#555;font-size:15px;line-height:24px;">
+                            This is a friendly reminder about your upcoming appointment at
+                            <strong>Clinic Management System</strong>.
+                        </p>
+
+                        <table role="presentation"
+                               width="100%"
+                               cellpadding="10"
+                               cellspacing="0"
+                               style="margin:20px 0;background:#f8fafc;border-radius:12px;border:1px solid #e5e7eb;">
+
+                            <tr>
+                                <td style="font-weight:bold;color:#374151;width:40%;">
+                                    Doctor
+                                </td>
+                                <td style="color:#111827;">
+                                    Dr. {{ doctor_first_name }} {{ doctor_last_name }}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="font-weight:bold;color:#374151;">
+                                    Specialization
+                                </td>
+                                <td style="color:#111827;">
+                                    {{ doctor_specialization }}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="font-weight:bold;color:#374151;">
+                                    Date
+                                </td>
+                                <td style="color:#111827;">
+                                    {{ appointment_date }}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="font-weight:bold;color:#374151;">
+                                    Time
+                                </td>
+                                <td style="color:#111827;">
+                                    {{ appointment_time }}
+                                </td>
+                            </tr>
+
+                        </table>
+
+                        <p style="margin-top:25px;color:#555;font-size:15px;line-height:24px;">
+                            Please arrive at the clinic
+                            <strong>10–15 minutes before your scheduled appointment.</strong>
+                        </p>
+
+                        <hr style="border:none;border-top:1px solid #eee;margin:35px 0;">
+
+                        <p style="font-size:13px;color:#999;line-height:20px;">
+                            If you are unable to attend your appointment, please cancel or reschedule it in advance.
+                        </p>
+
+                    </td>
+                </tr>
+
+            </table>
+
+            <p style="margin-top:25px;font-size:12px;color:#999;">
+                © {{ year }} Clinic Management System
+            </p>
+
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

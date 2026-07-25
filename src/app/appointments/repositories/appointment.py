@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import select, or_
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.appointments.models.appointment import Appointment
 from app.appointments.schemas.appointment import AppointmentCreateSchema
@@ -8,6 +9,7 @@ from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.medical_records.models.diagnosis import Diagnosis
 from app.medical_records.models.prescription import Prescription
 from app.medical_records.models.prescription_item import PrescriptionItem
+from app.users.models.user import User
 
 class AppointmentRepository:
 
@@ -39,7 +41,12 @@ class AppointmentRepository:
             .join(Appointment.slot)
             .where(
                 ScheduleSlot.slot_start >= start,
-                ScheduleSlot.slot_start <= end
+                ScheduleSlot.slot_start < end,
+            )
+            .options(
+                joinedload(Appointment.patient),
+                joinedload(Appointment.slot),
+                joinedload(Appointment.doctor).joinedload(User.specialization),
             )
         )
         result = await self.session.execute(stmt)

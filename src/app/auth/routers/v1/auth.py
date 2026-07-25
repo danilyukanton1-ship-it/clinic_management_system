@@ -47,6 +47,7 @@ async def verify_email(
 @limiter.limit("3/minute")
 async def resend_email_verification_code(
     email: str,
+    request: Request,
     service: RegisterService = Depends(get_register_service),
 ) -> dict:
     await service.resend_verification_email(email=email)

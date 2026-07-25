@@ -1,30 +1,42 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock
 
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.appointments.models.appointment import Appointment
 from app.users.models.user import User
-from common.enums.appointment_status import AppointmentStatus
 from common.enums.user_role import UserRole
+from db.unit_of_work import UnitOfWork
 
 pytest_plugins = [
     "tests.fixtures.users",
     "tests.fixtures.appointments",
     "tests.fixtures.scheduling",
-    "tests.fixtures.medical_records"
+    "tests.fixtures.medical_records",
+    "tests.fixtures.auth"
 ]
 
 @pytest.fixture
-def mock_async_session():
+def mock_async_session() -> AsyncSession:
     return AsyncMock(spec=AsyncSession)
 
 @pytest.fixture
-def mock_uow():
+def mock_uow() -> UnitOfWork:
     uow = MagicMock()
     uow.__aenter__ = AsyncMock(return_value=uow)
     uow.__aexit__ = AsyncMock(return_value=None)
     return uow
+
+@pytest.fixture
+def mock_redis() -> Redis:
+    redis = AsyncMock()
+
+    redis.get = AsyncMock()
+    redis.incr = AsyncMock()
+    redis.expire = AsyncMock()
+    redis.delete = AsyncMock()
+
+    return redis
 
 @pytest.fixture
 def current_patient():

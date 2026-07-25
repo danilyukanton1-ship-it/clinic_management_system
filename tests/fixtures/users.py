@@ -39,6 +39,34 @@ def patient_1():
     )
 
 @pytest.fixture
+def patient_1_unverified():
+    return User(
+        id=1,
+        email="patient1@test.com",
+        first_name="PatientOne",
+        last_name="PatientOne",
+        phone="+375291111111",
+        role=UserRole.PATIENT,
+        password_hash="ergerbgrengeur",
+        is_verified=False,
+        is_active=True,
+    )
+
+@pytest.fixture
+def patient_1_inactive():
+    return User(
+        id=1,
+        email="patient1@test.com",
+        first_name="PatientOne",
+        last_name="PatientOne",
+        phone="+375291111111",
+        role=UserRole.PATIENT,
+        password_hash="ergerbgrengeur",
+        is_verified=True,
+        is_active=False,
+    )
+
+@pytest.fixture
 def patient_2():
     return User(
         id=2,

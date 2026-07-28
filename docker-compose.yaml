@@ -1,4 +1,94 @@
 services:
+  app:
+    build:
+      context: .
+      target: development
+
+    container_name: cms_app
+
+    environment:
+      PYTHONPATH: /opt/pysetup/src
+
+    env_file:
+      - .env
+
+    volumes:
+      - .:/opt/pysetup
+      - /opt/pysetup/.venv
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    command: uvicorn src.main:app --host 0.0.0.0 --reload
+
+  celery-worker:
+    build:
+      context: .
+      target: development
+
+    container_name: cms_celery_worker
+
+    environment:
+      PYTHONPATH: /opt/pysetup/src
+
+    env_file:
+      - .env
+
+    volumes:
+      - .:/opt/pysetup
+      - /opt/pysetup/.venv
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    command: celery -A src.infrastructure.celery:celery_app worker --pool=solo --loglevel=info
+
+  celery-beat:
+    build:
+      context: .
+      target: development
+
+    container_name: cms_celery_beat
+
+    environment:
+      PYTHONPATH: /opt/pysetup/src
+
+    env_file:
+      - .env
+
+    volumes:
+      - .:/opt/pysetup
+      - /opt/pysetup/.venv
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    command: celery -A src.infrastructure.celery beat --loglevel=info
+
   postgres:
     image: postgres:17
     container_name: clinic_management_postgres
@@ -9,12 +99,18 @@ services:
       POSTGRES_PASSWORD: clinic_management_system_password
 
     ports:
-      - "5430:5432"
+      - "5432:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
     restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clinic_management_system -d clinic_management_database"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7
@@ -24,6 +120,12 @@ services:
       - "6379:6379"
 
     restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -38,6 +140,12 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
 
     restart: unless-stopped
+
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

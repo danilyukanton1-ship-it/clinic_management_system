@@ -1,9 +1,14 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
-from app.auth.exceptions.register import EmailAlreadyExistsException, PhoneAlreadyExistsException, \
-    UserAlreadyVerifiedException, VerificationCodeNotFoundException, IncorrectVerificationCodeException, \
-    UserNotVerifiedException
+from app.auth.exceptions.register import (
+    EmailAlreadyExistsException,
+    PhoneAlreadyExistsException,
+    UserAlreadyVerifiedException,
+    VerificationCodeNotFoundException,
+    IncorrectVerificationCodeException,
+    UserNotVerifiedException,
+)
 from app.users.exceptions.user import UserNotFoundException
 from app.users.schemas.user import PatientResponseSchema
 
@@ -12,22 +17,16 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_register_success(
-            self,
-            register_service,
-            register_schema,
-            patient_1,
+        self,
+        register_service,
+        register_schema,
+        patient_1,
     ):
-        register_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=None
-        )
+        register_service.uow.users.get_user_by_email = AsyncMock(return_value=None)
 
-        register_service.uow.users.get_user_by_phone = AsyncMock(
-            return_value=None
-        )
+        register_service.uow.users.get_user_by_phone = AsyncMock(return_value=None)
 
-        register_service.uow.users.create_patient = AsyncMock(
-            return_value=patient_1
-        )
+        register_service.uow.users.create_patient = AsyncMock(return_value=patient_1)
 
         with (
             patch(
@@ -66,18 +65,14 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_register_email_already_exists(
-            self,
-            register_service,
-            register_schema,
-            patient_1,
+        self,
+        register_service,
+        register_schema,
+        patient_1,
     ):
-        register_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        register_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
-        register_service.uow.users.get_user_by_phone = AsyncMock(
-            return_value=None
-        )
+        register_service.uow.users.get_user_by_phone = AsyncMock(return_value=None)
 
         register_service.uow.users.create_patient = AsyncMock()
 
@@ -96,18 +91,14 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_register_phone_already_exists(
-            self,
-            register_service,
-            register_schema,
-            patient_1,
+        self,
+        register_service,
+        register_schema,
+        patient_1,
     ):
-        register_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=None
-        )
+        register_service.uow.users.get_user_by_email = AsyncMock(return_value=None)
 
-        register_service.uow.users.get_user_by_phone = AsyncMock(
-            return_value=patient_1
-        )
+        register_service.uow.users.get_user_by_phone = AsyncMock(return_value=patient_1)
 
         register_service.uow.users.create_patient = AsyncMock()
 
@@ -126,10 +117,10 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_verify_email_success(
-            self,
-            register_service,
-            verify_email_schema,
-            patient_1_unverified,
+        self,
+        register_service,
+        verify_email_schema,
+        patient_1_unverified,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1_unverified
@@ -141,9 +132,7 @@ class TestRegisterService:
 
         register_service._verify_email_code = AsyncMock()
 
-        result = await register_service.verify_email(
-            verify_email_schema
-        )
+        result = await register_service.verify_email(verify_email_schema)
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email=verify_email_schema.email,
@@ -162,20 +151,16 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_verify_email_user_not_found(
-            self,
-            register_service,
-            verify_email_schema,
+        self,
+        register_service,
+        verify_email_schema,
     ):
-        register_service.uow.users.get_patient_by_email = AsyncMock(
-            return_value=None
-        )
+        register_service.uow.users.get_patient_by_email = AsyncMock(return_value=None)
 
         register_service.uow.users.make_user_verified = AsyncMock()
 
         with pytest.raises(UserNotFoundException):
-            await register_service.verify_email(
-                verify_email_schema
-            )
+            await register_service.verify_email(verify_email_schema)
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email=verify_email_schema.email,
@@ -185,10 +170,10 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_verify_email_already_verified(
-            self,
-            register_service,
-            verify_email_schema,
-            patient_1,
+        self,
+        register_service,
+        verify_email_schema,
+        patient_1,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1
@@ -197,9 +182,7 @@ class TestRegisterService:
         register_service.uow.users.make_user_verified = AsyncMock()
 
         with pytest.raises(UserAlreadyVerifiedException):
-            await register_service.verify_email(
-                verify_email_schema
-            )
+            await register_service.verify_email(verify_email_schema)
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email=verify_email_schema.email,
@@ -209,10 +192,10 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_verify_email_code_not_found(
-            self,
-            register_service,
-            verify_email_schema,
-            patient_1_unverified,
+        self,
+        register_service,
+        verify_email_schema,
+        patient_1_unverified,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1_unverified
@@ -225,9 +208,7 @@ class TestRegisterService:
         )
 
         with pytest.raises(VerificationCodeNotFoundException):
-            await register_service.verify_email(
-                verify_email_schema
-            )
+            await register_service.verify_email(verify_email_schema)
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email=verify_email_schema.email,
@@ -242,10 +223,10 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_verify_email_invalid_code(
-            self,
-            register_service,
-            verify_email_schema,
-            patient_1_unverified,
+        self,
+        register_service,
+        verify_email_schema,
+        patient_1_unverified,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1_unverified
@@ -258,9 +239,7 @@ class TestRegisterService:
         )
 
         with pytest.raises(IncorrectVerificationCodeException):
-            await register_service.verify_email(
-                verify_email_schema
-            )
+            await register_service.verify_email(verify_email_schema)
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email=verify_email_schema.email,
@@ -275,10 +254,10 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_forgot_password_success(
-            self,
-            register_service,
-            forgot_password_schema,
-            patient_1,
+        self,
+        register_service,
+        forgot_password_schema,
+        patient_1,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1
@@ -286,9 +265,7 @@ class TestRegisterService:
 
         register_service._send_verification_email = AsyncMock()
 
-        result = await register_service.forgot_password(
-            forgot_password_schema
-        )
+        result = await register_service.forgot_password(forgot_password_schema)
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email=forgot_password_schema.email,
@@ -303,20 +280,16 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_forgot_password_user_not_found(
-            self,
-            register_service,
-            forgot_password_schema,
+        self,
+        register_service,
+        forgot_password_schema,
     ):
-        register_service.uow.users.get_patient_by_email = AsyncMock(
-            return_value=None
-        )
+        register_service.uow.users.get_patient_by_email = AsyncMock(return_value=None)
 
         register_service._send_verification_email = AsyncMock()
 
         with pytest.raises(UserNotFoundException):
-            await register_service.forgot_password(
-                forgot_password_schema
-            )
+            await register_service.forgot_password(forgot_password_schema)
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email=forgot_password_schema.email,
@@ -326,10 +299,10 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_forgot_password_user_not_verified(
-            self,
-            register_service,
-            forgot_password_schema,
-            patient_1_unverified,
+        self,
+        register_service,
+        forgot_password_schema,
+        patient_1_unverified,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1_unverified
@@ -338,9 +311,7 @@ class TestRegisterService:
         register_service._send_verification_email = AsyncMock()
 
         with pytest.raises(UserNotVerifiedException):
-            await register_service.forgot_password(
-                forgot_password_schema
-            )
+            await register_service.forgot_password(forgot_password_schema)
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email=forgot_password_schema.email,
@@ -350,10 +321,10 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_reset_password_success(
-            self,
-            register_service,
-            reset_password_schema,
-            patient_1,
+        self,
+        register_service,
+        reset_password_schema,
+        patient_1,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1
@@ -361,9 +332,7 @@ class TestRegisterService:
 
         register_service._verify_email_code = AsyncMock()
 
-        register_service.uow.users.reset_password = AsyncMock(
-            return_value=patient_1
-        )
+        register_service.uow.users.reset_password = AsyncMock(return_value=patient_1)
 
         with (
             patch(
@@ -376,9 +345,7 @@ class TestRegisterService:
         ):
             mock_task.delay = MagicMock()
 
-            result = await register_service.reset_password(
-                reset_password_schema
-            )
+            result = await register_service.reset_password(reset_password_schema)
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email=reset_password_schema.email,
@@ -389,9 +356,7 @@ class TestRegisterService:
             verification_code=reset_password_schema.verification_code,
         )
 
-        mock_hash.assert_called_once_with(
-            reset_password_schema.password
-        )
+        mock_hash.assert_called_once_with(reset_password_schema.password)
 
         register_service.uow.users.reset_password.assert_called_once_with(
             user=patient_1,
@@ -404,31 +369,27 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_reset_password_user_not_found(
-            self,
-            register_service,
-            reset_password_schema,
+        self,
+        register_service,
+        reset_password_schema,
     ):
-        register_service.uow.users.get_patient_by_email = AsyncMock(
-            return_value=None
-        )
+        register_service.uow.users.get_patient_by_email = AsyncMock(return_value=None)
 
         register_service._verify_email_code = AsyncMock()
         register_service.uow.users.reset_password = AsyncMock()
 
         with pytest.raises(UserNotFoundException):
-            await register_service.reset_password(
-                reset_password_schema
-            )
+            await register_service.reset_password(reset_password_schema)
 
         register_service._verify_email_code.assert_not_called()
         register_service.uow.users.reset_password.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_reset_password_code_not_found(
-            self,
-            register_service,
-            reset_password_schema,
-            patient_1,
+        self,
+        register_service,
+        reset_password_schema,
+        patient_1,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1
@@ -441,18 +402,16 @@ class TestRegisterService:
         register_service.uow.users.reset_password = AsyncMock()
 
         with pytest.raises(VerificationCodeNotFoundException):
-            await register_service.reset_password(
-                reset_password_schema
-            )
+            await register_service.reset_password(reset_password_schema)
 
         register_service.uow.users.reset_password.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_reset_password_invalid_code(
-            self,
-            register_service,
-            reset_password_schema,
-            patient_1,
+        self,
+        register_service,
+        reset_password_schema,
+        patient_1,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1
@@ -465,17 +424,15 @@ class TestRegisterService:
         register_service.uow.users.reset_password = AsyncMock()
 
         with pytest.raises(IncorrectVerificationCodeException):
-            await register_service.reset_password(
-                reset_password_schema
-            )
+            await register_service.reset_password(reset_password_schema)
 
         register_service.uow.users.reset_password.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_resend_verification_email_success(
-            self,
-            register_service,
-            patient_1_unverified,
+        self,
+        register_service,
+        patient_1_unverified,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1_unverified
@@ -500,19 +457,15 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_resend_verification_email_user_not_found(
-            self,
-            register_service,
+        self,
+        register_service,
     ):
-        register_service.uow.users.get_patient_by_email = AsyncMock(
-            return_value=None
-        )
+        register_service.uow.users.get_patient_by_email = AsyncMock(return_value=None)
 
         register_service._send_verification_email = AsyncMock()
 
         with pytest.raises(UserNotFoundException):
-            await register_service.resend_verification_email(
-                "patient@test.com"
-            )
+            await register_service.resend_verification_email("patient@test.com")
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email="patient@test.com",
@@ -522,9 +475,9 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_resend_verification_email_already_verified(
-            self,
-            register_service,
-            patient_1,
+        self,
+        register_service,
+        patient_1,
     ):
         register_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1
@@ -533,9 +486,7 @@ class TestRegisterService:
         register_service._send_verification_email = AsyncMock()
 
         with pytest.raises(UserAlreadyVerifiedException):
-            await register_service.resend_verification_email(
-                patient_1.email
-            )
+            await register_service.resend_verification_email(patient_1.email)
 
         register_service.uow.users.get_patient_by_email.assert_called_once_with(
             email=patient_1.email,
@@ -545,8 +496,8 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_send_verification_email_success(
-            self,
-            register_service,
+        self,
+        register_service,
     ):
         register_service.redis.set = AsyncMock()
 
@@ -580,8 +531,8 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_verify_email_code_success(
-            self,
-            register_service,
+        self,
+        register_service,
     ):
         register_service.redis.get.return_value = "123456"
         register_service.redis.delete = AsyncMock()
@@ -601,8 +552,8 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_verify_email_code_bytes(
-            self,
-            register_service,
+        self,
+        register_service,
     ):
         register_service.redis.get.return_value = b"123456"
         register_service.redis.delete = AsyncMock()
@@ -618,8 +569,8 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_verify_email_code_not_found(
-            self,
-            register_service,
+        self,
+        register_service,
     ):
         register_service.redis.get.return_value = None
 
@@ -635,8 +586,8 @@ class TestRegisterService:
 
     @pytest.mark.asyncio
     async def test_verify_email_code_invalid(
-            self,
-            register_service,
+        self,
+        register_service,
     ):
         register_service.redis.get.return_value = "654321"
 
@@ -649,5 +600,3 @@ class TestRegisterService:
             )
 
         register_service.redis.delete.assert_not_called()
-
-

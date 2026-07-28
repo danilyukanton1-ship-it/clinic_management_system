@@ -7,9 +7,15 @@ from app.scheduling.models.schedule import Schedule
 from app.scheduling.models.schedule_absence import ScheduleAbsence
 from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.scheduling.schemas.schedule import ScheduleUpdateSchema, ScheduleCreateSchema
-from app.scheduling.schemas.schedule_absence import ScheduleAbsenceSchema, ScheduleAbsenceCreateSchema, \
-    ScheduleAbsenceUpdateSchema
-from app.scheduling.schemas.schedule_slot import ScheduleSlotCreateSchema, ScheduleSlotUpdateSchema
+from app.scheduling.schemas.schedule_absence import (
+    ScheduleAbsenceSchema,
+    ScheduleAbsenceCreateSchema,
+    ScheduleAbsenceUpdateSchema,
+)
+from app.scheduling.schemas.schedule_slot import (
+    ScheduleSlotCreateSchema,
+    ScheduleSlotUpdateSchema,
+)
 from app.scheduling.services.schedule import ScheduleService
 from app.scheduling.services.schedule_absence import ScheduleAbsenceService
 from app.scheduling.services.schedule_slot import ScheduleSlotService
@@ -20,11 +26,13 @@ from common.enums.weekday import Weekday
 TEST_START_DATETIME = datetime(2030, 1, 7, 10, 0)
 TEST_END_DATETIME = datetime(2030, 1, 7, 10, 30)
 
+
 @pytest.fixture
 def schedule_service(mock_async_session, mock_uow) -> ScheduleService:
     service = ScheduleService(mock_async_session)
     service.uow = mock_uow
     return service
+
 
 @pytest.fixture
 def schedule_absence_service(mock_async_session, mock_uow) -> ScheduleAbsenceService:
@@ -33,11 +41,13 @@ def schedule_absence_service(mock_async_session, mock_uow) -> ScheduleAbsenceSer
     service.policy = MagicMock()
     return service
 
+
 @pytest.fixture
 def schedule_slot_service(mock_async_session, mock_uow) -> ScheduleSlotService:
     service = ScheduleSlotService(mock_async_session)
     service.uow = mock_uow
     return service
+
 
 @pytest.fixture
 def schedule_update_schema():
@@ -48,6 +58,7 @@ def schedule_update_schema():
         end_time=time(17, 0),
         slot_duration_minutes=60,
     )
+
 
 @pytest.fixture
 def schedule_create_schema():
@@ -60,6 +71,7 @@ def schedule_create_schema():
         end_time=time(18, 0),
         slot_duration_minutes=30,
     )
+
 
 @pytest.fixture
 def schedule_1():
@@ -75,6 +87,7 @@ def schedule_1():
         is_active=True,
     )
 
+
 @pytest.fixture
 def schedule_1_updated():
     return Schedule(
@@ -89,6 +102,7 @@ def schedule_1_updated():
         is_active=True,
     )
 
+
 @pytest.fixture
 def schedule_slot_free():
     return ScheduleSlot(
@@ -97,8 +111,9 @@ def schedule_slot_free():
         doctor_id=1,
         slot_start=TEST_START_DATETIME,
         slot_end=TEST_END_DATETIME,
-        status=SlotStatus.FREE
+        status=SlotStatus.FREE,
     )
+
 
 @pytest.fixture
 def schedule_slot_1():
@@ -108,8 +123,9 @@ def schedule_slot_1():
         doctor_id=1,
         slot_start=TEST_START_DATETIME,
         slot_end=TEST_END_DATETIME,
-        status=SlotStatus.FREE
+        status=SlotStatus.FREE,
     )
+
 
 @pytest.fixture
 def schedule_slot_2():
@@ -119,8 +135,9 @@ def schedule_slot_2():
         doctor_id=1,
         slot_start=TEST_START_DATETIME + timedelta(hours=1),
         slot_end=TEST_END_DATETIME + timedelta(hours=1),
-        status=SlotStatus.FREE
+        status=SlotStatus.FREE,
     )
+
 
 @pytest.fixture
 def schedule_slot_booked():
@@ -130,8 +147,9 @@ def schedule_slot_booked():
         doctor_id=1,
         slot_start=TEST_START_DATETIME,
         slot_end=TEST_END_DATETIME,
-        status=SlotStatus.BOOKED
+        status=SlotStatus.BOOKED,
     )
+
 
 @pytest.fixture
 def schedule_slot_blocked():
@@ -141,8 +159,9 @@ def schedule_slot_blocked():
         doctor_id=1,
         slot_start=TEST_START_DATETIME,
         slot_end=TEST_END_DATETIME,
-        status=SlotStatus.BLOCKED
+        status=SlotStatus.BLOCKED,
     )
+
 
 @pytest.fixture
 def schedule_absence_1(doctor_1):
@@ -155,6 +174,7 @@ def schedule_absence_1(doctor_1):
         reason=AbsenceReason.PERSONAL,
     )
 
+
 @pytest.fixture
 def schedule_absence_started(doctor_1):
     now = datetime.now()
@@ -165,6 +185,7 @@ def schedule_absence_started(doctor_1):
         end_date=now + timedelta(days=5),
         reason=AbsenceReason.PERSONAL,
     )
+
 
 @pytest.fixture
 def schedule_absence_ended(doctor_1):
@@ -177,6 +198,7 @@ def schedule_absence_ended(doctor_1):
         reason=AbsenceReason.PERSONAL,
     )
 
+
 @pytest.fixture
 def schedule_absence_create_schema(doctor_1):
     now = datetime.now()
@@ -187,6 +209,7 @@ def schedule_absence_create_schema(doctor_1):
         reason=AbsenceReason.PERSONAL,
     )
 
+
 @pytest.fixture
 def schedule_absence_update_schema(doctor_1):
     now = datetime.now()
@@ -195,6 +218,7 @@ def schedule_absence_update_schema(doctor_1):
         end_date=now + timedelta(days=6),
         reason=AbsenceReason.TRAINING,
     )
+
 
 @pytest.fixture
 def started_schedule_absence_update_schema():
@@ -205,12 +229,14 @@ def started_schedule_absence_update_schema():
         reason=AbsenceReason.PERSONAL,
     )
 
+
 @pytest.fixture
 def updated_schedule_absence(schedule_absence_1):
     schedule_absence_1.start_date += timedelta(days=1)
     schedule_absence_1.end_date += timedelta(days=1)
 
     return schedule_absence_1
+
 
 @pytest.fixture
 def schedule_slot_create_schema():
@@ -222,6 +248,7 @@ def schedule_slot_create_schema():
         slot_end=TEST_END_DATETIME,
     )
 
+
 @pytest.fixture
 def schedule_slot_update_schema():
     return ScheduleSlotUpdateSchema(
@@ -229,6 +256,7 @@ def schedule_slot_update_schema():
         slot_end=TEST_END_DATETIME + timedelta(hours=1),
         status=SlotStatus.FREE,
     )
+
 
 @pytest.fixture
 def schedule_slot_1_updated():
@@ -238,5 +266,5 @@ def schedule_slot_1_updated():
         doctor_id=1,
         slot_start=TEST_START_DATETIME + timedelta(hours=1),
         slot_end=TEST_END_DATETIME + timedelta(hours=1),
-        status=SlotStatus.FREE
+        status=SlotStatus.FREE,
     )

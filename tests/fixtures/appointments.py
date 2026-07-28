@@ -13,8 +13,9 @@ from common.enums.appointment_status import AppointmentStatus
 from app.appointments.schemas.attachment import (
     AttachmentCreateSchema,
     AttachmentResponseSchema,
-    AttachmentUpdateSchema
+    AttachmentUpdateSchema,
 )
+
 
 @pytest.fixture
 def attachment_service(mock_async_session, mock_uow) -> AttachmentService:
@@ -23,12 +24,14 @@ def attachment_service(mock_async_session, mock_uow) -> AttachmentService:
     service.policy = MagicMock()
     return service
 
+
 @pytest.fixture
 def appointment_service(mock_async_session, mock_uow) -> AppointmentService:
     service = AppointmentService(mock_async_session)
     service.uow = mock_uow
     service.policy = MagicMock()
     return service
+
 
 @pytest.fixture
 def appointment_create_schema():
@@ -49,6 +52,7 @@ def attachment_create_schema():
         patient_id=1,
         appointment_id=1,
     )
+
 
 @pytest.fixture
 def attachment_update_schema():
@@ -75,6 +79,7 @@ def attachment_response_schema_1():
         updated_at=datetime.now(),
     )
 
+
 @pytest.fixture
 def attachment_response_schema_2():
     return AttachmentResponseSchema(
@@ -89,6 +94,7 @@ def attachment_response_schema_2():
         created_at=datetime.now(),
         updated_at=datetime.now(),
     )
+
 
 @pytest.fixture
 def attachment_1():
@@ -105,6 +111,7 @@ def attachment_1():
         updated_at=datetime.now(),
     )
 
+
 @pytest.fixture
 def attachment_2():
     return Attachment(
@@ -119,6 +126,7 @@ def attachment_2():
         created_at=datetime.now(),
         updated_at=datetime.now(),
     )
+
 
 @pytest.fixture
 def appointment_patient_1(patient_1, doctor_1, schedule_slot_1, specialization):
@@ -139,6 +147,7 @@ def appointment_patient_1(patient_1, doctor_1, schedule_slot_1, specialization):
     appointment.slot = schedule_slot_1
 
     return appointment
+
 
 @pytest.fixture
 def appointment_patient_2():

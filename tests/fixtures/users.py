@@ -4,29 +4,40 @@ import pytest
 
 from app.users.models.specialization import Specialization
 from app.users.models.user import User
-from app.users.schemas.specialization import SpecializationUpdateSchema, SpecializationCreateSchema
-from app.users.schemas.user import DoctorCreateSchema, DoctorUpdateSchema, AdminCreateSchema, AdminUpdateSchema, \
-    PatientUpdateSchema
+from app.users.schemas.specialization import (
+    SpecializationUpdateSchema,
+    SpecializationCreateSchema,
+)
+from app.users.schemas.user import (
+    DoctorCreateSchema,
+    DoctorUpdateSchema,
+    AdminCreateSchema,
+    AdminUpdateSchema,
+    PatientUpdateSchema,
+)
 from app.users.services.specialization import SpecializationService
 from app.users.services.user import UserService
 from common.enums.user_role import UserRole
 
+
 @pytest.fixture
 def user_service(
-        mock_async_session,
-        mock_uow,
-        mock_redis,
+    mock_async_session,
+    mock_uow,
+    mock_redis,
 ) -> UserService:
     service = UserService(mock_async_session, mock_redis)
     service.uow = mock_uow
     service.policy = MagicMock()
     return service
 
+
 @pytest.fixture
 def specialization_service(mock_async_session, mock_uow) -> SpecializationService:
     service = SpecializationService(mock_async_session)
     service.uow = mock_uow
     return service
+
 
 @pytest.fixture
 def patient_1() -> User:
@@ -42,6 +53,7 @@ def patient_1() -> User:
         is_active=True,
     )
 
+
 @pytest.fixture
 def patient_1_unverified() -> User:
     return User(
@@ -55,6 +67,7 @@ def patient_1_unverified() -> User:
         is_verified=False,
         is_active=True,
     )
+
 
 @pytest.fixture
 def patient_1_inactive():
@@ -70,6 +83,7 @@ def patient_1_inactive():
         is_active=False,
     )
 
+
 @pytest.fixture
 def patient_2():
     return User(
@@ -83,6 +97,7 @@ def patient_2():
         is_verified=True,
         is_active=True,
     )
+
 
 @pytest.fixture
 def doctor_1():
@@ -99,6 +114,7 @@ def doctor_1():
         is_active=True,
     )
 
+
 @pytest.fixture
 def doctor_2():
     return User(
@@ -114,6 +130,7 @@ def doctor_2():
         is_active=True,
     )
 
+
 @pytest.fixture
 def admin_1():
     return User(
@@ -127,6 +144,7 @@ def admin_1():
         is_verified=True,
         is_active=True,
     )
+
 
 @pytest.fixture
 def admin_2():
@@ -142,6 +160,7 @@ def admin_2():
         is_active=True,
     )
 
+
 @pytest.fixture
 def specialization():
     return Specialization(
@@ -150,6 +169,7 @@ def specialization():
         description="test specialization",
     )
 
+
 @pytest.fixture
 def specialization_update_schema():
     return SpecializationUpdateSchema(
@@ -157,12 +177,14 @@ def specialization_update_schema():
         description="test specialization updated",
     )
 
+
 @pytest.fixture
 def specialization_create_schema():
     return SpecializationCreateSchema(
         name="test specialization",
         description="test specialization",
     )
+
 
 @pytest.fixture
 def specialization_updated():
@@ -172,17 +194,19 @@ def specialization_updated():
         description="test specialization updated",
     )
 
+
 @pytest.fixture
 def doctor_create_schema():
     return DoctorCreateSchema(
-        first_name = "test",
-        last_name = "test",
-        middle_name = "test",
-        phone = "+375291234567",
-        email = "doctor@test.com",
-        password = "qwertyyyyyyyy",
+        first_name="test",
+        last_name="test",
+        middle_name="test",
+        phone="+375291234567",
+        email="doctor@test.com",
+        password="qwertyyyyyyyy",
         specialization_id=1,
     )
+
 
 @pytest.fixture
 def admin_create_schema():
@@ -195,6 +219,7 @@ def admin_create_schema():
         password="qwertyyyyyyyy",
     )
 
+
 @pytest.fixture
 def doctor_update_schema():
     return DoctorUpdateSchema(
@@ -205,6 +230,7 @@ def doctor_update_schema():
         specialization_id=2,
     )
 
+
 @pytest.fixture
 def admin_update_schema():
     return AdminUpdateSchema(
@@ -214,6 +240,7 @@ def admin_update_schema():
         phone="+375297777772",
     )
 
+
 @pytest.fixture
 def patient_update_schema():
     return PatientUpdateSchema(
@@ -222,4 +249,3 @@ def patient_update_schema():
         last_name="PatientTwo",
         phone="+375292222222",
     )
-

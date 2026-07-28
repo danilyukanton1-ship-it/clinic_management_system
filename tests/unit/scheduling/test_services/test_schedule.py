@@ -2,8 +2,11 @@ import pytest
 
 from unittest.mock import AsyncMock, call
 from datetime import date, datetime, timedelta
-from app.scheduling.exceptions.schedule import ScheduleNotFoundException, ScheduleAlreadyExistsException, \
-    ScheduleCanNotBeDeletedException
+from app.scheduling.exceptions.schedule import (
+    ScheduleNotFoundException,
+    ScheduleAlreadyExistsException,
+    ScheduleCanNotBeDeletedException,
+)
 from app.users.exceptions.user import UserNotFoundException
 from common.enums.slot_status import SlotStatus
 from common.enums.weekday import Weekday
@@ -13,9 +16,9 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_get_schedule_by_doctor_id_and_weekday_success(
-            self,
-            schedule_service,
-            schedule_1,
+        self,
+        schedule_service,
+        schedule_1,
     ):
         schedule_service.uow.schedules.get_by_doctor_id_and_weekday = AsyncMock(
             return_value=schedule_1
@@ -40,8 +43,8 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_get_schedule_by_doctor_id_and_weekday_schedule_not_found(
-            self,
-            schedule_service,
+        self,
+        schedule_service,
     ):
         schedule_service.uow.schedules.get_by_doctor_id_and_weekday = AsyncMock(
             return_value=None
@@ -58,13 +61,11 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_get_schedule_by_id_success(
-            self,
-            schedule_service,
-            schedule_1,
+        self,
+        schedule_service,
+        schedule_1,
     ):
-        schedule_service.uow.schedules.get_by_id = AsyncMock(
-            return_value=schedule_1
-        )
+        schedule_service.uow.schedules.get_by_id = AsyncMock(return_value=schedule_1)
         result = await schedule_service.get_schedule_by_id(
             schedule_id=schedule_1.id,
         )
@@ -83,12 +84,10 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_get_schedule_by_id_schedule_not_found(
-            self,
-            schedule_service,
+        self,
+        schedule_service,
     ):
-        schedule_service.uow.schedules.get_by_id = AsyncMock(
-            return_value=None
-        )
+        schedule_service.uow.schedules.get_by_id = AsyncMock(return_value=None)
         with pytest.raises(ScheduleNotFoundException):
             await schedule_service.get_schedule_by_id(
                 schedule_id=1,
@@ -99,9 +98,9 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_get_all_schedule_by_doctor_id_success(
-            self,
-            schedule_service,
-            schedule_1,
+        self,
+        schedule_service,
+        schedule_1,
     ):
         schedule_service.uow.schedules.get_all_by_doctor_id = AsyncMock(
             return_value=[schedule_1]
@@ -125,12 +124,10 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_get_all_schedule_by_doctor_id_schedule_not_found(
-            self,
-            schedule_service,
+        self,
+        schedule_service,
     ):
-        schedule_service.uow.schedules.get_all_by_doctor_id = AsyncMock(
-            return_value=[]
-        )
+        schedule_service.uow.schedules.get_all_by_doctor_id = AsyncMock(return_value=[])
         with pytest.raises(ScheduleNotFoundException):
             await schedule_service.get_all_schedule_by_doctor_id(
                 doctor_id=1,
@@ -141,18 +138,14 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_create_success(
-            self,
-            schedule_service,
-            doctor_1,
-            schedule_create_schema,
-            schedule_1,
+        self,
+        schedule_service,
+        doctor_1,
+        schedule_create_schema,
+        schedule_1,
     ):
-        schedule_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=doctor_1
-        )
-        schedule_service.uow.schedules.if_exists = AsyncMock(
-            return_value=False
-        )
+        schedule_service.uow.users.get_doctor_by_id = AsyncMock(return_value=doctor_1)
+        schedule_service.uow.schedules.if_exists = AsyncMock(return_value=False)
         schedule_service.uow.schedules.create_schedule = AsyncMock(
             return_value=schedule_1
         )
@@ -181,13 +174,11 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_create_doctor_not_found(
-            self,
-            schedule_service,
-            schedule_create_schema,
+        self,
+        schedule_service,
+        schedule_create_schema,
     ):
-        schedule_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=None
-        )
+        schedule_service.uow.users.get_doctor_by_id = AsyncMock(return_value=None)
         schedule_service.uow.schedules.if_exists = AsyncMock()
         schedule_service.uow.schedules.create_schedule = AsyncMock()
 
@@ -204,17 +195,13 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_create_schedule_already_exists(
-            self,
-            schedule_service,
-            doctor_1,
-            schedule_create_schema,
+        self,
+        schedule_service,
+        doctor_1,
+        schedule_create_schema,
     ):
-        schedule_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=doctor_1
-        )
-        schedule_service.uow.schedules.if_exists = AsyncMock(
-            return_value=True
-        )
+        schedule_service.uow.users.get_doctor_by_id = AsyncMock(return_value=doctor_1)
+        schedule_service.uow.schedules.if_exists = AsyncMock(return_value=True)
         schedule_service.uow.schedules.create_schedule = AsyncMock()
 
         with pytest.raises(ScheduleAlreadyExistsException):
@@ -233,13 +220,13 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_update_success_without_last_booked(
-            self,
-            schedule_service,
-            schedule_1,
-            schedule_1_updated,
-            schedule_update_schema,
-            schedule_slot_1,
-            schedule_slot_2,
+        self,
+        schedule_service,
+        schedule_1,
+        schedule_1_updated,
+        schedule_update_schema,
+        schedule_slot_1,
+        schedule_slot_2,
     ):
         schedule_service.uow.schedules.get_by_doctor_id_and_weekday = AsyncMock(
             return_value=schedule_1
@@ -272,10 +259,12 @@ class TestScheduleService:
             day=date.today(),
             schedule_id=schedule_1.id,
         )
-        schedule_service.uow.schedule_slots.delete_slot.assert_has_awaits([
-            call(slot=schedule_slot_1),
-            call(slot=schedule_slot_2),
-        ])
+        schedule_service.uow.schedule_slots.delete_slot.assert_has_awaits(
+            [
+                call(slot=schedule_slot_1),
+                call(slot=schedule_slot_2),
+            ]
+        )
         schedule_service.uow.schedules.update_schedule.assert_awaited_once_with(
             db_schedule=schedule_1,
             data=schedule_update_schema,
@@ -292,13 +281,13 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_update_success_with_last_booked(
-            self,
-            schedule_service,
-            schedule_1,
-            schedule_1_updated,
-            schedule_update_schema,
-            schedule_slot_1,
-            schedule_slot_2,
+        self,
+        schedule_service,
+        schedule_1,
+        schedule_1_updated,
+        schedule_update_schema,
+        schedule_slot_1,
+        schedule_slot_2,
     ):
         last_booked = datetime(2026, 1, 10, 12, 0)
         expected_day = last_booked.date() + timedelta(days=1)
@@ -329,16 +318,18 @@ class TestScheduleService:
             schedule_id=schedule_1.id,
         )
 
-        schedule_service.uow.schedule_slots.delete_slot.assert_has_awaits([
-            call(slot=schedule_slot_1),
-            call(slot=schedule_slot_2),
-        ])
+        schedule_service.uow.schedule_slots.delete_slot.assert_has_awaits(
+            [
+                call(slot=schedule_slot_1),
+                call(slot=schedule_slot_2),
+            ]
+        )
 
     @pytest.mark.asyncio
     async def test_update_schedule_not_found(
-            self,
-            schedule_service,
-            schedule_update_schema,
+        self,
+        schedule_service,
+        schedule_update_schema,
     ):
         schedule_service.uow.schedules.get_by_doctor_id_and_weekday = AsyncMock(
             return_value=None
@@ -366,17 +357,15 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_delete_success(
-            self,
-            schedule_service,
-            schedule_1,
-            schedule_slot_1,
-            schedule_slot_2,
+        self,
+        schedule_service,
+        schedule_1,
+        schedule_slot_1,
+        schedule_slot_2,
     ):
-        schedule_service.uow.schedules.get_by_id = AsyncMock(
-            return_value=schedule_1
-        )
-        schedule_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = AsyncMock(
-            return_value=[]
+        schedule_service.uow.schedules.get_by_id = AsyncMock(return_value=schedule_1)
+        schedule_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = (
+            AsyncMock(return_value=[])
         )
         schedule_service.uow.schedule_slots.get_slots_after_date = AsyncMock(
             return_value=[schedule_slot_1, schedule_slot_2]
@@ -398,10 +387,12 @@ class TestScheduleService:
             day=date.today(),
             schedule_id=schedule_1.id,
         )
-        schedule_service.uow.schedule_slots.delete_slot.assert_has_awaits([
-            call(slot=schedule_slot_1),
-            call(slot=schedule_slot_2),
-        ])
+        schedule_service.uow.schedule_slots.delete_slot.assert_has_awaits(
+            [
+                call(slot=schedule_slot_1),
+                call(slot=schedule_slot_2),
+            ]
+        )
         schedule_service.uow.schedules.delete_schedule.assert_awaited_once_with(
             schedule=schedule_1,
         )
@@ -409,13 +400,13 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_delete_schedule_not_found(
-            self,
-            schedule_service,
+        self,
+        schedule_service,
     ):
-        schedule_service.uow.schedules.get_by_id = AsyncMock(
-            return_value=None
+        schedule_service.uow.schedules.get_by_id = AsyncMock(return_value=None)
+        schedule_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = (
+            AsyncMock()
         )
-        schedule_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = AsyncMock()
         schedule_service.uow.schedule_slots.get_slots_after_date = AsyncMock()
         schedule_service.uow.schedule_slots.delete_slot = AsyncMock()
         schedule_service.uow.schedules.delete_schedule = AsyncMock()
@@ -433,16 +424,14 @@ class TestScheduleService:
 
     @pytest.mark.asyncio
     async def test_delete_schedule_can_not_be_deleted(
-            self,
-            schedule_service,
-            schedule_1,
-            schedule_slot_1,
+        self,
+        schedule_service,
+        schedule_1,
+        schedule_slot_1,
     ):
-        schedule_service.uow.schedules.get_by_id = AsyncMock(
-            return_value=schedule_1
-        )
-        schedule_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = AsyncMock(
-            return_value=[schedule_slot_1]
+        schedule_service.uow.schedules.get_by_id = AsyncMock(return_value=schedule_1)
+        schedule_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = (
+            AsyncMock(return_value=[schedule_slot_1])
         )
         schedule_service.uow.schedule_slots.get_slots_after_date = AsyncMock()
         schedule_service.uow.schedule_slots.delete_slot = AsyncMock()

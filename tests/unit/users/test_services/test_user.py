@@ -2,8 +2,16 @@ import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
 from app.users.exceptions.specialization import SpecializationNotFoundException
-from app.users.exceptions.user import UserAlreadyExistsException, UserNotFoundException, UserAlreadyInactiveException
-from app.users.schemas.user import DoctorResponseSchema, AdminResponseSchema, PatientResponseSchema
+from app.users.exceptions.user import (
+    UserAlreadyExistsException,
+    UserNotFoundException,
+    UserAlreadyInactiveException,
+)
+from app.users.schemas.user import (
+    DoctorResponseSchema,
+    AdminResponseSchema,
+    PatientResponseSchema,
+)
 from common.permissions.exceptions import ForbiddenException
 
 
@@ -11,8 +19,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_check_email_exists_success(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service.uow.users.get_user_by_email = AsyncMock(return_value=None)
 
@@ -26,9 +34,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_check_email_exists_already_exists(
-            self,
-            user_service,
-            doctor_1,
+        self,
+        user_service,
+        doctor_1,
     ):
         user_service.uow.users.get_user_by_email = AsyncMock(
             return_value=doctor_1,
@@ -45,8 +53,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_validate_user_contacts_success(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service.uow.users.get_user_by_email = AsyncMock(return_value=None)
         user_service.uow.users.get_user_by_phone = AsyncMock(return_value=None)
@@ -66,10 +74,7 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_validate_user_contacts_email_already_exists(
-            self,
-            user_service,
-            doctor_2,
-            doctor_1
+        self, user_service, doctor_2, doctor_1
     ):
         user_service.uow.users.get_user_by_email = AsyncMock(
             return_value=doctor_2,
@@ -88,10 +93,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_validate_user_contacts_phone_already_exists(
-            self,
-            user_service,
-            doctor_2,
-            doctor_1,
+        self,
+        user_service,
+        doctor_2,
+        doctor_1,
     ):
         user_service.uow.users.get_user_by_email = AsyncMock(return_value=None)
         user_service.uow.users.get_user_by_phone = AsyncMock(
@@ -111,9 +116,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_doctor_success(
-            self,
-            user_service,
-            doctor_1,
+        self,
+        user_service,
+        doctor_1,
     ):
         user_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,
@@ -131,8 +136,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_doctor_not_found(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=None,
@@ -149,9 +154,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_success(
-            self,
-            user_service,
-            patient_1,
+        self,
+        user_service,
+        patient_1,
     ):
         user_service.uow.users.get_patient_by_id = AsyncMock(
             return_value=patient_1,
@@ -169,8 +174,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_not_found(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service.uow.users.get_patient_by_id = AsyncMock(
             return_value=None,
@@ -187,9 +192,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_admin_success(
-            self,
-            user_service,
-            admin_1,
+        self,
+        user_service,
+        admin_1,
     ):
         user_service.uow.users.get_admin_by_id = AsyncMock(
             return_value=admin_1,
@@ -207,8 +212,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_admin_not_found(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service.uow.users.get_admin_by_id = AsyncMock(
             return_value=None,
@@ -225,9 +230,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_specialization_success(
-            self,
-            user_service,
-            specialization,
+        self,
+        user_service,
+        specialization,
     ):
         user_service.uow.specializations.get_specialization_by_id = AsyncMock(
             return_value=specialization,
@@ -245,8 +250,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_specialization_not_found(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service.uow.specializations.get_specialization_by_id = AsyncMock(
             return_value=None,
@@ -263,9 +268,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_success(
-            self,
-            user_service,
-            doctor_1,
+        self,
+        user_service,
+        doctor_1,
     ):
         user_service.uow.users.make_user_inactive = AsyncMock(
             return_value=doctor_1,
@@ -283,9 +288,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_already_inactive(
-            self,
-            user_service,
-            doctor_1,
+        self,
+        user_service,
+        doctor_1,
     ):
         doctor_1.is_active = False
 
@@ -300,11 +305,11 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_create_doctor_success(
-            self,
-            user_service,
-            doctor_create_schema,
-            doctor_1,
-            specialization,
+        self,
+        user_service,
+        doctor_create_schema,
+        doctor_1,
+        specialization,
     ):
         user_service._check_email_exists = AsyncMock()
         user_service._get_specialization = AsyncMock(
@@ -316,8 +321,8 @@ class TestUserService:
         )
 
         with patch(
-                "app.users.services.user.get_password_hash",
-                return_value="hashed_password",
+            "app.users.services.user.get_password_hash",
+            return_value="hashed_password",
         ) as password_hash_mock:
             result = await user_service.create_doctor(
                 data=doctor_create_schema,
@@ -345,9 +350,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_create_doctor_email_exists(
-            self,
-            user_service,
-            doctor_create_schema,
+        self,
+        user_service,
+        doctor_create_schema,
     ):
         user_service._check_email_exists = AsyncMock(
             side_effect=UserAlreadyExistsException,
@@ -366,9 +371,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_create_doctor_specialization_not_found(
-            self,
-            user_service,
-            doctor_create_schema,
+        self,
+        user_service,
+        doctor_create_schema,
     ):
         user_service._check_email_exists = AsyncMock()
 
@@ -387,10 +392,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_create_admin_success(
-            self,
-            user_service,
-            admin_create_schema,
-            admin_1,
+        self,
+        user_service,
+        admin_create_schema,
+        admin_1,
     ):
         user_service._check_email_exists = AsyncMock()
 
@@ -399,8 +404,8 @@ class TestUserService:
         )
 
         with patch(
-                "app.users.services.user.get_password_hash",
-                return_value="hashed_password",
+            "app.users.services.user.get_password_hash",
+            return_value="hashed_password",
         ) as password_hash_mock:
             result = await user_service.create_admin(
                 data=admin_create_schema,
@@ -423,9 +428,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_create_admin_email_exists(
-            self,
-            user_service,
-            admin_create_schema,
+        self,
+        user_service,
+        admin_create_schema,
     ):
         user_service._check_email_exists = AsyncMock(
             side_effect=UserAlreadyExistsException,
@@ -442,10 +447,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_all_doctors_success(
-            self,
-            user_service,
-            doctor_1,
-            doctor_2,
+        self,
+        user_service,
+        doctor_1,
+        doctor_2,
     ):
         user_service.uow.users.get_all_doctors = AsyncMock(
             return_value=[doctor_1, doctor_2],
@@ -462,10 +467,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_doctors_by_specialization_id_success(
-            self,
-            user_service,
-            doctor_1,
-            doctor_2,
+        self,
+        user_service,
+        doctor_1,
+        doctor_2,
     ):
         user_service.uow.users.get_doctors_by_specialization_id = AsyncMock(
             return_value=[doctor_1, doctor_2],
@@ -486,10 +491,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_all_patients_success(
-            self,
-            user_service,
-            patient_1,
-            patient_2,
+        self,
+        user_service,
+        patient_1,
+        patient_2,
     ):
         user_service.uow.users.get_all_patients = AsyncMock(
             return_value=[patient_1, patient_2],
@@ -506,9 +511,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_doctor_by_id_success(
-            self,
-            user_service,
-            doctor_1,
+        self,
+        user_service,
+        doctor_1,
     ):
         user_service._get_doctor = AsyncMock(
             return_value=doctor_1,
@@ -526,9 +531,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_admin_by_id_success(
-            self,
-            user_service,
-            admin_1,
+        self,
+        user_service,
+        admin_1,
     ):
         user_service._get_admin = AsyncMock(
             return_value=admin_1,
@@ -546,10 +551,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_by_id_success(
-            self,
-            user_service,
-            patient_1,
-            current_admin,
+        self,
+        user_service,
+        patient_1,
+        current_admin,
     ):
         user_service._get_patient = AsyncMock(
             return_value=patient_1,
@@ -575,8 +580,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_doctor_by_id_not_found(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service._get_doctor = AsyncMock(
             side_effect=UserNotFoundException,
@@ -593,8 +598,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_admin_by_id_not_found(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service._get_admin = AsyncMock(
             side_effect=UserNotFoundException,
@@ -611,9 +616,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_by_id_not_found(
-            self,
-            user_service,
-            current_admin,
+        self,
+        user_service,
+        current_admin,
     ):
         user_service._get_patient = AsyncMock(
             side_effect=UserNotFoundException,
@@ -631,10 +636,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_by_id_permission_denied(
-            self,
-            user_service,
-            patient_1,
-            current_patient,
+        self,
+        user_service,
+        patient_1,
+        current_patient,
     ):
         user_service._get_patient = AsyncMock(
             return_value=patient_1,
@@ -652,10 +657,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_doctor_by_email_success(
-            self,
-            user_service,
-            doctor_1,
-            current_admin,
+        self,
+        user_service,
+        doctor_1,
+        current_admin,
     ):
         user_service.uow.users.get_doctor_by_email = AsyncMock(
             return_value=doctor_1,
@@ -680,9 +685,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_doctor_by_email_not_found(
-            self,
-            user_service,
-            current_admin,
+        self,
+        user_service,
+        current_admin,
     ):
         user_service.uow.users.get_doctor_by_email = AsyncMock(
             return_value=None,
@@ -699,10 +704,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_doctor_by_email_permission_denied(
-            self,
-            user_service,
-            doctor_1,
-            current_patient,
+        self,
+        user_service,
+        doctor_1,
+        current_patient,
     ):
         user_service.uow.users.get_doctor_by_email = AsyncMock(
             return_value=doctor_1,
@@ -720,10 +725,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_by_email_success(
-            self,
-            user_service,
-            patient_1,
-            current_admin,
+        self,
+        user_service,
+        patient_1,
+        current_admin,
     ):
         user_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1,
@@ -749,9 +754,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_by_email_not_found(
-            self,
-            user_service,
-            current_admin,
+        self,
+        user_service,
+        current_admin,
     ):
         user_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=None,
@@ -769,10 +774,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_by_email_permission_denied(
-            self,
-            user_service,
-            patient_1,
-            current_doctor,
+        self,
+        user_service,
+        patient_1,
+        current_doctor,
     ):
         user_service.uow.users.get_patient_by_email = AsyncMock(
             return_value=patient_1,
@@ -790,10 +795,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_by_phone_success(
-            self,
-            user_service,
-            patient_1,
-            current_admin,
+        self,
+        user_service,
+        patient_1,
+        current_admin,
     ):
         user_service.uow.users.get_patient_by_phone = AsyncMock(
             return_value=patient_1,
@@ -819,9 +824,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_by_phone_not_found(
-            self,
-            user_service,
-            current_admin,
+        self,
+        user_service,
+        current_admin,
     ):
         user_service.uow.users.get_patient_by_phone = AsyncMock(
             return_value=None,
@@ -839,10 +844,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_patient_by_phone_permission_denied(
-            self,
-            user_service,
-            patient_1,
-            current_doctor,
+        self,
+        user_service,
+        patient_1,
+        current_doctor,
     ):
         user_service.uow.users.get_patient_by_phone = AsyncMock(
             return_value=patient_1,
@@ -860,11 +865,11 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_admin_success(
-            self,
-            user_service,
-            admin_1,
-            admin_2,
-            admin_update_schema,
+        self,
+        user_service,
+        admin_1,
+        admin_2,
+        admin_update_schema,
     ):
         user_service._get_admin = AsyncMock(
             return_value=admin_1,
@@ -900,9 +905,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_admin_not_found(
-            self,
-            user_service,
-            admin_update_schema,
+        self,
+        user_service,
+        admin_update_schema,
     ):
         user_service._get_admin = AsyncMock(
             side_effect=UserNotFoundException,
@@ -922,10 +927,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_admin_contacts_already_exists(
-            self,
-            user_service,
-            admin_1,
-            admin_update_schema,
+        self,
+        user_service,
+        admin_1,
+        admin_update_schema,
     ):
         user_service._get_admin = AsyncMock(
             return_value=admin_1,
@@ -947,12 +952,12 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_doctor_success(
-            self,
-            user_service,
-            doctor_1,
-            doctor_2,
-            doctor_update_schema,
-            current_admin,
+        self,
+        user_service,
+        doctor_1,
+        doctor_2,
+        doctor_update_schema,
+        current_admin,
     ):
         user_service._get_doctor = AsyncMock(
             return_value=doctor_1,
@@ -994,10 +999,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_doctor_not_found(
-            self,
-            user_service,
-            doctor_update_schema,
-            current_admin,
+        self,
+        user_service,
+        doctor_update_schema,
+        current_admin,
     ):
         user_service._get_doctor = AsyncMock(
             side_effect=UserNotFoundException,
@@ -1014,16 +1019,13 @@ class TestUserService:
 
         user_service.policy.can_update.assert_not_called()
 
-
-
-
     @pytest.mark.asyncio
     async def test_update_doctor_permission_denied(
-            self,
-            user_service,
-            doctor_1,
-            doctor_update_schema,
-            current_patient,
+        self,
+        user_service,
+        doctor_1,
+        doctor_update_schema,
+        current_patient,
     ):
         user_service._get_doctor = AsyncMock(
             return_value=doctor_1,
@@ -1044,11 +1046,11 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_doctor_contacts_already_exists(
-            self,
-            user_service,
-            doctor_1,
-            doctor_update_schema,
-            current_admin,
+        self,
+        user_service,
+        doctor_1,
+        doctor_update_schema,
+        current_admin,
     ):
         user_service._get_doctor = AsyncMock(
             return_value=doctor_1,
@@ -1072,11 +1074,11 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_doctor_specialization_not_found(
-            self,
-            user_service,
-            doctor_1,
-            doctor_update_schema,
-            current_admin,
+        self,
+        user_service,
+        doctor_1,
+        doctor_update_schema,
+        current_admin,
     ):
         user_service._get_doctor = AsyncMock(
             return_value=doctor_1,
@@ -1103,12 +1105,12 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_patient_success(
-            self,
-            user_service,
-            patient_1,
-            patient_2,
-            patient_update_schema,
-            current_admin,
+        self,
+        user_service,
+        patient_1,
+        patient_2,
+        patient_update_schema,
+        current_admin,
     ):
         user_service._get_patient = AsyncMock(
             return_value=patient_1,
@@ -1148,10 +1150,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_patient_not_found(
-            self,
-            user_service,
-            patient_update_schema,
-            current_admin,
+        self,
+        user_service,
+        patient_update_schema,
+        current_admin,
     ):
         user_service._get_patient = AsyncMock(
             side_effect=UserNotFoundException,
@@ -1170,11 +1172,11 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_patient_permission_denied(
-            self,
-            user_service,
-            patient_1,
-            patient_update_schema,
-            current_doctor,
+        self,
+        user_service,
+        patient_1,
+        patient_update_schema,
+        current_doctor,
     ):
         user_service._get_patient = AsyncMock(
             return_value=patient_1,
@@ -1197,11 +1199,11 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_update_patient_contacts_already_exists(
-            self,
-            user_service,
-            patient_1,
-            patient_update_schema,
-            current_admin,
+        self,
+        user_service,
+        patient_1,
+        patient_update_schema,
+        current_admin,
     ):
         user_service._get_patient = AsyncMock(
             return_value=patient_1,
@@ -1226,10 +1228,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_doctor_success(
-            self,
-            user_service,
-            doctor_1,
-            current_admin,
+        self,
+        user_service,
+        doctor_1,
+        current_admin,
     ):
         doctor_1.is_active = True
 
@@ -1257,8 +1259,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_doctor_not_found(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service._get_doctor = AsyncMock(
             side_effect=UserNotFoundException,
@@ -1275,9 +1277,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_doctor_already_inactive(
-            self,
-            user_service,
-            doctor_1,
+        self,
+        user_service,
+        doctor_1,
     ):
         user_service._get_doctor = AsyncMock(
             return_value=doctor_1,
@@ -1298,9 +1300,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_patient_success(
-            self,
-            user_service,
-            patient_1,
+        self,
+        user_service,
+        patient_1,
     ):
         user_service._get_patient = AsyncMock(
             return_value=patient_1,
@@ -1326,8 +1328,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_patient_not_found(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service._get_patient = AsyncMock(
             side_effect=UserNotFoundException,
@@ -1344,9 +1346,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_patient_already_inactive(
-            self,
-            user_service,
-            patient_1,
+        self,
+        user_service,
+        patient_1,
     ):
         user_service._get_patient = AsyncMock(
             return_value=patient_1,
@@ -1367,9 +1369,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_admin_success(
-            self,
-            user_service,
-            admin_1,
+        self,
+        user_service,
+        admin_1,
     ):
         user_service._get_admin = AsyncMock(
             return_value=admin_1,
@@ -1395,8 +1397,8 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_admin_not_found(
-            self,
-            user_service,
+        self,
+        user_service,
     ):
         user_service._get_admin = AsyncMock(
             side_effect=UserNotFoundException,
@@ -1413,9 +1415,9 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_deactivate_admin_already_inactive(
-            self,
-            user_service,
-            admin_1,
+        self,
+        user_service,
+        admin_1,
     ):
         user_service._get_admin = AsyncMock(
             return_value=admin_1,

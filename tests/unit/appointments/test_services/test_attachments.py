@@ -1,8 +1,10 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from app.appointments.exceptions.appointment import AppointmentNotFoundException, \
-    AppointmentRelatesToDifferentPatientException
+from app.appointments.exceptions.appointment import (
+    AppointmentNotFoundException,
+    AppointmentRelatesToDifferentPatientException,
+)
 from app.appointments.exceptions.attachment import AttachmentDoesNotExistException
 from app.users.exceptions.user import UserNotFoundException
 from tests.fixtures.appointments import attachment_service, attachment_2
@@ -10,18 +12,19 @@ from app.appointments.schemas.attachment import (
     AttachmentResponseSchema,
 )
 
+
 class TestAttachmentService:
 
     @pytest.mark.asyncio
     async def test_create_attachment_success(
-            self,
-            attachment_service,
-            current_doctor,
-            attachment_create_schema,
-            attachment_1,
-            patient_1,
-            appointment_patient_1,
-            ):
+        self,
+        attachment_service,
+        current_doctor,
+        attachment_create_schema,
+        attachment_1,
+        patient_1,
+        appointment_patient_1,
+    ):
         attachment_service.uow.users.get_patient_by_id = AsyncMock(
             return_value=patient_1
         )
@@ -45,12 +48,12 @@ class TestAttachmentService:
 
     @pytest.mark.asyncio
     async def test_create_attachment_not_user_found(
-            self,
-            attachment_service,
-            current_doctor,
-            attachment_create_schema,
-            attachment_1,
-            ):
+        self,
+        attachment_service,
+        current_doctor,
+        attachment_create_schema,
+        attachment_1,
+    ):
         attachment_service.uow.users.get_patient_by_id = AsyncMock(return_value=None)
         with pytest.raises(UserNotFoundException):
             await attachment_service.create(
@@ -62,13 +65,13 @@ class TestAttachmentService:
 
     @pytest.mark.asyncio
     async def test_create_attachment_not_appointment_found(
-            self,
-            attachment_service,
-            current_doctor,
-            attachment_create_schema,
-            attachment_1,
-            patient_1,
-            ):
+        self,
+        attachment_service,
+        current_doctor,
+        attachment_create_schema,
+        attachment_1,
+        patient_1,
+    ):
         attachment_service.uow.users.get_patient_by_id = AsyncMock(
             return_value=patient_1
         )
@@ -84,14 +87,14 @@ class TestAttachmentService:
 
     @pytest.mark.asyncio
     async def test_create_attachment_for_wrong_appointment_patient(
-            self,
-            attachment_service,
-            current_doctor,
-            attachment_create_schema,
-            attachment_1,
-            patient_1,
-            appointment_patient_2
-            ):
+        self,
+        attachment_service,
+        current_doctor,
+        attachment_create_schema,
+        attachment_1,
+        patient_1,
+        appointment_patient_2,
+    ):
         attachment_service.uow.users.get_patient_by_id = AsyncMock(
             return_value=patient_1
         )
@@ -135,20 +138,19 @@ class TestAttachmentService:
             data=attachment_update_schema,
         )
         attachment_service.policy.can_update.assert_called_once_with(
-            user=current_doctor,
-            attachment=attachment_1
+            user=current_doctor, attachment=attachment_1
         )
         assert isinstance(result, AttachmentResponseSchema)
 
     @pytest.mark.asyncio
     async def test_update_attachment_attachment_not_found(
-            self,
-            attachment_service,
-            current_doctor,
-            attachment_update_schema,
-            attachment_1,
-            patient_1,
-            appointment_patient_1,
+        self,
+        attachment_service,
+        current_doctor,
+        attachment_update_schema,
+        attachment_1,
+        patient_1,
+        appointment_patient_1,
     ):
         attachment_service.uow.attachments.get_attachment_by_id = AsyncMock(
             return_value=None
@@ -179,10 +181,7 @@ class TestAttachmentService:
             return_value=None
         )
         attachment_service.policy.can_delete = MagicMock()
-        result = await attachment_service.delete(
-            1,
-            current_doctor
-        )
+        result = await attachment_service.delete(1, current_doctor)
         attachment_service.uow.attachments.get_attachment_by_id.assert_awaited_once_with(
             attachment_id=1,
         )
@@ -190,26 +189,22 @@ class TestAttachmentService:
             attachment=attachment_1,
         )
         attachment_service.policy.can_delete.assert_called_once_with(
-            user=current_doctor,
-            attachment=attachment_1
+            user=current_doctor, attachment=attachment_1
         )
         assert result is None
 
     @pytest.mark.asyncio
     async def test_delete_attachment_not_found(
-            self,
-            attachment_service,
-            current_doctor,
-            attachment_1,
+        self,
+        attachment_service,
+        current_doctor,
+        attachment_1,
     ):
         attachment_service.uow.attachments.get_attachment_by_id = AsyncMock(
             return_value=None
         )
         with pytest.raises(AttachmentDoesNotExistException):
-            await attachment_service.delete(
-                1,
-                current_doctor
-            )
+            await attachment_service.delete(1, current_doctor)
         attachment_service.uow.attachments.delete_attachment.assert_not_called()
         attachment_service.policy.can_delete.assert_not_called()
 
@@ -224,16 +219,12 @@ class TestAttachmentService:
             return_value=attachment_1
         )
         attachment_service.policy.can_view = MagicMock()
-        result = await attachment_service.get_by_id(
-            1,
-            current_doctor
-        )
+        result = await attachment_service.get_by_id(1, current_doctor)
         attachment_service.uow.attachments.get_attachment_by_id.assert_awaited_once_with(
             attachment_id=1,
         )
         attachment_service.policy.can_view.assert_called_once_with(
-            user=current_doctor,
-            attachment=attachment_1
+            user=current_doctor, attachment=attachment_1
         )
         assert isinstance(result, AttachmentResponseSchema)
         assert result.id == attachment_1.id
@@ -248,10 +239,7 @@ class TestAttachmentService:
             return_value=None
         )
         with pytest.raises(AttachmentDoesNotExistException):
-            await attachment_service.get_by_id(
-                1,
-                current_doctor
-            )
+            await attachment_service.get_by_id(1, current_doctor)
         attachment_service.policy.can_view.assert_not_called()
 
     @pytest.mark.asyncio
@@ -261,20 +249,16 @@ class TestAttachmentService:
         current_doctor,
         attachment_1,
     ):
-        attachment_service.uow.attachments.get_attachments_by_appointment_id = AsyncMock(
-            return_value=[attachment_1]
+        attachment_service.uow.attachments.get_attachments_by_appointment_id = (
+            AsyncMock(return_value=[attachment_1])
         )
         attachment_service.policy.can_view = MagicMock()
-        result = await attachment_service.get_by_appointment_id(
-            1,
-            current_doctor
-        )
+        result = await attachment_service.get_by_appointment_id(1, current_doctor)
         attachment_service.uow.attachments.get_attachments_by_appointment_id.assert_awaited_once_with(
             appointment_id=1
         )
         attachment_service.policy.can_view.assert_called_once_with(
-            user=current_doctor,
-            attachment=attachment_1
+            user=current_doctor, attachment=attachment_1
         )
         assert isinstance(result, list)
         assert isinstance(result[0], AttachmentResponseSchema)
@@ -286,14 +270,11 @@ class TestAttachmentService:
         attachment_service,
         current_doctor,
     ):
-        attachment_service.uow.attachments.get_attachments_by_appointment_id = AsyncMock(
-            return_value=[]
+        attachment_service.uow.attachments.get_attachments_by_appointment_id = (
+            AsyncMock(return_value=[])
         )
         attachment_service.policy.can_view = MagicMock()
-        result = await attachment_service.get_by_appointment_id(
-            1,
-            current_doctor
-        )
+        result = await attachment_service.get_by_appointment_id(1, current_doctor)
         attachment_service.policy.can_view.assert_not_called()
         assert isinstance(result, list)
         assert result == []
@@ -309,16 +290,12 @@ class TestAttachmentService:
             return_value=[attachment_1]
         )
         attachment_service.policy.can_view = MagicMock()
-        result = await attachment_service.get_by_patient_id(
-            1,
-            current_doctor
-        )
+        result = await attachment_service.get_by_patient_id(1, current_doctor)
         attachment_service.uow.attachments.get_attachments_by_patient_id.assert_awaited_once_with(
             patient_id=1,
         )
         attachment_service.policy.can_view.assert_called_once_with(
-            user=current_doctor,
-            attachment=attachment_1
+            user=current_doctor, attachment=attachment_1
         )
         assert isinstance(result, list)
         assert isinstance(result[0], AttachmentResponseSchema)
@@ -334,10 +311,7 @@ class TestAttachmentService:
             return_value=[]
         )
         attachment_service.policy.can_view = MagicMock()
-        result = await attachment_service.get_by_patient_id(
-            1,
-            current_doctor
-        )
+        result = await attachment_service.get_by_patient_id(1, current_doctor)
         attachment_service.policy.can_view.assert_not_called()
         assert isinstance(result, list)
         assert result == []

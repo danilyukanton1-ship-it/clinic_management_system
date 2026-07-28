@@ -5,7 +5,9 @@ from unittest.mock import MagicMock, AsyncMock
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
 from app.medical_records.exceptions.drug import DrugNotFoundException
 from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
-from app.medical_records.exceptions.prescription_items import PrescriptionItemNotFoundException
+from app.medical_records.exceptions.prescription_items import (
+    PrescriptionItemNotFoundException,
+)
 from common.permissions.exceptions import ForbiddenException
 
 
@@ -13,11 +15,11 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_success(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            appointment_patient_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        appointment_patient_1,
+        current_doctor,
     ):
         prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id = AsyncMock(
             return_value=[prescription_item_1]
@@ -51,14 +53,16 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_prescription_item_not_found(
-            self,
-            prescription_item_service,
-            current_doctor,
+        self,
+        prescription_item_service,
+        current_doctor,
     ):
         prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id = AsyncMock(
             return_value=[]
         )
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock()
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
+            AsyncMock()
+        )
         prescription_item_service.policy.can_view = MagicMock()
 
         with pytest.raises(PrescriptionItemNotFoundException):
@@ -74,10 +78,10 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_appointment_not_found(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        current_doctor,
     ):
         prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id = AsyncMock(
             return_value=[prescription_item_1]
@@ -101,11 +105,11 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_forbidden(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            appointment_patient_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        appointment_patient_1,
+        current_doctor,
     ):
         prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id = AsyncMock(
             return_value=[prescription_item_1]
@@ -134,14 +138,14 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_id_success(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            appointment_patient_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        appointment_patient_1,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=prescription_item_1
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=prescription_item_1)
         )
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
             return_value=appointment_patient_1
@@ -171,14 +175,16 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_id_prescription_item_not_found(
-            self,
-            prescription_item_service,
-            current_doctor,
+        self,
+        prescription_item_service,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=None
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=None)
         )
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock()
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
+            AsyncMock()
+        )
         prescription_item_service.policy.can_view = MagicMock()
         with pytest.raises(PrescriptionItemNotFoundException):
             await prescription_item_service.get_by_id(
@@ -193,13 +199,13 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_id_appointment_not_found(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=prescription_item_1
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=prescription_item_1)
         )
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
             return_value=None
@@ -220,14 +226,14 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_id_forbidden(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            appointment_patient_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        appointment_patient_1,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=prescription_item_1
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=prescription_item_1)
         )
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
             return_value=appointment_patient_1
@@ -253,22 +259,22 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_update_success(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            prescription_item_1_updated,
-            prescription_item_update_schema,
-            appointment_patient_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        prescription_item_1_updated,
+        prescription_item_update_schema,
+        appointment_patient_1,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=prescription_item_1
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=prescription_item_1)
         )
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
             return_value=appointment_patient_1
         )
-        prescription_item_service.uow.prescription_items.update_prescription_item = AsyncMock(
-            return_value=prescription_item_1_updated
+        prescription_item_service.uow.prescription_items.update_prescription_item = (
+            AsyncMock(return_value=prescription_item_1_updated)
         )
         prescription_item_service.policy.can_update = MagicMock()
         result = await prescription_item_service.update(
@@ -299,16 +305,20 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_update_prescription_item_not_found(
-            self,
-            prescription_item_service,
-            prescription_item_update_schema,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_update_schema,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=None
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=None)
         )
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock()
-        prescription_item_service.uow.prescription_items.update_prescription_item = AsyncMock()
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
+            AsyncMock()
+        )
+        prescription_item_service.uow.prescription_items.update_prescription_item = (
+            AsyncMock()
+        )
         prescription_item_service.policy.can_update = MagicMock()
         with pytest.raises(PrescriptionItemNotFoundException):
             await prescription_item_service.update(
@@ -325,19 +335,21 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_update_appointment_not_found(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            prescription_item_update_schema,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        prescription_item_update_schema,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=prescription_item_1
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=prescription_item_1)
         )
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
             return_value=None
         )
-        prescription_item_service.uow.prescription_items.update_prescription_item = AsyncMock()
+        prescription_item_service.uow.prescription_items.update_prescription_item = (
+            AsyncMock()
+        )
         prescription_item_service.policy.can_update = MagicMock()
         with pytest.raises(AppointmentNotFoundException):
             await prescription_item_service.update(
@@ -356,20 +368,22 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_update_forbidden(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            prescription_item_update_schema,
-            appointment_patient_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        prescription_item_update_schema,
+        appointment_patient_1,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=prescription_item_1
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=prescription_item_1)
         )
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
             return_value=appointment_patient_1
         )
-        prescription_item_service.uow.prescription_items.update_prescription_item = AsyncMock()
+        prescription_item_service.uow.prescription_items.update_prescription_item = (
+            AsyncMock()
+        )
         prescription_item_service.policy.can_update = MagicMock(
             side_effect=ForbiddenException()
         )
@@ -393,19 +407,21 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_delete_success(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            appointment_patient_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        appointment_patient_1,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=prescription_item_1
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=prescription_item_1)
         )
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
             return_value=appointment_patient_1
         )
-        prescription_item_service.uow.prescription_items.delete_prescription_item = AsyncMock()
+        prescription_item_service.uow.prescription_items.delete_prescription_item = (
+            AsyncMock()
+        )
         prescription_item_service.policy.can_delete = MagicMock()
         result = await prescription_item_service.delete(
             prescription_item_id=prescription_item_1.id,
@@ -428,15 +444,19 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_delete_prescription_item_not_found(
-            self,
-            prescription_item_service,
-            current_doctor,
+        self,
+        prescription_item_service,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=None
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=None)
         )
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock()
-        prescription_item_service.uow.prescription_items.delete_prescription_item = AsyncMock()
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
+            AsyncMock()
+        )
+        prescription_item_service.uow.prescription_items.delete_prescription_item = (
+            AsyncMock()
+        )
         prescription_item_service.policy.can_delete = MagicMock()
         with pytest.raises(PrescriptionItemNotFoundException):
             await prescription_item_service.delete(
@@ -452,18 +472,20 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_delete_appointment_not_found(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=prescription_item_1
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=prescription_item_1)
         )
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
             return_value=None
         )
-        prescription_item_service.uow.prescription_items.delete_prescription_item = AsyncMock()
+        prescription_item_service.uow.prescription_items.delete_prescription_item = (
+            AsyncMock()
+        )
         prescription_item_service.policy.can_delete = MagicMock()
         with pytest.raises(AppointmentNotFoundException):
             await prescription_item_service.delete(
@@ -481,19 +503,21 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_delete_forbidden(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            appointment_patient_1,
-            current_doctor,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        appointment_patient_1,
+        current_doctor,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = AsyncMock(
-            return_value=prescription_item_1
+        prescription_item_service.uow.prescription_items.get_prescription_item_by_id = (
+            AsyncMock(return_value=prescription_item_1)
         )
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
             return_value=appointment_patient_1
         )
-        prescription_item_service.uow.prescription_items.delete_prescription_item = AsyncMock()
+        prescription_item_service.uow.prescription_items.delete_prescription_item = (
+            AsyncMock()
+        )
         prescription_item_service.policy.can_delete = MagicMock(
             side_effect=ForbiddenException()
         )
@@ -516,12 +540,12 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_create_success(
-            self,
-            prescription_item_service,
-            prescription,
-            drug_1,
-            prescription_item_create_schema,
-            prescription_item_1,
+        self,
+        prescription_item_service,
+        prescription,
+        drug_1,
+        prescription_item_create_schema,
+        prescription_item_1,
     ):
         prescription_item_service.uow.prescriptions.get_prescription_by_id = AsyncMock(
             return_value=prescription
@@ -529,8 +553,8 @@ class TestPrescriptionItemService:
         prescription_item_service.uow.drugs.get_drug_by_id = AsyncMock(
             return_value=drug_1
         )
-        prescription_item_service.uow.prescription_items.create_prescription_item = AsyncMock(
-            return_value=prescription_item_1
+        prescription_item_service.uow.prescription_items.create_prescription_item = (
+            AsyncMock(return_value=prescription_item_1)
         )
         result = await prescription_item_service.create(
             data=prescription_item_create_schema,
@@ -553,15 +577,17 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_create_prescription_not_found(
-            self,
-            prescription_item_service,
-            prescription_item_create_schema,
+        self,
+        prescription_item_service,
+        prescription_item_create_schema,
     ):
         prescription_item_service.uow.prescriptions.get_prescription_by_id = AsyncMock(
             return_value=None
         )
         prescription_item_service.uow.drugs.get_drug_by_id = AsyncMock()
-        prescription_item_service.uow.prescription_items.create_prescription_item = AsyncMock()
+        prescription_item_service.uow.prescription_items.create_prescription_item = (
+            AsyncMock()
+        )
         with pytest.raises(PrescriptionNotFoundException):
             await prescription_item_service.create(
                 data=prescription_item_create_schema,
@@ -574,10 +600,10 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_create_drug_not_found(
-            self,
-            prescription_item_service,
-            prescription,
-            prescription_item_create_schema,
+        self,
+        prescription_item_service,
+        prescription,
+        prescription_item_create_schema,
     ):
         prescription_item_service.uow.prescriptions.get_prescription_by_id = AsyncMock(
             return_value=prescription
@@ -585,7 +611,9 @@ class TestPrescriptionItemService:
         prescription_item_service.uow.drugs.get_drug_by_id = AsyncMock(
             return_value=None
         )
-        prescription_item_service.uow.prescription_items.create_prescription_item = AsyncMock()
+        prescription_item_service.uow.prescription_items.create_prescription_item = (
+            AsyncMock()
+        )
         with pytest.raises(DrugNotFoundException):
             await prescription_item_service.create(
                 data=prescription_item_create_schema,
@@ -597,5 +625,3 @@ class TestPrescriptionItemService:
             drug_id=prescription_item_create_schema.drug_id,
         )
         prescription_item_service.uow.prescription_items.create_prescription_item.assert_not_awaited()
-
-

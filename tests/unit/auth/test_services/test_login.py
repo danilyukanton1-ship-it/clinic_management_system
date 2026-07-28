@@ -6,18 +6,17 @@ from app.auth.exceptions.register import TooManyLoginAttemptsException
 from app.auth.schemas.token import TokenResponseSchema
 from common.enums.token_type import TokenType
 
+
 class TestLoginService:
 
     @pytest.mark.asyncio
     async def test_login_success(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         login_service.redis.get.return_value = None
         login_service.redis.delete = AsyncMock()
@@ -72,16 +71,13 @@ class TestLoginService:
 
     import pytest
 
-
     @pytest.mark.asyncio
     async def test_login_user_not_found(
-            self,
-            login_service,
-            login_schema,
+        self,
+        login_service,
+        login_schema,
     ):
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=None
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=None)
 
         with pytest.raises(InvalidCredentialsException):
             await login_service.login(login_schema)
@@ -94,16 +90,14 @@ class TestLoginService:
 
     @pytest.mark.asyncio
     async def test_login_inactive_user(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
         patient_1.is_active = False
 
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         with pytest.raises(InvalidCredentialsException):
             await login_service.login(login_schema)
@@ -112,33 +106,28 @@ class TestLoginService:
 
     @pytest.mark.asyncio
     async def test_login_unverified_user(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
         patient_1.is_verified = False
 
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         with pytest.raises(InvalidCredentialsException):
             await login_service.login(login_schema)
 
         login_service.redis.get.assert_not_called()
 
-
     @pytest.mark.asyncio
     async def test_login_too_many_attempts(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         login_service.redis.get.return_value = "5"
 
@@ -153,21 +142,19 @@ class TestLoginService:
 
     @pytest.mark.asyncio
     async def test_login_invalid_password_first_attempt(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         login_service.redis.get.return_value = None
         login_service.redis.incr.return_value = 1
 
         with patch(
-                "app.auth.services.login.verify_password",
-                return_value=False,
+            "app.auth.services.login.verify_password",
+            return_value=False,
         ):
             with pytest.raises(InvalidCredentialsException):
                 await login_service.login(login_schema)
@@ -179,21 +166,19 @@ class TestLoginService:
 
     @pytest.mark.asyncio
     async def test_login_invalid_password_not_first_attempt(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         login_service.redis.get.return_value = "2"
         login_service.redis.incr.return_value = 3
 
         with patch(
-                "app.auth.services.login.verify_password",
-                return_value=False,
+            "app.auth.services.login.verify_password",
+            return_value=False,
         ):
             with pytest.raises(InvalidCredentialsException):
                 await login_service.login(login_schema)
@@ -205,14 +190,12 @@ class TestLoginService:
 
     @pytest.mark.asyncio
     async def test_login_verify_password_called(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         login_service.redis.get.return_value = None
 
@@ -235,14 +218,12 @@ class TestLoginService:
 
     @pytest.mark.asyncio
     async def test_login_create_token_not_called_when_password_invalid(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         login_service.redis.get.return_value = None
         login_service.redis.incr.return_value = 1
@@ -263,19 +244,17 @@ class TestLoginService:
 
     @pytest.mark.asyncio
     async def test_login_verify_password_not_called_when_too_many_attempts(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         login_service.redis.get.return_value = "5"
 
         with patch(
-                "app.auth.services.login.verify_password",
+            "app.auth.services.login.verify_password",
         ) as mock_verify:
             with pytest.raises(TooManyLoginAttemptsException):
                 await login_service.login(login_schema)
@@ -284,21 +263,19 @@ class TestLoginService:
 
     @pytest.mark.asyncio
     async def test_login_delete_attempts_not_called_when_password_invalid(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         login_service.redis.get.return_value = None
         login_service.redis.incr.return_value = 1
 
         with patch(
-                "app.auth.services.login.verify_password",
-                return_value=False,
+            "app.auth.services.login.verify_password",
+            return_value=False,
         ):
             with pytest.raises(InvalidCredentialsException):
                 await login_service.login(login_schema)
@@ -307,14 +284,12 @@ class TestLoginService:
 
     @pytest.mark.asyncio
     async def test_login_delete_attempts_not_called_when_too_many_attempts(
-            self,
-            login_service,
-            login_schema,
-            patient_1,
+        self,
+        login_service,
+        login_schema,
+        patient_1,
     ):
-        login_service.uow.users.get_user_by_email = AsyncMock(
-            return_value=patient_1
-        )
+        login_service.uow.users.get_user_by_email = AsyncMock(return_value=patient_1)
 
         login_service.redis.get.return_value = "5"
 
@@ -322,4 +297,3 @@ class TestLoginService:
             await login_service.login(login_schema)
 
         login_service.redis.delete.assert_not_called()
-

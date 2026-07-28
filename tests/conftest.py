@@ -13,12 +13,14 @@ pytest_plugins = [
     "tests.fixtures.appointments",
     "tests.fixtures.scheduling",
     "tests.fixtures.medical_records",
-    "tests.fixtures.auth"
+    "tests.fixtures.auth",
 ]
+
 
 @pytest.fixture
 def mock_async_session() -> AsyncSession:
     return AsyncMock(spec=AsyncSession)
+
 
 @pytest.fixture
 def mock_uow() -> UnitOfWork:
@@ -26,6 +28,7 @@ def mock_uow() -> UnitOfWork:
     uow.__aenter__ = AsyncMock(return_value=uow)
     uow.__aexit__ = AsyncMock(return_value=None)
     return uow
+
 
 @pytest.fixture
 def mock_redis() -> Redis:
@@ -37,6 +40,7 @@ def mock_redis() -> Redis:
     redis.delete = AsyncMock()
 
     return redis
+
 
 @pytest.fixture
 def current_patient():
@@ -51,6 +55,7 @@ def current_patient():
         is_verified=True,
         is_active=True,
     )
+
 
 @pytest.fixture
 def current_doctor():
@@ -67,6 +72,7 @@ def current_doctor():
         is_active=True,
     )
 
+
 @pytest.fixture
 def current_admin():
     return User(
@@ -80,4 +86,3 @@ def current_admin():
         is_verified=True,
         is_active=True,
     )
-

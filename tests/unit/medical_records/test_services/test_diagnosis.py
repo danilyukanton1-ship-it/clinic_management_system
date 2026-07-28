@@ -2,8 +2,10 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock
 
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
-from app.medical_records.exceptions.diagnosis import DiagnosisNotFoundException, \
-    DiagnosisCantBeEmptyInPrescriptionException
+from app.medical_records.exceptions.diagnosis import (
+    DiagnosisNotFoundException,
+    DiagnosisCantBeEmptyInPrescriptionException,
+)
 from app.medical_records.exceptions.disease import DiseaseNotFoundException
 from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
 from app.medical_records.schemas.diagnosis import DiagnosisResponseSchema
@@ -14,12 +16,12 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_create_diagnosis_success(
-            self,
-            diagnosis_service,
-            diagnosis_create_schema,
-            disease_1,
-            prescription,
-            diagnosis,
+        self,
+        diagnosis_service,
+        diagnosis_create_schema,
+        disease_1,
+        prescription,
+        diagnosis,
     ):
         diagnosis_service.uow.diseases.get_disease_by_id = AsyncMock(
             return_value=disease_1
@@ -44,9 +46,9 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_create_prescription_not_found(
-            self,
-            diagnosis_service,
-            diagnosis_create_schema,
+        self,
+        diagnosis_service,
+        diagnosis_create_schema,
     ):
         diagnosis_service.uow.prescriptions.get_prescription_by_id = AsyncMock(
             return_value=None
@@ -60,29 +62,27 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_create_disease_not_found(
-            self,
-            diagnosis_service,
-            diagnosis_create_schema,
-            prescription,
+        self,
+        diagnosis_service,
+        diagnosis_create_schema,
+        prescription,
     ):
         diagnosis_service.uow.prescriptions.get_prescription_by_id = AsyncMock(
             return_value=prescription
         )
-        diagnosis_service.uow.diseases.get_disease_by_id = AsyncMock(
-            return_value=None
-        )
+        diagnosis_service.uow.diseases.get_disease_by_id = AsyncMock(return_value=None)
         with pytest.raises(DiseaseNotFoundException):
             await diagnosis_service.create(diagnosis_create_schema)
         diagnosis_service.uow.diagnoses.create_diagnosis.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_update_success(
-            self,
-            diagnosis_service,
-            diagnosis,
-            appointment_patient_1,
-            diagnosis_update_schema,
-            patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        appointment_patient_1,
+        diagnosis_update_schema,
+        patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
@@ -94,11 +94,7 @@ class TestDiagnosisService:
         diagnosis_service.uow.diagnoses.update_diagnosis = AsyncMock(
             return_value=diagnosis
         )
-        result = await diagnosis_service.update(
-            1,
-            patient_1,
-            diagnosis_update_schema
-        )
+        result = await diagnosis_service.update(1, patient_1, diagnosis_update_schema)
         diagnosis_service.policy.can_update.assert_called_once_with(
             user=patient_1,
             appointment=appointment_patient_1,
@@ -108,10 +104,10 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_update_diagnosis_not_found(
-            self,
-            diagnosis_service,
-            diagnosis_update_schema,
-            patient_1,
+        self,
+        diagnosis_service,
+        diagnosis_update_schema,
+        patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=None
@@ -128,11 +124,11 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_update_appointment_not_found(
-            self,
-            diagnosis_service,
-            diagnosis,
-            diagnosis_update_schema,
-            patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        diagnosis_update_schema,
+        patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
@@ -151,12 +147,12 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_update_forbidden(
-            self,
-            diagnosis_service,
-            diagnosis,
-            diagnosis_update_schema,
-            patient_1,
-            appointment_patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        diagnosis_update_schema,
+        patient_1,
+        appointment_patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
@@ -180,11 +176,11 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_delete_success(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
-            appointment_patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
+        appointment_patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
@@ -208,9 +204,9 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_delete_diagnosis_not_found(
-            self,
-            diagnosis_service,
-            patient_1,
+        self,
+        diagnosis_service,
+        patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=None
@@ -224,10 +220,10 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_delete_appointment_not_found(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
@@ -244,11 +240,11 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_delete_forbidden(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
-            appointment_patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
+        appointment_patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
@@ -271,11 +267,11 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_delete_last_diagnosis_in_prescription(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
-            appointment_patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
+        appointment_patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
@@ -296,11 +292,11 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_id_success(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
-            appointment_patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
+        appointment_patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
@@ -321,9 +317,9 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_id_not_found(
-            self,
-            diagnosis_service,
-            patient_1,
+        self,
+        diagnosis_service,
+        patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=None
@@ -337,10 +333,10 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_id_appointment_not_found(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
@@ -357,11 +353,11 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_id_forbidden(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
-            appointment_patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
+        appointment_patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
@@ -369,9 +365,7 @@ class TestDiagnosisService:
         diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id = AsyncMock(
             return_value=appointment_patient_1
         )
-        diagnosis_service.policy.can_view = MagicMock(
-            side_effect=ForbiddenException()
-        )
+        diagnosis_service.policy.can_view = MagicMock(side_effect=ForbiddenException())
         with pytest.raises(ForbiddenException):
             await diagnosis_service.get_by_id(
                 1,
@@ -384,9 +378,9 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_all_success(
-            self,
-            diagnosis_service,
-            diagnosis,
+        self,
+        diagnosis_service,
+        diagnosis,
     ):
         diagnosis_service.uow.diagnoses.get_all_diagnoses = AsyncMock(
             return_value=[diagnosis]
@@ -396,22 +390,20 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_all_not_found(
-            self,
-            diagnosis_service,
+        self,
+        diagnosis_service,
     ):
-        diagnosis_service.uow.diagnoses.get_all_diagnoses = AsyncMock(
-            return_value=[]
-        )
+        diagnosis_service.uow.diagnoses.get_all_diagnoses = AsyncMock(return_value=[])
         with pytest.raises(DiagnosisNotFoundException):
             await diagnosis_service.get_all()
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_success(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
-            appointment_patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
+        appointment_patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id = AsyncMock(
             return_value=[diagnosis]
@@ -428,9 +420,9 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_not_found(
-            self,
-            diagnosis_service,
-            patient_1,
+        self,
+        diagnosis_service,
+        patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id = AsyncMock(
             return_value=[]
@@ -444,10 +436,10 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_appointment_not_found(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id = AsyncMock(
             return_value=[diagnosis]
@@ -465,11 +457,11 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_forbidden(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
-            appointment_patient_1,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
+        appointment_patient_1,
     ):
         diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id = AsyncMock(
             return_value=[diagnosis]
@@ -477,9 +469,7 @@ class TestDiagnosisService:
         diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id = AsyncMock(
             return_value=appointment_patient_1
         )
-        diagnosis_service.policy.can_view = MagicMock(
-            side_effect=ForbiddenException()
-        )
+        diagnosis_service.policy.can_view = MagicMock(side_effect=ForbiddenException())
         with pytest.raises(ForbiddenException):
             await diagnosis_service.get_by_prescription_id(
                 1,
@@ -488,9 +478,9 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_disease_id_success(
-            self,
-            diagnosis_service,
-            diagnosis,
+        self,
+        diagnosis_service,
+        diagnosis,
     ):
         diagnosis_service.uow.diagnoses.get_diagnoses_by_disease_id = AsyncMock(
             return_value=[diagnosis]
@@ -500,8 +490,8 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_disease_id_not_found(
-            self,
-            diagnosis_service,
+        self,
+        diagnosis_service,
     ):
         diagnosis_service.uow.diagnoses.get_diagnoses_by_disease_id = AsyncMock(
             return_value=[]

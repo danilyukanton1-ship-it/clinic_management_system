@@ -11,19 +11,19 @@ class TestPrescriptionService:
 
     @pytest.mark.asyncio
     async def test_update_prescription_success(
-            self,
-            prescription_service,
-            prescription,
-            prescription_update,
-            prescription_update_schema,
-            appointment_patient_1,
-            current_doctor,
+        self,
+        prescription_service,
+        prescription,
+        prescription_update,
+        prescription_update_schema,
+        appointment_patient_1,
+        current_doctor,
     ):
         prescription_service.uow.prescriptions.get_prescription_by_id = AsyncMock(
             return_value=prescription
         )
-        prescription_service.uow.appointments.get_appointment_by_prescription_id = AsyncMock(
-            return_value=appointment_patient_1
+        prescription_service.uow.appointments.get_appointment_by_prescription_id = (
+            AsyncMock(return_value=appointment_patient_1)
         )
         prescription_service.uow.prescriptions.update_prescription = AsyncMock(
             return_value=prescription_update
@@ -53,15 +53,17 @@ class TestPrescriptionService:
 
     @pytest.mark.asyncio
     async def test_update_prescription_not_found(
-            self,
-            prescription_service,
-            prescription_update_schema,
-            current_doctor,
+        self,
+        prescription_service,
+        prescription_update_schema,
+        current_doctor,
     ):
         prescription_service.uow.prescriptions.get_prescription_by_id = AsyncMock(
             return_value=None
         )
-        prescription_service.uow.appointments.get_appointment_by_prescription_id = AsyncMock()
+        prescription_service.uow.appointments.get_appointment_by_prescription_id = (
+            AsyncMock()
+        )
         prescription_service.uow.prescriptions.update_prescription = AsyncMock()
         with pytest.raises(PrescriptionNotFoundException):
             await prescription_service.update(
@@ -75,17 +77,17 @@ class TestPrescriptionService:
 
     @pytest.mark.asyncio
     async def test_update_appointment_not_found(
-            self,
-            prescription_service,
-            prescription,
-            prescription_update_schema,
-            current_doctor,
+        self,
+        prescription_service,
+        prescription,
+        prescription_update_schema,
+        current_doctor,
     ):
         prescription_service.uow.prescriptions.get_prescription_by_id = AsyncMock(
             return_value=prescription
         )
-        prescription_service.uow.appointments.get_appointment_by_prescription_id = AsyncMock(
-            return_value=None
+        prescription_service.uow.appointments.get_appointment_by_prescription_id = (
+            AsyncMock(return_value=None)
         )
 
         prescription_service.policy.can_update = MagicMock()
@@ -102,18 +104,18 @@ class TestPrescriptionService:
 
     @pytest.mark.asyncio
     async def test_update_forbidden(
-            self,
-            prescription_service,
-            prescription,
-            prescription_update_schema,
-            appointment_patient_1,
-            current_doctor,
+        self,
+        prescription_service,
+        prescription,
+        prescription_update_schema,
+        appointment_patient_1,
+        current_doctor,
     ):
         prescription_service.uow.prescriptions.get_prescription_by_id = AsyncMock(
             return_value=prescription
         )
-        prescription_service.uow.appointments.get_appointment_by_prescription_id = AsyncMock(
-            return_value=appointment_patient_1
+        prescription_service.uow.appointments.get_appointment_by_prescription_id = (
+            AsyncMock(return_value=appointment_patient_1)
         )
         prescription_service.policy.can_update = MagicMock(
             side_effect=ForbiddenException()

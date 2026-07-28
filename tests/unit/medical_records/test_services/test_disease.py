@@ -1,7 +1,10 @@
 import pytest
 from unittest.mock import AsyncMock
 
-from app.medical_records.exceptions.disease import DiseaseAlreadyExistsException, DiseaseNotFoundException
+from app.medical_records.exceptions.disease import (
+    DiseaseAlreadyExistsException,
+    DiseaseNotFoundException,
+)
 from app.medical_records.schemas.disease import DiseaseResponseSchema
 
 
@@ -9,20 +12,14 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_create_success(
-            self,
-            disease_service,
-            disease_1,
-            disease_create_schema,
+        self,
+        disease_service,
+        disease_1,
+        disease_create_schema,
     ):
-        disease_service.uow.diseases.get_disease_by_code = AsyncMock(
-            return_value=None
-        )
-        disease_service.uow.diseases.get_disease_by_name = AsyncMock(
-            return_value=None
-        )
-        disease_service.uow.diseases.create_disease = AsyncMock(
-            return_value=disease_1
-        )
+        disease_service.uow.diseases.get_disease_by_code = AsyncMock(return_value=None)
+        disease_service.uow.diseases.get_disease_by_name = AsyncMock(return_value=None)
+        disease_service.uow.diseases.create_disease = AsyncMock(return_value=disease_1)
         result = await disease_service.create(disease_create_schema)
         disease_service.uow.diseases.get_disease_by_code.assert_awaited_once_with(
             disease_code=disease_create_schema.code
@@ -37,10 +34,10 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_create_disease_code_exists(
-            self,
-            disease_service,
-            disease_1,
-            disease_create_schema,
+        self,
+        disease_service,
+        disease_1,
+        disease_create_schema,
     ):
         disease_service.uow.diseases.get_disease_by_code = AsyncMock(
             return_value=disease_1
@@ -52,14 +49,12 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_create_disease_name_exists(
-            self,
-            disease_service,
-            disease_1,
-            disease_create_schema,
+        self,
+        disease_service,
+        disease_1,
+        disease_create_schema,
     ):
-        disease_service.uow.diseases.get_disease_by_code = AsyncMock(
-            return_value=None
-        )
+        disease_service.uow.diseases.get_disease_by_code = AsyncMock(return_value=None)
         disease_service.uow.diseases.get_disease_by_name = AsyncMock(
             return_value=disease_1
         )
@@ -70,21 +65,17 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_update_success(
-            self,
-            disease_service,
-            disease_1,
-            disease_1_updated,
-            disease_update_schema,
+        self,
+        disease_service,
+        disease_1,
+        disease_1_updated,
+        disease_update_schema,
     ):
         disease_service.uow.diseases.get_disease_by_id = AsyncMock(
             return_value=disease_1
         )
-        disease_service.uow.diseases.get_disease_by_name = AsyncMock(
-            return_value=None
-        )
-        disease_service.uow.diseases.get_disease_by_code = AsyncMock(
-            return_value=None
-        )
+        disease_service.uow.diseases.get_disease_by_name = AsyncMock(return_value=None)
+        disease_service.uow.diseases.get_disease_by_code = AsyncMock(return_value=None)
         disease_service.uow.diseases.update_disease = AsyncMock(
             return_value=disease_1_updated
         )
@@ -110,13 +101,11 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_update_disease_not_found(
-            self,
-            disease_service,
-            disease_update_schema,
+        self,
+        disease_service,
+        disease_update_schema,
     ):
-        disease_service.uow.diseases.get_disease_by_id = AsyncMock(
-            return_value=None
-        )
+        disease_service.uow.diseases.get_disease_by_id = AsyncMock(return_value=None)
         with pytest.raises(DiseaseNotFoundException):
             await disease_service.update(
                 1,
@@ -126,10 +115,10 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_update_disease_name_exists(
-            self,
-            disease_service,
-            disease_1,
-            disease_update_schema,
+        self,
+        disease_service,
+        disease_1,
+        disease_update_schema,
     ):
         disease_service.uow.diseases.get_disease_by_id = AsyncMock(
             return_value=disease_1
@@ -146,17 +135,15 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_update_disease_code_exists(
-            self,
-            disease_service,
-            disease_1,
-            disease_update_schema,
+        self,
+        disease_service,
+        disease_1,
+        disease_update_schema,
     ):
         disease_service.uow.diseases.get_disease_by_id = AsyncMock(
             return_value=disease_1
         )
-        disease_service.uow.diseases.get_disease_by_name = AsyncMock(
-            return_value=None
-        )
+        disease_service.uow.diseases.get_disease_by_name = AsyncMock(return_value=None)
         disease_service.uow.diseases.get_disease_by_code = AsyncMock(
             return_value=disease_1
         )
@@ -169,9 +156,9 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_get_all_success(
-            self,
-            disease_service,
-            disease_1,
+        self,
+        disease_service,
+        disease_1,
     ):
         disease_service.uow.diseases.get_all_diseases = AsyncMock(
             return_value=[disease_1]
@@ -185,20 +172,18 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_get_all_not_found(
-            self,
-            disease_service,
+        self,
+        disease_service,
     ):
-        disease_service.uow.diseases.get_all_diseases = AsyncMock(
-            return_value=[]
-        )
+        disease_service.uow.diseases.get_all_diseases = AsyncMock(return_value=[])
         with pytest.raises(DiseaseNotFoundException):
             await disease_service.get_all()
 
     @pytest.mark.asyncio
     async def test_get_by_code_success(
-            self,
-            disease_service,
-            disease_1,
+        self,
+        disease_service,
+        disease_1,
     ):
         disease_service.uow.diseases.get_disease_by_code = AsyncMock(
             return_value=disease_1
@@ -215,20 +200,18 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_get_by_code_not_found(
-            self,
-            disease_service,
+        self,
+        disease_service,
     ):
-        disease_service.uow.diseases.get_disease_by_code = AsyncMock(
-            return_value=None
-        )
+        disease_service.uow.diseases.get_disease_by_code = AsyncMock(return_value=None)
         with pytest.raises(DiseaseNotFoundException):
             await disease_service.get_by_code("A00")
 
     @pytest.mark.asyncio
     async def test_get_by_name_success(
-            self,
-            disease_service,
-            disease_1,
+        self,
+        disease_service,
+        disease_1,
     ):
         disease_service.uow.diseases.get_disease_by_name = AsyncMock(
             return_value=disease_1
@@ -245,20 +228,18 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_get_by_name_not_found(
-            self,
-            disease_service,
+        self,
+        disease_service,
     ):
-        disease_service.uow.diseases.get_disease_by_name = AsyncMock(
-            return_value=None
-        )
+        disease_service.uow.diseases.get_disease_by_name = AsyncMock(return_value=None)
         with pytest.raises(DiseaseNotFoundException):
             await disease_service.get_by_name("Test")
 
     @pytest.mark.asyncio
     async def test_delete_success(
-            self,
-            disease_service,
-            disease_1,
+        self,
+        disease_service,
+        disease_1,
     ):
         disease_service.uow.diseases.get_disease_by_id = AsyncMock(
             return_value=disease_1
@@ -277,12 +258,10 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_delete_not_found(
-            self,
-            disease_service,
+        self,
+        disease_service,
     ):
-        disease_service.uow.diseases.get_disease_by_id = AsyncMock(
-            return_value=None
-        )
+        disease_service.uow.diseases.get_disease_by_id = AsyncMock(return_value=None)
         with pytest.raises(DiseaseNotFoundException):
             await disease_service.delete(1)
         disease_service.uow.diseases.delete_disease.assert_not_called()

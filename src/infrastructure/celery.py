@@ -38,5 +38,10 @@ celery_app.conf.beat_schedule = {
         "task": "app.users.tasks.delete_unverified_users",
         "schedule": crontab(minute="*/10"),
         "args": (),
+    },
+    "cleanup_schedules": {
+        "task": "app.schedules.tasks.cleanup_schedules",
+        "schedule": crontab(hour=3, minute=0),
+        "args": (),
     }
 }

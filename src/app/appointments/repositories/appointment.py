@@ -5,6 +5,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.appointments.models.appointment import Appointment
 from app.appointments.schemas.appointment import AppointmentCreateSchema
+from app.scheduling.models.schedule import Schedule
 from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.medical_records.models.diagnosis import Diagnosis
 from app.medical_records.models.prescription import Prescription
@@ -133,6 +134,24 @@ class AppointmentRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_appointments_to_delete_by_schedule_ids(
+            self,
+            schedule_ids: list[int],
+    ) -> list[Appointment]:
+        stmt = (
+            select(Appointment)
+            .join(
+                ScheduleSlot,
+                Appointment.slot_id == ScheduleSlot.id,
+            )
+            .where(
+                ScheduleSlot.schedule_id.in_(schedule_ids),
+            )
+        )
+
+        result = await self.session.execute(stmt)
+        return list(result.scalars())
+
     async def get_appointment_by_prescription_item_id(
         self,
         prescription_item_id: int,
@@ -155,6 +174,5 @@ class AppointmentRepository:
 
     async def delete_appointment(self, appointment: Appointment) -> None:
         await self.session.delete(appointment)
-        await self.session.flush()
         return None
 

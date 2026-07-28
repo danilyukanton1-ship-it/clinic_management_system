@@ -59,4 +59,6 @@ class Settings(BaseSettings):
     celery: Celery
     smtp: SMTP
 
+    SLOT_RETENTION_DAYS: int = 365 * 5
+
 settings = Settings()

@@ -1,8 +1,12 @@
+from datetime import datetime, timedelta, UTC
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+
 from app.scheduling.models.schedule import Schedule
 from app.scheduling.schemas.schedule import ScheduleCreateSchema, ScheduleUpdateSchema
 from common.enums.weekday import Weekday
+from core.config import settings
 
 class ScheduleRepository:
 
@@ -46,6 +50,21 @@ class ScheduleRepository:
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def get_inactive_expired_schedules(self) -> list[Schedule]:
+        threshold = (datetime.now(UTC) - timedelta(
+            days=settings.SLOT_RETENTION_DAYS
+                    )
+                )
+        stmt = (
+            select(Schedule)
+            .where(
+                Schedule.is_active.is_(False),
+                Schedule.updated_at < threshold,
+            )
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
     async def get_all_by_doctor_id(self, doctor_id: int) -> list[Schedule] | None:
         stmt = (

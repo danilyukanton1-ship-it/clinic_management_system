@@ -2,6 +2,8 @@ from datetime import datetime, date
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, extract, exists
+
+from app.appointments.models.appointment import Appointment
 from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.scheduling.schemas.schedule_slot import ScheduleSlotCreateSchema, ScheduleSlotUpdateSchema
 from common.constants import WEEKDAY_MAPPING_REVERSE
@@ -151,9 +153,18 @@ class ScheduleSlotRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
+    async def get_slots_by_schedule_ids(self,schedule_ids: list[int]) -> list[ScheduleSlot]:
+        stmt = (
+            select(ScheduleSlot)
+            .where(
+                ScheduleSlot.schedule_id.in_(schedule_ids),
+            )
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def delete_slot(self, slot: ScheduleSlot) -> None:
         await self.session.delete(slot)
-        await self.session.flush()
         return None
 
     async def create_slot(self, schedule_slot: ScheduleSlotCreateSchema) -> ScheduleSlot:

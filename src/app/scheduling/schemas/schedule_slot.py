@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from pydantic import BaseModel, ConfigDict, model_validator, PositiveInt
 
 from common.enums.slot_status import SlotStatus
@@ -33,5 +33,10 @@ class ScheduleSlotCreateSchema(ScheduleSlotSchema):
 
 class ScheduleSlotUpdateSchema(ScheduleSlotSchema):
     pass
+
+class ScheduleSlotBulkCreateSchema(BaseModel):
+    start_date: date
+    end_date: date
+    doctor_id: PositiveInt
 
 

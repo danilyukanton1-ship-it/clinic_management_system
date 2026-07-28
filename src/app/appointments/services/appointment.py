@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,6 +25,18 @@ class AppointmentService:
                 raise SlotNotFoundException()
             if slot.status != SlotStatus.FREE:
                 raise SlotNotAvailableException()
+            if slot.slot_start <= datetime.now(timezone.utc):
+                raise SlotNotAvailableException()
+            doctor = await self.uow.users.get_doctor_by_id(
+                doctor_id=data.doctor_id
+            )
+            if not doctor:
+                raise UserNotFoundException()
+            patient = await self.uow.users.get_patient_by_id(
+                patient_id=data.patient_id
+            )
+            if not patient:
+                raise UserNotFoundException()
             appointment = await self.uow.appointments.create(data=data)
             await self.uow.schedule_slots.change_slot_status(slot=slot, status=SlotStatus.BOOKED)
             appointment = await self.uow.appointments.get_appointment_by_id_with_relations(
@@ -78,6 +90,10 @@ class AppointmentService:
             if not appointment:
                 raise AppointmentNotFoundException()
             await self.uow.appointments.delete_appointment(appointment=appointment)
+            await self.uow.schedule_slots.change_slot_status(
+                slot=appointment.slot,
+                status=SlotStatus.FREE
+            )
         return None
 
     async def get_upcoming_for_reminder(self, hours: int):

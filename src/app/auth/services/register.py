@@ -54,7 +54,7 @@ class RegisterService:
                 email=user.email,
                 verification_code=data.verification_code,
             )
-            verified_user = await self.uow.users.make_user_verified(user=user)
+            verified_user = await self.uow.users.change_user_verification_status(user=user, is_verified=True)
         return PatientResponseSchema.model_validate(verified_user)
 
     async def forgot_password(self, data: ForgotPasswordSchema) -> None:

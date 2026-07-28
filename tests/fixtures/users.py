@@ -12,8 +12,12 @@ from app.users.services.user import UserService
 from common.enums.user_role import UserRole
 
 @pytest.fixture
-def user_service(mock_async_session, mock_uow) -> UserService:
-    service = UserService(mock_async_session)
+def user_service(
+        mock_async_session,
+        mock_uow,
+        mock_redis,
+) -> UserService:
+    service = UserService(mock_async_session, mock_redis)
     service.uow = mock_uow
     service.policy = MagicMock()
     return service
@@ -25,7 +29,7 @@ def specialization_service(mock_async_session, mock_uow) -> SpecializationServic
     return service
 
 @pytest.fixture
-def patient_1():
+def patient_1() -> User:
     return User(
         id=1,
         email="patient1@test.com",
@@ -39,7 +43,7 @@ def patient_1():
     )
 
 @pytest.fixture
-def patient_1_unverified():
+def patient_1_unverified() -> User:
     return User(
         id=1,
         email="patient1@test.com",

@@ -26,10 +26,10 @@ class DiseaseService:
         if not disease:
             raise DiseaseNotFoundException()
         disease_by_name = await self.uow.diseases.get_disease_by_name(disease_name=data.name)
-        if disease_by_name:
+        if disease_by_name and disease.name != data.name:
             raise DiseaseAlreadyExistsException()
         disease_by_code = await self.uow.diseases.get_disease_by_code(disease_code=data.code)
-        if disease_by_code:
+        if disease_by_code and disease.code != data.code:
             raise DiseaseAlreadyExistsException()
         async with self.uow:
             updated_disease = await self.uow.diseases.update_disease(disease=disease, data=data)
@@ -47,8 +47,8 @@ class DiseaseService:
             raise DiseaseNotFoundException()
         return DiseaseResponseSchema.model_validate(disease)
 
-    async def get_by_name(self, name: str) -> DiseaseResponseSchema:
-        disease = await self.uow.diseases.get_disease_by_name(disease_name=name)
+    async def get_by_name(self, disease_name: str) -> DiseaseResponseSchema:
+        disease = await self.uow.diseases.get_disease_by_name(disease_name=disease_name)
         if not disease:
             raise DiseaseNotFoundException()
         return DiseaseResponseSchema.model_validate(disease)

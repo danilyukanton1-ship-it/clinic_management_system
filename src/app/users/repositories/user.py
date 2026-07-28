@@ -1,7 +1,14 @@
-from sqlalchemy import select
+from datetime import datetime, timedelta, UTC
+
+from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
+
+from app.appointments.models.appointment import Appointment
 from app.auth.schemas.register import RegisterSchema
+from app.scheduling.models.schedule import Schedule
+from app.scheduling.models.schedule_absence import ScheduleAbsence
+from app.scheduling.models.schedule_slot import ScheduleSlot
 from common.enums.user_role import UserRole
 from app.users.models.user import User
 from app.users.schemas.user import (
@@ -93,7 +100,13 @@ class UserRepository:
     async def _get_all(self, role: UserRole) -> list[User]:
         stmt =(
             select(User)
-            .where(User.role == role)
+            .where(User.role == role,
+                   User.is_active.is_(True),
+                   User.is_verified.is_(True)
+                   )
+        )
+        if role == UserRole.DOCTOR:
+            stmt = stmt.where(exists().where(Schedule.doctor_id == User.id)
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -128,6 +141,22 @@ class UserRepository:
 
     async def update_admin(self, admin: User, data: AdminUpdateSchema) -> User:
         return await self._update_user(user=admin, data=data)
+
+    async def get_unverified_user(self) -> list[User]:
+        expire_time = datetime.now(UTC) - timedelta(hours=24)
+        stmt = (
+            select(User)
+            .where(
+                User.is_verified.is_(False),
+                User.created_at < expire_time,
+                ~exists().where(Appointment.patient_id == User.id),
+                ~exists().where(Appointment.doctor_id == User.id),
+                ~exists().where(Schedule.doctor_id == User.id),
+                ~exists().where(ScheduleAbsence.doctor_id == User.id),
+            )
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
     async def get_doctor_by_id(self, doctor_id: int) -> User | None:
         return await self._get_by_id(user_id=doctor_id, role=UserRole.DOCTOR)
@@ -171,7 +200,13 @@ class UserRepository:
     async def get_doctors_by_specialization_id(self, specialization_id: int) -> list[User]:
         stmt = (
             select(User)
-            .where(User.specialization_id == specialization_id, User.role == UserRole.DOCTOR)
+            .where(
+                User.specialization_id == specialization_id,
+                User.role == UserRole.DOCTOR,
+                User.is_verified.is_(True),
+                User.is_active.is_(True),
+                exists().where(Schedule.doctor_id == User.id)
+            )
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -182,8 +217,8 @@ class UserRepository:
         await self.session.refresh(user)
         return user
 
-    async def make_user_verified(self, user: User) -> User:
-        user.is_verified = True
+    async def change_user_verification_status(self, user: User, is_verified: bool) -> User:
+        user.is_verified = is_verified
         await self.session.flush()
         await self.session.refresh(user)
         return user
@@ -193,4 +228,9 @@ class UserRepository:
         await self.session.flush()
         await self.session.refresh(user)
         return user
+
+    async def delete_user(self, user: User) -> User:
+        await self.session.delete(user)
+        await self.session.flush()
+        await self.session.refresh(user)
 

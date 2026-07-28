@@ -66,7 +66,7 @@ class SpecializationService:
             name_specialization = await self.uow.specializations.get_specialization_by_name(
                 specialization_name=data.name
             )
-            if name_specialization:
+            if name_specialization and data.name != specialization.name:
                 raise SpecializationAlreadyExistsException()
             updated_specialization = await self.uow.specializations.update_specialization(
                 specialization=specialization,

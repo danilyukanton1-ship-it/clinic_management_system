@@ -39,7 +39,7 @@ class DiagnosisRepository:
             .where(Diagnosis.id == diagnosis_id)
         )
         result = await self.session.execute(stmt)
-        return result.scalars().one()
+        return result.scalar_one_or_none()
 
     async def get_diagnoses_by_prescription_id(self, prescription_id: int) -> list[Diagnosis]:
         stmt = (

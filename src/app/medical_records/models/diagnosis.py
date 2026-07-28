@@ -13,7 +13,7 @@ class Diagnosis(BaseModel):
     )
 
     disease_id: Mapped[int] = mapped_column(
-        ForeignKey('diseases.id'),
+        ForeignKey('diseases.id', ondelete='RESTRICT'),
         nullable=False,
     )
 

@@ -26,7 +26,10 @@ async def get_by_id(
             UserRole.DOCTOR,
             UserRole.ADMIN,
       )
-      appointment = await appointment_service.get_appointment_by_id(appointment_id)
+      appointment = await appointment_service.get_appointment_by_id(
+            appointment_id=appointment_id,
+            current_user=current_user
+      )
       return AppointmentResponseSchema.model_validate(appointment)
 
 @router.post(
@@ -63,7 +66,7 @@ async def get_past_appointments_by_current_user(
             UserRole.DOCTOR,
             UserRole.ADMIN,
       )
-      past_apps = appointment_service.get_past_apps_by_user_id(user_id=user.id)
+      past_apps = await appointment_service.get_past_apps_by_user_id(user_id=user.id)
       return past_apps
 
 @router.get(
@@ -82,7 +85,7 @@ async def get_future_appointments_by_current_user(
             UserRole.DOCTOR,
             UserRole.ADMIN,
       )
-      future_apps = appointment_service.get_future_apps_by_user_id(user_id=user.id)
+      future_apps = await appointment_service.get_future_apps_by_user_id(user_id=user.id)
       return future_apps
 
 @router.delete(

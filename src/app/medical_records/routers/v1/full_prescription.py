@@ -8,7 +8,7 @@ from common.enums.user_role import UserRole
 from common.permissions.checks import check_role
 
 router = APIRouter(
-    prefix="/full_prescription",
+    prefix="/full_prescriptions",
     tags=["Full prescriptions"],
 )
 

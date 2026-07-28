@@ -37,6 +37,11 @@ class DiagnosisService:
             diagnosis = await self.uow.diagnoses.get_diagnosis_by_id(diagnosis_id=diagnosis_id)
             if not diagnosis:
                 raise DiagnosisNotFoundException()
+            disease = await self.uow.diseases.get_disease_by_id(
+                disease_id=data.disease_id
+            )
+            if not disease:
+                raise DiseaseNotFoundException()
             appointment = await self.uow.appointments.get_appointment_by_diagnosis_id(diagnosis_id=diagnosis_id)
             if not appointment:
                 raise AppointmentNotFoundException()
@@ -61,7 +66,7 @@ class DiagnosisService:
         return None
 
     async def get_by_id(self, diagnosis_id: int, current_user: User) -> Diagnosis:
-        diagnosis = await self.uow.diagnoses.get_diagnosis_by_id(diagnosis_id)
+        diagnosis = await self.uow.diagnoses.get_diagnosis_by_id(diagnosis_id=diagnosis_id)
         if not diagnosis:
             raise DiagnosisNotFoundException()
         appointment = await self.uow.appointments.get_appointment_by_diagnosis_id(diagnosis_id=diagnosis_id)

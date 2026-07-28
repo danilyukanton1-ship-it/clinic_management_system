@@ -13,6 +13,14 @@ class DiagnosisSchema(BaseModel):
 class DiagnosisCreateSchema(DiagnosisSchema):
     pass
 
+class DiagnosisCreateFullPrescriptionSchema(BaseModel):
+    disease_id: PositiveInt
+    notes: str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=255
+    )
+
 class DiagnosisUpdateSchema(BaseModel):
     disease_id: PositiveInt
     notes: str | None = Field(

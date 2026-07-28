@@ -76,7 +76,9 @@ class ScheduleAbsenceRepository:
 
         result = await self.session.execute(stmt)
 
-        return list(result.scalars().all())
+        absences = list(result.scalars().all())
+        print("FOUND ABSENCES:", absences)
+        return absences
 
     async def delete_absence(self, absence: ScheduleAbsence) -> None:
         await self.session.delete(absence)

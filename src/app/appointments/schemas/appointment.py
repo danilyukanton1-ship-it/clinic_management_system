@@ -1,7 +1,7 @@
 import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
-from pydantic import PositiveInt
+from pydantic import PositiveInt, field_validator
 from common.enums.appointment_status import AppointmentStatus
 
 
@@ -16,6 +16,11 @@ class AppointmentCreateSchema(BaseModel):
         min_length=3,
         max_length=1000,
     )
+    @field_validator("complaint")
+    @classmethod
+    def validate_complaint(cls, v):
+        v = v.strip()
+        return v if v else None
 
 class AppointmentUpdateSchema(BaseModel):
     complaint: str | None = Field(

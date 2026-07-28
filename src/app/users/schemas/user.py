@@ -26,14 +26,36 @@ class UserSchema(BaseModel):
     email: EmailStr
     phone: str | None = Field(
         default=None,
-        pattern=r"^\+?[1-9]\d{6,19}$",
+        pattern=r"^\+?[1-9]\d{6,14}$",
     )
+
+    @field_validator("first_name", "last_name", mode="before")
+    @classmethod
+    def validate_required_name(cls, value):
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Field cannot be empty.")
+
+        if any(char.isdigit() for char in value):
+            raise ValueError("Field cannot contain digits.")
+
+        return value
 
     @field_validator("middle_name", mode="before")
     @classmethod
-    def empty_string_to_none(cls, value):
-        if isinstance(value, str) and not value.strip():
+    def validate_middle_name(cls, value):
+        if value is None:
             return None
+
+        value = value.strip()
+
+        if not value:
+            return None
+
+        if any(char.isdigit() for char in value):
+            raise ValueError("Field cannot contain digits.")
+
         return value
 
     @field_validator("phone", mode="before")

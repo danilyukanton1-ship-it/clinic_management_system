@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 @router.get(
-    path="/",
+    path="",
     status_code=status.HTTP_200_OK,
     response_model=list[DrugResponseSchema]
 )
@@ -29,7 +29,7 @@ async def get_drugs(
     return await drug_service.get_all()
 
 @router.get(
-    path="/name",
+    path="/name/{drug_name}",
     status_code=status.HTTP_200_OK,
     response_model=DrugResponseSchema
 )
@@ -46,7 +46,7 @@ async def get_by_name(
     return await drug_service.get_by_name(name=drug_name)
 
 @router.post(
-    path="/",
+    path="",
     status_code=status.HTTP_201_CREATED,
     response_model=DrugResponseSchema
 )
@@ -62,8 +62,8 @@ async def create(
     return await drug_service.create(data=data)
 
 @router.put(
-    path="/",
-    status_code=status.HTTP_201_CREATED,
+    path="/{drug_id}",
+    status_code=status.HTTP_202_ACCEPTED,
     response_model=DrugResponseSchema
 )
 async def update(
@@ -79,7 +79,7 @@ async def update(
     return await drug_service.update(drug_id=drug_id, data=data)
 
 @router.delete(
-    path="/",
+    path="/{drug_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(

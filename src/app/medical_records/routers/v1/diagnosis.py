@@ -90,7 +90,7 @@ async def delete(
     )
 
 @router.post(
-    path="/",
+    path="",
     status_code=status.HTTP_201_CREATED,
     response_model=DiagnosisResponseSchema,
 )

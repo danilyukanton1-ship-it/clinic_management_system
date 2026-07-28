@@ -21,3 +21,7 @@ class SlotStatusCanNotBeChangedException(AppException):
 class SlotCanNotBeChangedException(AppException):
     detail = 'Slot can not be changed'
     status_code = status.HTTP_403_FORBIDDEN
+
+class SlotCanNotBeCreatedException(AppException):
+    detail = 'Slot can not be created'
+    status_code = status.HTTP_400_BAD_REQUEST

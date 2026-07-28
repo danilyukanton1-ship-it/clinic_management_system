@@ -131,9 +131,8 @@ class ScheduleAbsenceService:
             if not doctor:
                 raise UserNotFoundException()
             absences = await self.uow.absences.get_future_absences_by_doctor_id(doctor_id=doctor_id)
-            if not absences:
-                raise AbsenceNotFoundException()
-            self.policy.can_view(user=current_user, schedule_absence=absences[0])
+            if absences:
+                self.policy.can_view(user=current_user, schedule_absence=absences[0])
         return [ScheduleAbsenceResponseSchema.model_validate(s) for s in absences]
 
     async def get_past_by_doctor_id(self, doctor_id: int, current_user: User) -> list[ScheduleAbsenceResponseSchema]:
@@ -142,9 +141,8 @@ class ScheduleAbsenceService:
             if not doctor:
                 raise UserNotFoundException()
             absences = await self.uow.absences.get_past_absences_by_doctor_id(doctor_id=doctor_id)
-            if not absences:
-                raise AbsenceNotFoundException()
-            self.policy.can_view(user=current_user, schedule_absence=absences[0])
+            if absences:
+                self.policy.can_view(user=current_user, schedule_absence=absences[0])
             return [ScheduleAbsenceResponseSchema.model_validate(s) for s in absences]
 
     async def get_absence_by_id(self, absence_id: int, current_user: User) -> ScheduleAbsenceResponseSchema:

@@ -20,7 +20,7 @@ class PrescriptionItem(BaseModel):
     )
 
     drug_id: Mapped[int] = mapped_column(
-        ForeignKey('drugs.id'),
+        ForeignKey('drugs.id', ondelete='RESTRICT'),
         nullable=False,
     )
 

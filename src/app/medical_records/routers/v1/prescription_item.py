@@ -10,7 +10,7 @@ from common.enums.user_role import UserRole
 from common.permissions.checks import check_role
 
 router = APIRouter(
-    prefix="/prescription_item",
+    prefix="/prescription_items",
     tags=["Prescription items"],
 )
 
@@ -77,7 +77,7 @@ async def delete(
 
 
 @router.post(
-    path="/",
+    path="",
     response_model=PrescriptionItemResponseSchema,
     status_code=status.HTTP_201_CREATED,
 )

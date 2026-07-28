@@ -20,6 +20,7 @@ celery_app.conf.update(
 celery_app.conf.imports = (
     "app.appointments.tasks",
     "app.auth.tasks",
+    "app.users.tasks",
 )
 
 celery_app.conf.beat_schedule = {
@@ -32,5 +33,10 @@ celery_app.conf.beat_schedule = {
         "task": "app.appointments.tasks.appointment_reminder",
         "schedule": crontab(minute="*/5"),
         "args": (1,),
+    },
+    "delete_unverified_users": {
+        "task": "app.users.tasks.delete_unverified_users",
+        "schedule": crontab(minute="*/10"),
+        "args": (),
     }
 }

@@ -19,7 +19,7 @@ router = APIRouter(
 )
 
 @router.post(
-    path="/",
+    path="",
     status_code=status.HTTP_201_CREATED,
     response_model=AdminResponseSchema,
 )
@@ -35,7 +35,7 @@ async def create(
     return await user_service.create_admin(data=data)
 
 @router.get(
-    path="/{admin_id}/",
+    path="/{admin_id}",
     status_code=status.HTTP_200_OK,
     response_model=AdminResponseSchema,
 )
@@ -51,7 +51,7 @@ async def get_admin(
     return await user_service.get_admin_by_id(admin_id=admin_id)
 
 @router.put(
-    path="/{admin_id}/",
+    path="/{admin_id}",
     status_code=status.HTTP_202_ACCEPTED,
     response_model=AdminResponseSchema,
 )
@@ -68,7 +68,7 @@ async def update(
     return await user_service.update_admin(data=data, admin_id=admin_id)
 
 @router.patch(
-    path="/{admin_id}/",
+    path="/{admin_id}/deactivate",
     status_code=status.HTTP_202_ACCEPTED,
     response_model=AdminResponseSchema,
 )

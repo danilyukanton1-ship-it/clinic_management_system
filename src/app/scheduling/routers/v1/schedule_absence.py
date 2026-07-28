@@ -13,12 +13,12 @@ from common.enums.user_role import UserRole
 from common.permissions.checks import check_role
 
 router = APIRouter(
-    prefix="/absence",
+    prefix="/absences",
     tags=["Absences"],
 )
 
 @router.post(
-    path="/",
+    path="",
     status_code=status.HTTP_201_CREATED,
     response_model=ScheduleAbsenceResponseSchema
 )

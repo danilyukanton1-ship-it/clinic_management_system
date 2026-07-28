@@ -17,7 +17,7 @@ from common.permissions.checks import check_role
 router = APIRouter(prefix="/specializations",tags=["Specializations"])
 
 @router.get(
-    path="/",
+    path="",
     status_code=status.HTTP_200_OK,
     response_model=list[SpecializationResponseSchema],
 )
@@ -50,7 +50,7 @@ async def get_by_name(
 
 
 @router.post(
-    path="/",
+    path="",
     status_code=status.HTTP_201_CREATED,
     response_model=SpecializationResponseSchema,
 )

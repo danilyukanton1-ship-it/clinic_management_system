@@ -14,6 +14,20 @@ from common.enums.weekday import Weekday
 router = APIRouter(prefix="/schedule", tags=["Schedules"])
 
 @router.get(
+    path="/all/{doctor_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=list[ScheduleResponseSchema]
+)
+async def get_all_by_doctor_id(
+    doctor_id: int,
+    schedule_service: ScheduleService = Depends(get_schedule_service),
+    current_user: User = Depends(get_current_user),
+):
+    return await schedule_service.get_all_schedule_by_doctor_id(
+        doctor_id=doctor_id
+    )
+
+@router.get(
     path='/{doctor_id}/{weekday}',
     status_code=status.HTTP_200_OK,
     response_model=ScheduleResponseSchema
@@ -30,23 +44,8 @@ async def get_by_doctor_id_and_weekday(
     )
     return schedule
 
-@router.get(
-    path="/all/{doctor_id}",
-    status_code=status.HTTP_200_OK,
-    response_model=list[ScheduleResponseSchema]
-)
-async def get_all_by_doctor_id(
-    doctor_id: int,
-    schedule_service: ScheduleService = Depends(get_schedule_service),
-    current_user: User = Depends(get_current_user),
-):
-    return await schedule_service.get_all_schedule_by_doctor_id(
-        doctor_id=doctor_id
-    )
-
-
 @router.post(
-    path='/',
+    path='',
     status_code=status.HTTP_201_CREATED,
     response_model=ScheduleResponseSchema
 )
@@ -79,11 +78,11 @@ async def update(
     )
     return await schedule_service.update(doctor_id=doctor_id, data=data, weekday=weekday)
 
-@router.delete(
+@router.patch(
     path="/{schedule_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def delete(
+async def deactivate(
     schedule_id: int,
     schedule_service: ScheduleService = Depends(get_schedule_service),
     current_user: User = Depends(get_current_user),
@@ -92,5 +91,5 @@ async def delete(
         current_user,
         UserRole.ADMIN,
     )
-    return await schedule_service.delete(schedule_id=schedule_id)
+    return await schedule_service.deactivate_schedule(schedule_id=schedule_id)
     

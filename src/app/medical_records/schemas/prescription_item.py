@@ -16,6 +16,18 @@ class PrescriptionItemSchema(BaseModel):
 class PrescriptionItemCreateSchema(PrescriptionItemSchema):
     pass
 
+class PrescriptionItemCreateFullPrescriptionSchema(BaseModel):
+    drug_id: PositiveInt
+    dosage: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+    frequency: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+    duration_days: PositiveInt
+
 class PrescriptionItemResponseSchema(BaseModel):
     id: PositiveInt
 

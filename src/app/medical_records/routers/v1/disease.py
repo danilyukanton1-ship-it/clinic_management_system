@@ -29,7 +29,7 @@ async def get_all(
     return await disease_service.get_all()
 
 @router.get(
-    path="/{disease_code}",
+    path="/code/{disease_code}",
     status_code=status.HTTP_200_OK,
     response_model=DiseaseResponseSchema
 )
@@ -46,7 +46,7 @@ async def get_by_code(
     return await disease_service.get_by_code(disease_code=disease_code)
 
 @router.get(
-    path="/{name}",
+    path="/name/{disease_name}",
     status_code=status.HTTP_200_OK,
     response_model=DiseaseResponseSchema
 )
@@ -60,10 +60,12 @@ async def get_by_name(
         UserRole.ADMIN,
         UserRole.DOCTOR
     )
-    return await disease_service.get_by_name(name=disease_name)
+    return await disease_service.get_by_name(
+        disease_name=disease_name
+    )
 
 @router.post(
-    path="/",
+    path="",
     status_code=status.HTTP_201_CREATED,
     response_model=DiseaseResponseSchema
 )
@@ -80,7 +82,7 @@ async def create(
 
 @router.put(
     path="/{disease_id}",
-    status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_202_ACCEPTED,
     response_model=DiseaseResponseSchema
 )
 async def update(

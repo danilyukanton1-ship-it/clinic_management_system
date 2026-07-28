@@ -73,14 +73,15 @@ class ScheduleService:
             schedule = await self.uow.schedules.update_schedule(db_schedule=db_schedule, data=data)
         return ScheduleResponseSchema.model_validate(schedule)
 
-    async def delete(self, schedule_id: int) -> None:
+    async def deactivate_schedule(self, schedule_id: int) -> None:
         async with self.uow:
             schedule = await self.uow.schedules.get_by_id(schedule_id=schedule_id)
             if not schedule:
                 raise ScheduleNotFoundException()
             booked_slots = await self.uow.schedule_slots.get_future_slots_by_doctor_id_status(
                 doctor_id=schedule.doctor_id,
-                status=SlotStatus.BOOKED
+                status=SlotStatus.BOOKED,
+                weekday=schedule.weekday,
             )
             if not booked_slots:
                 slots_to_delete = await self.uow.schedule_slots.get_slots_after_date(
@@ -92,7 +93,7 @@ class ScheduleService:
                     await self.uow.schedule_slots.delete_slot(slot=slot)
             else:
                 raise ScheduleCanNotBeDeletedException()
-            await self.uow.schedules.delete_schedule(schedule=schedule)
+            await self.uow.schedules.make_schedule_unactive(schedule=schedule)
         return None
 
 

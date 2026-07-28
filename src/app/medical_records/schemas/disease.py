@@ -8,7 +8,7 @@ class DiseaseSchema(BaseModel):
     )
     name: str = Field(
         min_length=2,
-        max_length=255,
+        max_length=128,
     )
     description: str = Field(
         min_length=3,

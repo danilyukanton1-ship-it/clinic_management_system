@@ -45,6 +45,7 @@ class AppointmentRepository:
     async def get_appointment_by_id(self, appointment_id: int) -> Appointment | None:
         stmt = (
             select(Appointment)
+            .options(joinedload(Appointment.slot))
             .where(Appointment.id == appointment_id)
             )
         result = await self.session.execute(stmt)

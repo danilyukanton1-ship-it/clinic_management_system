@@ -10,6 +10,7 @@ class Prescription(BaseModel):
 
     appointment_id: Mapped[int] = mapped_column(
         ForeignKey('appointments.id'),
+        ondelete='CASCADE',
         nullable=False,
     )
 

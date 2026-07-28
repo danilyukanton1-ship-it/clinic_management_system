@@ -7,7 +7,7 @@ from app.auth.dependencies import get_current_user
 from app.users.models.user import User
 
 router = APIRouter(
-    prefix="/prescription",
+    prefix="/prescriptions",
     tags=["Prescriptions"],
 )
 

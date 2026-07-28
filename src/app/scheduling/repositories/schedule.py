@@ -27,7 +27,10 @@ class ScheduleRepository:
     async def get_by_id(self, schedule_id: int) -> Schedule | None:
         stmt = (
             select(Schedule)
-            .where(Schedule.id == schedule_id)
+            .where(
+                Schedule.id == schedule_id,
+                Schedule.is_active.is_(True),
+                   )
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
@@ -35,7 +38,11 @@ class ScheduleRepository:
     async def get_by_doctor_id_and_weekday(self, doctor_id: int, weekday: Weekday) -> Schedule | None:
         stmt = (
             select(Schedule)
-            .where(Schedule.doctor_id == doctor_id, Schedule.weekday == weekday)
+            .where(
+                Schedule.doctor_id == doctor_id,
+                Schedule.weekday == weekday,
+                Schedule.is_active.is_(True),
+            )
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
@@ -43,7 +50,10 @@ class ScheduleRepository:
     async def get_all_by_doctor_id(self, doctor_id: int) -> list[Schedule] | None:
         stmt = (
             select(Schedule)
-            .where(Schedule.doctor_id == doctor_id)
+            .where(
+                Schedule.doctor_id == doctor_id,
+                Schedule.is_active.is_(True),
+            )
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -60,7 +70,11 @@ class ScheduleRepository:
 
     async def if_exists(self, doctor_id: int, weekday: Weekday) -> bool:
         stmt = (
-            select(Schedule).where(Schedule.doctor_id == doctor_id, Schedule.weekday == weekday)
+            select(Schedule).where(
+                Schedule.doctor_id == doctor_id,
+                Schedule.weekday == weekday,
+                Schedule.is_active.is_(True),
+            )
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none() is not None
@@ -68,3 +82,8 @@ class ScheduleRepository:
     async def delete_schedule(self, schedule: Schedule) -> None:
         await self.session.delete(schedule)
         return None
+
+    async def make_schedule_unactive(self, schedule: Schedule) -> Schedule:
+        schedule.is_active = False
+        await self.session.flush()
+        await self.session.refresh(schedule)

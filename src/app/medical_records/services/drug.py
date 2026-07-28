@@ -23,7 +23,7 @@ class DrugService:
         if not drug:
             raise DrugNotFoundException()
         drug_by_name = await self.uow.drugs.get_drug_by_name(drug_name=data.name)
-        if drug_by_name:
+        if drug_by_name and drug.name != data.name:
             raise DrugAlreadyExistsException()
         async with self.uow:
             drug = await self.uow.drugs.update_drug(drug=drug, data=data)

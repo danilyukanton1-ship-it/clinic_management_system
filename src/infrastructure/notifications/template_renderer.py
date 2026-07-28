@@ -1,6 +1,7 @@
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
+
 class TemplateRenderer:
 
     def __init__(self) -> None:
@@ -13,4 +14,3 @@ class TemplateRenderer:
 
     def render(self, template_name: str, **context) -> str:
         return self._env.get_template(template_name).render(**context)
-

@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, status
 from app.medical_records.dependencies import get_drug_service
 from app.medical_records.services.drug import DrugService
-from app.medical_records.schemas.drug import DrugUpdateSchema, DrugCreateSchema, DrugResponseSchema
+from app.medical_records.schemas.drug import (
+    DrugUpdateSchema,
+    DrugCreateSchema,
+    DrugResponseSchema,
+)
 from app.auth.dependencies import get_current_user
 from app.users.models.user import User
 from common.enums.user_role import UserRole
@@ -12,10 +16,9 @@ router = APIRouter(
     tags=["Drugs"],
 )
 
+
 @router.get(
-    path="",
-    status_code=status.HTTP_200_OK,
-    response_model=list[DrugResponseSchema]
+    path="", status_code=status.HTTP_200_OK, response_model=list[DrugResponseSchema]
 )
 async def get_drugs(
     drug_service: DrugService = Depends(get_drug_service),
@@ -28,10 +31,11 @@ async def get_drugs(
     )
     return await drug_service.get_all()
 
+
 @router.get(
     path="/name/{drug_name}",
     status_code=status.HTTP_200_OK,
-    response_model=DrugResponseSchema
+    response_model=DrugResponseSchema,
 )
 async def get_by_name(
     drug_name: str,
@@ -45,10 +49,9 @@ async def get_by_name(
     )
     return await drug_service.get_by_name(name=drug_name)
 
+
 @router.post(
-    path="",
-    status_code=status.HTTP_201_CREATED,
-    response_model=DrugResponseSchema
+    path="", status_code=status.HTTP_201_CREATED, response_model=DrugResponseSchema
 )
 async def create(
     data: DrugCreateSchema,
@@ -61,10 +64,11 @@ async def create(
     )
     return await drug_service.create(data=data)
 
+
 @router.put(
     path="/{drug_id}",
     status_code=status.HTTP_202_ACCEPTED,
-    response_model=DrugResponseSchema
+    response_model=DrugResponseSchema,
 )
 async def update(
     drug_id: int,
@@ -77,6 +81,7 @@ async def update(
         UserRole.ADMIN,
     )
     return await drug_service.update(drug_id=drug_id, data=data)
+
 
 @router.delete(
     path="/{drug_id}",
@@ -92,4 +97,3 @@ async def delete(
         UserRole.ADMIN,
     )
     return await drug_service.delete(drug_id=drug_id)
-

@@ -10,6 +10,7 @@ from common.enums.token_type import TokenType
 from app.auth.security import verify_password
 from app.auth.services.token import TokenService
 
+
 class LoginService:
     def __init__(self, session: AsyncSession, redis: Redis):
         self.uow = UnitOfWork(session)
@@ -21,7 +22,7 @@ class LoginService:
         if not user or not user.is_active or not user.is_verified:
             raise InvalidCredentialsException()
 
-        key = f'login_attempts:{user.email}'
+        key = f"login_attempts:{user.email}"
 
         attempts = await self.redis.get(key)
         attempts = int(attempts) if attempts else 0
@@ -39,14 +40,14 @@ class LoginService:
             user_id=user.id,
             email=user.email,
             role=user.role.value,
-            token_type=TokenType.ACCESS
+            token_type=TokenType.ACCESS,
         )
 
         refresh_token = TokenService.create_token(
             user_id=user.id,
             email=user.email,
             role=user.role.value,
-            token_type=TokenType.REFRESH
+            token_type=TokenType.REFRESH,
         )
         await self.redis.delete(key)
         return TokenResponseSchema(

@@ -7,7 +7,7 @@ WEEKDAY_MAPPING = {
     3: Weekday.Thursday,
     4: Weekday.Friday,
     5: Weekday.Saturday,
-    6: Weekday.Sunday
+    6: Weekday.Sunday,
 }
 
 WEEKDAY_MAPPING_REVERSE = {
@@ -17,5 +17,5 @@ WEEKDAY_MAPPING_REVERSE = {
     Weekday.Thursday: 3,
     Weekday.Friday: 4,
     Weekday.Saturday: 5,
-    Weekday.Sunday: 6
+    Weekday.Sunday: 6,
 }

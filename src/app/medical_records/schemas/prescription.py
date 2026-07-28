@@ -1,9 +1,13 @@
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 
 from app.medical_records.schemas.diagnosis import DiagnosisCreateFullPrescriptionSchema
-from app.medical_records.schemas.prescription_item import PrescriptionItemCreateSchema, PrescriptionItemResponseSchema, \
-    PrescriptionItemCreateFullPrescriptionSchema
+from app.medical_records.schemas.prescription_item import (
+    PrescriptionItemCreateSchema,
+    PrescriptionItemResponseSchema,
+    PrescriptionItemCreateFullPrescriptionSchema,
+)
 from app.medical_records.schemas.diagnosis import DiagnosisResponseSchema
+
 
 class PrescriptionSchema(BaseModel):
     id: PositiveInt
@@ -14,7 +18,10 @@ class PrescriptionSchema(BaseModel):
         max_length=2000,
     )
 
-    model_config = ConfigDict(from_attributes=True,)
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
 
 class PrescriptionCreateSchema(BaseModel):
     appointment_id: PositiveInt
@@ -23,6 +30,7 @@ class PrescriptionCreateSchema(BaseModel):
         min_length=3,
         max_length=2000,
     )
+
 
 class FullPrescriptionCreateSchema(BaseModel):
     appointment_id: PositiveInt
@@ -36,12 +44,16 @@ class FullPrescriptionCreateSchema(BaseModel):
         default_factory=list
     )
 
+
 class FullPrescriptionResponseSchema(BaseModel):
     prescription: PrescriptionSchema
     diagnoses: list[DiagnosisResponseSchema]
     prescription_items: list[PrescriptionItemResponseSchema]
 
-    model_config = ConfigDict(from_attributes=True,)
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
 
 class PrescriptionUpdateSchema(BaseModel):
     recommendations: str | None = Field(
@@ -50,9 +62,12 @@ class PrescriptionUpdateSchema(BaseModel):
         max_length=2000,
     )
 
+
 class PrescriptionResponseSchema(BaseModel):
     id: PositiveInt
     appointment_id: PositiveInt
     recommendations: str | None = None
 
-    model_config = ConfigDict(from_attributes=True,)
+    model_config = ConfigDict(
+        from_attributes=True,
+    )

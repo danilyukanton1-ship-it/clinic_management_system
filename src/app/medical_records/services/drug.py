@@ -1,7 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.medical_records.schemas.drug import DrugCreateSchema, DrugUpdateSchema, DrugResponseSchema
-from app.medical_records.exceptions.drug import DrugAlreadyExistsException, DrugNotFoundException
+from app.medical_records.schemas.drug import (
+    DrugCreateSchema,
+    DrugUpdateSchema,
+    DrugResponseSchema,
+)
+from app.medical_records.exceptions.drug import (
+    DrugAlreadyExistsException,
+    DrugNotFoundException,
+)
 from db.unit_of_work import UnitOfWork
+
 
 class DrugService:
 

@@ -1,21 +1,36 @@
 from fastapi import APIRouter, Depends, status, Request
 
 from app.auth.schemas.me import MeSchema
-from app.auth.schemas.register import RegisterSchema, VerifyEmailSchema, ForgotPasswordSchema, ResetPasswordSchema
+from app.auth.schemas.register import (
+    RegisterSchema,
+    VerifyEmailSchema,
+    ForgotPasswordSchema,
+    ResetPasswordSchema,
+)
 from app.auth.services.register import RegisterService
 from app.auth.services.token import TokenService
 from app.users.models.user import User
 from app.users.schemas.user import UserResponseSchema, PatientResponseSchema
-from app.auth.dependencies import get_login_service, get_current_user, get_token_service, get_register_service
+from app.auth.dependencies import (
+    get_login_service,
+    get_current_user,
+    get_token_service,
+    get_register_service,
+)
 from app.auth.schemas.login import LoginSchema
-from app.auth.schemas.token import TokenResponseSchema, AccessTokenSchema, RefreshTokenSchema
+from app.auth.schemas.token import (
+    TokenResponseSchema,
+    AccessTokenSchema,
+    RefreshTokenSchema,
+)
 from app.auth.services.login import LoginService
 from core.limiter import limiter
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+
 @router.post(
-    path='/register',
+    path="/register",
     status_code=status.HTTP_201_CREATED,
     response_model=PatientResponseSchema,
 )
@@ -27,8 +42,9 @@ async def register(
 ) -> PatientResponseSchema:
     return await service.register(data)
 
+
 @router.post(
-    path='/email-verify',
+    path="/email-verify",
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,
 )
@@ -39,6 +55,7 @@ async def verify_email(
     service: RegisterService = Depends(get_register_service),
 ) -> PatientResponseSchema:
     return await service.verify_email(data=data)
+
 
 @router.post(
     path="/email-verify/resend",
@@ -53,6 +70,7 @@ async def resend_email_verification_code(
     await service.resend_verification_email(email=email)
     return {"detail": "Email verification sent."}
 
+
 @router.post(
     path="/forgot-password",
     status_code=status.HTTP_200_OK,
@@ -64,6 +82,7 @@ async def forgot_password(
     service: RegisterService = Depends(get_register_service),
 ) -> None:
     return await service.forgot_password(data=data)
+
 
 @router.post(
     path="/reset-password",
@@ -78,6 +97,7 @@ async def reset_password(
 ) -> PatientResponseSchema:
     return await service.reset_password(data=data)
 
+
 @router.post(
     path="/login",
     response_model=TokenResponseSchema,
@@ -91,8 +111,9 @@ async def login(
 ) -> TokenResponseSchema:
     return await service.login(data)
 
+
 @router.get(
-    path='/me',
+    path="/me",
     response_model=UserResponseSchema,
     status_code=status.HTTP_200_OK,
 )
@@ -103,7 +124,7 @@ async def me(
 
 
 @router.post(
-    path='/refresh',
+    path="/refresh",
     response_model=AccessTokenSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -113,8 +134,9 @@ async def refresh(
 ) -> AccessTokenSchema:
     return await token_service.get_access_token(refresh_token.refresh_token)
 
+
 @router.post(
-    path='/logout',
+    path="/logout",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def logout(
@@ -122,5 +144,3 @@ async def logout(
     token_service: TokenService = Depends(get_token_service),
 ) -> None:
     return await token_service.blacklist_token(refresh_token.refresh_token)
-
-

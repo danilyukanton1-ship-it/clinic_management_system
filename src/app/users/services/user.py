@@ -7,10 +7,23 @@ from app.users.models.specialization import Specialization
 from app.auth.security import get_password_hash
 from app.users.policy.user import UserPolicy
 
-from app.users.schemas.user import DoctorCreateSchema, DoctorResponseSchema, PatientResponseSchema, DoctorUpdateSchema, \
-    PatientUpdateSchema, AdminResponseSchema, AdminUpdateSchema, AdminCreateSchema, UserUpdateSchema
+from app.users.schemas.user import (
+    DoctorCreateSchema,
+    DoctorResponseSchema,
+    PatientResponseSchema,
+    DoctorUpdateSchema,
+    PatientUpdateSchema,
+    AdminResponseSchema,
+    AdminUpdateSchema,
+    AdminCreateSchema,
+    UserUpdateSchema,
+)
 
-from app.users.exceptions.user import UserAlreadyExistsException, UserNotFoundException, UserAlreadyInactiveException
+from app.users.exceptions.user import (
+    UserAlreadyExistsException,
+    UserNotFoundException,
+    UserAlreadyInactiveException,
+)
 from app.auth.tasks import send_verify_email
 from app.users.exceptions.specialization import SpecializationNotFoundException
 from db.unit_of_work import UnitOfWork
@@ -35,9 +48,9 @@ class UserService:
         )
 
     async def _new_email_verification(
-            self,
-            user: User,
-            data: UserUpdateSchema,
+        self,
+        user: User,
+        data: UserUpdateSchema,
     ):
         if user.email != data.email:
             await self.uow.users.change_user_verification_status(
@@ -45,14 +58,11 @@ class UserService:
                 is_verified=False,
             )
             await self._send_verification_email(
-                email=data.email,
-                username=data.first_name
+                email=data.email, username=data.first_name
             )
 
     async def _check_email_exists(self, email: str):
-        if await self.uow.users.get_user_by_email(
-                email=email
-        ):
+        if await self.uow.users.get_user_by_email(email=email):
             raise UserAlreadyExistsException()
 
     async def _validate_user_contacts(
@@ -61,38 +71,28 @@ class UserService:
         email: str,
         phone: str | None,
     ) -> None:
-        email_user = await self.uow.users.get_user_by_email(
-            email=email
-        )
+        email_user = await self.uow.users.get_user_by_email(email=email)
         if email_user and email_user.id != user_id:
             raise UserAlreadyExistsException()
         if phone:
-            phone_user = await self.uow.users.get_user_by_phone(
-                phone=phone
-            )
+            phone_user = await self.uow.users.get_user_by_phone(phone=phone)
             if phone_user and phone_user.id != user_id:
                 raise UserAlreadyExistsException()
 
     async def _get_doctor(self, doctor_id: int) -> User:
-        doctor = await self.uow.users.get_doctor_by_id(
-            doctor_id=doctor_id
-        )
+        doctor = await self.uow.users.get_doctor_by_id(doctor_id=doctor_id)
         if not doctor:
             raise UserNotFoundException()
         return doctor
 
     async def _get_patient(self, patient_id: int) -> User:
-        patient = await self.uow.users.get_patient_by_id(
-            patient_id=patient_id
-        )
+        patient = await self.uow.users.get_patient_by_id(patient_id=patient_id)
         if not patient:
             raise UserNotFoundException()
         return patient
 
     async def _get_admin(self, admin_id: int) -> User:
-        admin = await self.uow.users.get_admin_by_id(
-            admin_id=admin_id
-        )
+        admin = await self.uow.users.get_admin_by_id(admin_id=admin_id)
         if not admin:
             raise UserNotFoundException()
         return admin
@@ -114,7 +114,9 @@ class UserService:
     async def create_doctor(self, data: DoctorCreateSchema) -> DoctorResponseSchema:
         async with self.uow:
             await self._check_email_exists(email=data.email)
-            specialization = await self._get_specialization(specialization_id=data.specialization_id)
+            specialization = await self._get_specialization(
+                specialization_id=data.specialization_id
+            )
             hashed_password = get_password_hash(password=data.password)
             doctor = await self.uow.users.create_doctor(
                 data=data,
@@ -122,8 +124,7 @@ class UserService:
                 password_hash=hashed_password,
             )
             await self._send_verification_email(
-                email=doctor.email,
-                username=doctor.first_name
+                email=doctor.email, username=doctor.first_name
             )
         return DoctorResponseSchema.model_validate(doctor)
 
@@ -132,12 +133,10 @@ class UserService:
             await self._check_email_exists(email=data.email)
             hashed_password = get_password_hash(password=data.password)
             admin = await self.uow.users.create_admin(
-                data=data,
-                password_hash=hashed_password
+                data=data, password_hash=hashed_password
             )
             await self._send_verification_email(
-                email=admin.email,
-                username=admin.first_name
+                email=admin.email, username=admin.first_name
             )
         return AdminResponseSchema.model_validate(admin)
 
@@ -145,13 +144,17 @@ class UserService:
         doctors = await self.uow.users.get_all_doctors()
         return [DoctorResponseSchema.model_validate(doctor) for doctor in doctors]
 
-    async def get_doctors_by_specialization_id(self, specialization_id: int) -> list[DoctorResponseSchema]:
+    async def get_doctors_by_specialization_id(
+        self, specialization_id: int
+    ) -> list[DoctorResponseSchema]:
         specialization = await self.uow.specializations.get_specialization_by_id(
             specialization_id=specialization_id
         )
         if not specialization:
             raise SpecializationNotFoundException()
-        doctors = await self.uow.users.get_doctors_by_specialization_id(specialization_id=specialization_id)
+        doctors = await self.uow.users.get_doctors_by_specialization_id(
+            specialization_id=specialization_id
+        )
         return [DoctorResponseSchema.model_validate(doctor) for doctor in doctors]
 
     async def get_all_patients(self) -> list[PatientResponseSchema]:
@@ -162,9 +165,7 @@ class UserService:
         doctor = await self._get_doctor(doctor_id=doctor_id)
         if not doctor.is_verified or not doctor.is_active:
             raise UserNotFoundException()
-        schedule = await self.uow.schedules.get_all_by_doctor_id(
-            doctor_id=doctor_id
-        )
+        schedule = await self.uow.schedules.get_all_by_doctor_id(doctor_id=doctor_id)
         if not schedule:
             raise UserNotFoundException()
         return DoctorResponseSchema.model_validate(doctor)
@@ -173,7 +174,9 @@ class UserService:
         admin = await self._get_admin(admin_id=admin_id)
         return AdminResponseSchema.model_validate(admin)
 
-    async def get_patient_by_id(self, patient_id: int, current_user: User) -> PatientResponseSchema:
+    async def get_patient_by_id(
+        self, patient_id: int, current_user: User
+    ) -> PatientResponseSchema:
         patient = await self._get_patient(patient_id=patient_id)
         self.policy.can_view(
             current_user=current_user,
@@ -181,17 +184,18 @@ class UserService:
         )
         return PatientResponseSchema.model_validate(patient)
 
-    async def get_doctor_by_email(self, email: str, current_user: User) -> DoctorResponseSchema:
+    async def get_doctor_by_email(
+        self, email: str, current_user: User
+    ) -> DoctorResponseSchema:
         doctor = await self.uow.users.get_doctor_by_email(email=email)
         if not doctor:
             raise UserNotFoundException()
-        self.policy.can_view(
-            current_user=current_user,
-            target_user=doctor
-        )
+        self.policy.can_view(current_user=current_user, target_user=doctor)
         return DoctorResponseSchema.model_validate(doctor)
 
-    async def get_patient_by_email(self, email: str, current_user: User) -> PatientResponseSchema:
+    async def get_patient_by_email(
+        self, email: str, current_user: User
+    ) -> PatientResponseSchema:
         patient = await self.uow.users.get_patient_by_email(email=email)
         if not patient:
             raise UserNotFoundException()
@@ -201,7 +205,9 @@ class UserService:
         )
         return PatientResponseSchema.model_validate(patient)
 
-    async def get_patient_by_phone(self, phone: str, current_user: User) -> PatientResponseSchema:
+    async def get_patient_by_phone(
+        self, phone: str, current_user: User
+    ) -> PatientResponseSchema:
         patient = await self.uow.users.get_patient_by_phone(phone=phone)
         if not patient:
             raise UserNotFoundException()
@@ -211,7 +217,9 @@ class UserService:
         )
         return PatientResponseSchema.model_validate(patient)
 
-    async def update_admin(self, admin_id: int, data: AdminUpdateSchema) -> AdminResponseSchema:
+    async def update_admin(
+        self, admin_id: int, data: AdminUpdateSchema
+    ) -> AdminResponseSchema:
         async with self.uow:
             admin = await self._get_admin(admin_id=admin_id)
             await self._validate_user_contacts(
@@ -229,7 +237,9 @@ class UserService:
             )
         return AdminResponseSchema.model_validate(updated_admin)
 
-    async def update_doctor(self, doctor_id: int, data: DoctorUpdateSchema, current_user: User) -> DoctorResponseSchema:
+    async def update_doctor(
+        self, doctor_id: int, data: DoctorUpdateSchema, current_user: User
+    ) -> DoctorResponseSchema:
         async with self.uow:
             doctor = await self._get_doctor(doctor_id=doctor_id)
             self.policy.can_update(
@@ -246,10 +256,14 @@ class UserService:
                 user=doctor,
                 data=data,
             )
-            updated_doctor = await self.uow.users.update_doctor(doctor=doctor, data=data)
+            updated_doctor = await self.uow.users.update_doctor(
+                doctor=doctor, data=data
+            )
         return DoctorResponseSchema.model_validate(updated_doctor)
 
-    async def update_patient(self, patient_id: int, data: PatientUpdateSchema, current_user: User) -> PatientResponseSchema:
+    async def update_patient(
+        self, patient_id: int, data: PatientUpdateSchema, current_user: User
+    ) -> PatientResponseSchema:
         async with self.uow:
             patient = await self._get_patient(patient_id=patient_id)
             self.policy.can_update(
@@ -265,7 +279,9 @@ class UserService:
                 user=patient,
                 data=data,
             )
-            updated_patient = await self.uow.users.update_patient(patient=patient, data=data)
+            updated_patient = await self.uow.users.update_patient(
+                patient=patient, data=data
+            )
         return PatientResponseSchema.model_validate(updated_patient)
 
     async def deactivate_doctor(self, doctor_id: int) -> DoctorResponseSchema:

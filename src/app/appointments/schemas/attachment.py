@@ -21,13 +21,14 @@ class AttachmentSchema(BaseModel):
     )
 
 
-
 class AttachmentCreateSchema(AttachmentSchema):
     patient_id: PositiveInt
     appointment_id: PositiveInt
 
+
 class AttachmentUpdateSchema(AttachmentSchema):
     pass
+
 
 class AttachmentResponseSchema(AttachmentSchema):
     id: PositiveInt
@@ -39,5 +40,3 @@ class AttachmentResponseSchema(AttachmentSchema):
     model_config = ConfigDict(
         from_attributes=True,
     )
-
-

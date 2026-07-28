@@ -8,12 +8,14 @@ from common.enums.token_type import TokenType
 from app.auth.exceptions.token import (
     InvalidTokenTypeException,
     InvalidTokenException,
-    TokenExpiredException, TokenBlacklistedException,
+    TokenExpiredException,
+    TokenBlacklistedException,
 )
 from app.auth.schemas.token import AccessTokenSchema
 from app.users.exceptions.user import UserNotFoundException, UserInactiveException
 from core.config import settings
 from db.unit_of_work import UnitOfWork
+
 
 class TokenService:
 
@@ -23,10 +25,10 @@ class TokenService:
 
     @staticmethod
     def create_token(
-            user_id: int,
-            email: str,
-            role: str,
-            token_type: TokenType,
+        user_id: int,
+        email: str,
+        role: str,
+        token_type: TokenType,
     ) -> str:
 
         if token_type == TokenType.ACCESS:
@@ -47,10 +49,12 @@ class TokenService:
         }
 
         if token_type == TokenType.ACCESS:
-            payload.update({
-                "email": email,
-                "role": role,
-            })
+            payload.update(
+                {
+                    "email": email,
+                    "role": role,
+                }
+            )
 
         elif token_type == TokenType.REFRESH:
             payload["jti"] = str(uuid4())
@@ -64,7 +68,9 @@ class TokenService:
     @staticmethod
     def decode_token(token: str) -> dict:
         try:
-            return jwt.decode(token, settings.jwt.SECRET_KEY, algorithms=[settings.jwt.ALGORITHM])
+            return jwt.decode(
+                token, settings.jwt.SECRET_KEY, algorithms=[settings.jwt.ALGORITHM]
+            )
         except jwt.ExpiredSignatureError:
             raise TokenExpiredException()
         except jwt.InvalidTokenError:
@@ -73,15 +79,14 @@ class TokenService:
     async def get_access_token(self, refresh_token: str) -> AccessTokenSchema:
         payload = self.decode_token(refresh_token)
 
-        if payload['type'] != TokenType.REFRESH.value:
+        if payload["type"] != TokenType.REFRESH.value:
             raise InvalidTokenException()
 
-        jti = payload['jti']
+        jti = payload["jti"]
         if await self.is_blacklisted(jti):
             raise TokenBlacklistedException()
 
-        user_id = int(payload['sub'])
-
+        user_id = int(payload["sub"])
 
         user = await self.uow.users.get_user_by_id(user_id)
 
@@ -101,23 +106,23 @@ class TokenService:
         return AccessTokenSchema(access_token=access_token)
 
     async def blacklist_token(
-            self,
-            refresh_token: str,
+        self,
+        refresh_token: str,
     ) -> None:
         decoded_token = self.decode_token(refresh_token)
-        jti = decoded_token['jti']
-        exp = decoded_token['exp']
+        jti = decoded_token["jti"]
+        exp = decoded_token["exp"]
         ttl = exp - int(datetime.now(UTC).timestamp())
         if ttl <= 0:
             raise TokenExpiredException()
         await self.redis.set(
-            f'blacklisted:{jti}',
-            '1',
+            f"blacklisted:{jti}",
+            "1",
             ex=ttl,
         )
 
     async def is_blacklisted(
-            self,
-            jti: str,
+        self,
+        jti: str,
     ) -> bool:
-        return bool(await self.redis.exists(f'blacklisted:{jti}'))
+        return bool(await self.redis.exists(f"blacklisted:{jti}"))

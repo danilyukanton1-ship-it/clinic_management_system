@@ -3,7 +3,11 @@ from fastapi import APIRouter, Depends, status
 from app.scheduling.dependencies import get_schedule_service
 
 from app.scheduling.services.schedule import ScheduleService
-from app.scheduling.schemas.schedule import ScheduleResponseSchema, ScheduleCreateSchema, ScheduleUpdateSchema
+from app.scheduling.schemas.schedule import (
+    ScheduleResponseSchema,
+    ScheduleCreateSchema,
+    ScheduleUpdateSchema,
+)
 from app.auth.dependencies import get_current_user
 from app.users.models.user import User
 from common.enums.user_role import UserRole
@@ -13,30 +17,30 @@ from common.enums.weekday import Weekday
 
 router = APIRouter(prefix="/schedule", tags=["Schedules"])
 
+
 @router.get(
     path="/all/{doctor_id}",
     status_code=status.HTTP_200_OK,
-    response_model=list[ScheduleResponseSchema]
+    response_model=list[ScheduleResponseSchema],
 )
 async def get_all_by_doctor_id(
     doctor_id: int,
     schedule_service: ScheduleService = Depends(get_schedule_service),
     current_user: User = Depends(get_current_user),
 ):
-    return await schedule_service.get_all_schedule_by_doctor_id(
-        doctor_id=doctor_id
-    )
+    return await schedule_service.get_all_schedule_by_doctor_id(doctor_id=doctor_id)
+
 
 @router.get(
-    path='/{doctor_id}/{weekday}',
+    path="/{doctor_id}/{weekday}",
     status_code=status.HTTP_200_OK,
-    response_model=ScheduleResponseSchema
+    response_model=ScheduleResponseSchema,
 )
 async def get_by_doctor_id_and_weekday(
-        doctor_id: int,
-        weekday: Weekday,
-        schedule_service: ScheduleService = Depends(get_schedule_service),
-        current_user: User = Depends(get_current_user),
+    doctor_id: int,
+    weekday: Weekday,
+    schedule_service: ScheduleService = Depends(get_schedule_service),
+    current_user: User = Depends(get_current_user),
 ) -> ScheduleResponseSchema:
     schedule = await schedule_service.get_schedule_by_doctor_id_and_weekday(
         doctor_id=doctor_id,
@@ -44,10 +48,9 @@ async def get_by_doctor_id_and_weekday(
     )
     return schedule
 
+
 @router.post(
-    path='',
-    status_code=status.HTTP_201_CREATED,
-    response_model=ScheduleResponseSchema
+    path="", status_code=status.HTTP_201_CREATED, response_model=ScheduleResponseSchema
 )
 async def create(
     schedule: ScheduleCreateSchema,
@@ -60,10 +63,11 @@ async def create(
     )
     return await schedule_service.create(schedule)
 
+
 @router.put(
-    path='/{doctor_id}/{weekday}',
+    path="/{doctor_id}/{weekday}",
     status_code=status.HTTP_202_ACCEPTED,
-    response_model=ScheduleResponseSchema
+    response_model=ScheduleResponseSchema,
 )
 async def update(
     data: ScheduleUpdateSchema,
@@ -76,7 +80,10 @@ async def update(
         current_user,
         UserRole.ADMIN,
     )
-    return await schedule_service.update(doctor_id=doctor_id, data=data, weekday=weekday)
+    return await schedule_service.update(
+        doctor_id=doctor_id, data=data, weekday=weekday
+    )
+
 
 @router.patch(
     path="/{schedule_id}",
@@ -92,4 +99,3 @@ async def deactivate(
         UserRole.ADMIN,
     )
     return await schedule_service.deactivate_schedule(schedule_id=schedule_id)
-    

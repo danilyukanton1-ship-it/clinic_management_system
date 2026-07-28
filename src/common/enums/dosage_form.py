@@ -1,7 +1,8 @@
 from enum import Enum
 
+
 class DosageForm(str, Enum):
-    TABLET = 'tablet'
+    TABLET = "tablet"
     CAPSULE = "capsule"
     SYRUP = "syrup"
     INJECTION = "injection"

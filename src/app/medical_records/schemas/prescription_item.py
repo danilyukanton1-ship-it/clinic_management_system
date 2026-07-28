@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict, PositiveInt, Field
 
+
 class PrescriptionItemSchema(BaseModel):
     prescription_id: PositiveInt
     drug_id: PositiveInt
@@ -13,8 +14,10 @@ class PrescriptionItemSchema(BaseModel):
     )
     duration_days: PositiveInt
 
+
 class PrescriptionItemCreateSchema(PrescriptionItemSchema):
     pass
+
 
 class PrescriptionItemCreateFullPrescriptionSchema(BaseModel):
     drug_id: PositiveInt
@@ -28,6 +31,7 @@ class PrescriptionItemCreateFullPrescriptionSchema(BaseModel):
     )
     duration_days: PositiveInt
 
+
 class PrescriptionItemResponseSchema(BaseModel):
     id: PositiveInt
 
@@ -40,6 +44,7 @@ class PrescriptionItemResponseSchema(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
     )
+
 
 class PrescriptionItemUpdateSchema(BaseModel):
     drug_id: PositiveInt

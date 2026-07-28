@@ -8,6 +8,7 @@ from app.scheduling.schemas.schedule import ScheduleCreateSchema, ScheduleUpdate
 from common.enums.weekday import Weekday
 from core.config import settings
 
+
 class ScheduleRepository:
 
     def __init__(self, session: AsyncSession):
@@ -29,55 +30,44 @@ class ScheduleRepository:
         return schedule
 
     async def get_by_id(self, schedule_id: int) -> Schedule | None:
-        stmt = (
-            select(Schedule)
-            .where(
-                Schedule.id == schedule_id,
-                Schedule.is_active.is_(True),
-                   )
+        stmt = select(Schedule).where(
+            Schedule.id == schedule_id,
+            Schedule.is_active.is_(True),
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_by_doctor_id_and_weekday(self, doctor_id: int, weekday: Weekday) -> Schedule | None:
-        stmt = (
-            select(Schedule)
-            .where(
-                Schedule.doctor_id == doctor_id,
-                Schedule.weekday == weekday,
-                Schedule.is_active.is_(True),
-            )
+    async def get_by_doctor_id_and_weekday(
+        self, doctor_id: int, weekday: Weekday
+    ) -> Schedule | None:
+        stmt = select(Schedule).where(
+            Schedule.doctor_id == doctor_id,
+            Schedule.weekday == weekday,
+            Schedule.is_active.is_(True),
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
     async def get_inactive_expired_schedules(self) -> list[Schedule]:
-        threshold = (datetime.now(UTC) - timedelta(
-            days=settings.SLOT_RETENTION_DAYS
-                    )
-                )
-        stmt = (
-            select(Schedule)
-            .where(
-                Schedule.is_active.is_(False),
-                Schedule.updated_at < threshold,
-            )
+        threshold = datetime.now(UTC) - timedelta(days=settings.SLOT_RETENTION_DAYS)
+        stmt = select(Schedule).where(
+            Schedule.is_active.is_(False),
+            Schedule.updated_at < threshold,
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
     async def get_all_by_doctor_id(self, doctor_id: int) -> list[Schedule] | None:
-        stmt = (
-            select(Schedule)
-            .where(
-                Schedule.doctor_id == doctor_id,
-                Schedule.is_active.is_(True),
-            )
+        stmt = select(Schedule).where(
+            Schedule.doctor_id == doctor_id,
+            Schedule.is_active.is_(True),
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def update_schedule(self, db_schedule: Schedule, data: ScheduleUpdateSchema) -> Schedule:
+    async def update_schedule(
+        self, db_schedule: Schedule, data: ScheduleUpdateSchema
+    ) -> Schedule:
         db_schedule.start_time = data.start_time
         db_schedule.end_time = data.end_time
         db_schedule.lunch_start_time = data.lunch_start_time
@@ -88,12 +78,10 @@ class ScheduleRepository:
         return db_schedule
 
     async def if_exists(self, doctor_id: int, weekday: Weekday) -> bool:
-        stmt = (
-            select(Schedule).where(
-                Schedule.doctor_id == doctor_id,
-                Schedule.weekday == weekday,
-                Schedule.is_active.is_(True),
-            )
+        stmt = select(Schedule).where(
+            Schedule.doctor_id == doctor_id,
+            Schedule.weekday == weekday,
+            Schedule.is_active.is_(True),
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none() is not None

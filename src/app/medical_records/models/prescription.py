@@ -6,11 +6,10 @@ from db.base import BaseModel
 
 
 class Prescription(BaseModel):
-    __tablename__ = 'prescriptions'
+    __tablename__ = "prescriptions"
 
     appointment_id: Mapped[int] = mapped_column(
-        ForeignKey('appointments.id'),
-        ondelete='CASCADE',
+        ForeignKey("appointments.id", ondelete="CASCADE"),
         nullable=False,
     )
 

@@ -14,12 +14,12 @@ from db.unit_of_work import UnitOfWork
 from app.users.exceptions.user import UserNotFoundException
 
 
-
 async def get_login_service(
     session: AsyncSession = Depends(get_session),
     redis: Redis = Depends(get_redis),
 ) -> LoginService:
     return LoginService(session=session, redis=redis)
+
 
 async def get_register_service(
     session: AsyncSession = Depends(get_session),
@@ -27,11 +27,12 @@ async def get_register_service(
 ):
     return RegisterService(session=session, redis=redis)
 
+
 async def get_token_service(
-    session: AsyncSession = Depends(get_session),
-    redis: Redis = Depends(get_redis)
+    session: AsyncSession = Depends(get_session), redis: Redis = Depends(get_redis)
 ):
     return TokenService(session=session, redis=redis)
+
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login",
@@ -45,7 +46,7 @@ async def get_current_user(
 ) -> MeSchema:
     payload = token_service.decode_token(token)
 
-    if payload['type'] != 'access':
+    if payload["type"] != "access":
         raise InvalidTokenException()
 
     user_id = int(payload["sub"])

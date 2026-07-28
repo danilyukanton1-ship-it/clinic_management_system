@@ -14,6 +14,7 @@ router = APIRouter(
     tags=["Patients"],
 )
 
+
 @router.get(
     path="",
     status_code=status.HTTP_200_OK,
@@ -29,8 +30,9 @@ async def get_patients(
     )
     return await user_service.get_all_patients()
 
+
 @router.get(
-    path='/id/{patient_id}',
+    path="/id/{patient_id}",
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,
 )
@@ -44,8 +46,9 @@ async def get_patient_by_id(
         current_user=current_user,
     )
 
+
 @router.get(
-    path='/email/{patient_email}',
+    path="/email/{patient_email}",
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,
 )
@@ -58,6 +61,7 @@ async def get_patient_by_email(
         email=patient_email,
         current_user=current_user,
     )
+
 
 @router.get(
     path="/phone/{phone_number}",
@@ -73,6 +77,7 @@ async def get_patient_by_phone(
         phone=phone_number,
         current_user=current_user,
     )
+
 
 @router.put(
     path="/{patient_id}",
@@ -90,6 +95,7 @@ async def update(
         data=data,
         current_user=current_user,
     )
+
 
 @router.patch(
     path="/{patient_id}/deactivate",

@@ -16,11 +16,13 @@ class AppointmentCreateSchema(BaseModel):
         min_length=3,
         max_length=1000,
     )
+
     @field_validator("complaint")
     @classmethod
     def validate_complaint(cls, v):
         v = v.strip()
         return v if v else None
+
 
 class AppointmentUpdateSchema(BaseModel):
     complaint: str | None = Field(
@@ -29,6 +31,7 @@ class AppointmentUpdateSchema(BaseModel):
         max_length=1000,
     )
     status: AppointmentStatus | None = None
+
 
 class AppointmentResponseSchema(BaseModel):
     id: PositiveInt
@@ -44,6 +47,3 @@ class AppointmentResponseSchema(BaseModel):
     created_at: datetime.datetime
 
     model_config = ConfigDict(from_attributes=True)
-
-
-

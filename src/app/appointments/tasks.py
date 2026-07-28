@@ -10,14 +10,14 @@ from infrastructure.notifications.template_renderer import TemplateRenderer
 
 @celery_app.task
 def send_appointment_created_notification(
-        email: str,
-        username: str,
-        appointment_date: date,
-        appointment_time: time,
-        doctor_last_name: str,
-        doctor_first_name: str,
-        doctor_specialization: str,
-    ):
+    email: str,
+    username: str,
+    appointment_date: date,
+    appointment_time: time,
+    doctor_last_name: str,
+    doctor_first_name: str,
+    doctor_specialization: str,
+):
     renderer = TemplateRenderer()
     email_service = SMTPEmailService()
 
@@ -40,16 +40,17 @@ def send_appointment_created_notification(
         )
     )
 
+
 @celery_app.task
 def send_appointment_reminder(
-        email: str,
-        username: str,
-        appointment_date: date,
-        appointment_time: time,
-        doctor_last_name: str,
-        doctor_first_name: str,
-        doctor_specialization: str,
-    ):
+    email: str,
+    username: str,
+    appointment_date: date,
+    appointment_time: time,
+    doctor_last_name: str,
+    doctor_first_name: str,
+    doctor_specialization: str,
+):
     renderer = TemplateRenderer()
     email_service = SMTPEmailService()
 
@@ -73,28 +74,30 @@ def send_appointment_reminder(
         )
     )
 
-@celery_app.task(
-    name="app.appointments.tasks.appointment_reminder"
-)
+
+@celery_app.task(name="app.appointments.tasks.appointment_reminder")
 def appointment_reminder(
-        hours:int,
-    ):
+    hours: int,
+):
     asyncio.run(
         _check_appointments_for_reminder(
             hours=hours,
         )
     )
 
+
 async def _check_appointments_for_reminder(
-        hours: int,
-    ):
+    hours: int,
+):
     async with AsyncSessionLocal() as session:
         async with UnitOfWork(session) as uow:
             start = datetime.now() + timedelta(hours=hours)
             end = start + timedelta(minutes=5)
-            appointments = await uow.appointments.get_upcoming_appointments_for_reminder(
-                start=start,
-                end=end,
+            appointments = (
+                await uow.appointments.get_upcoming_appointments_for_reminder(
+                    start=start,
+                    end=end,
+                )
             )
             for appointment in appointments:
                 send_appointment_reminder.delay(
@@ -106,5 +109,3 @@ async def _check_appointments_for_reminder(
                     doctor_last_name=appointment.doctor.last_name,
                     doctor_specialization=appointment.doctor.specialization.name,
                 )
-
-

@@ -25,10 +25,11 @@ def send_verify_email(
         email_service.send(
             email_receiver=email,
             subject="Verify your email",
-            body=f'Your verification code is {verification_code}',
+            body=f"Your verification code is {verification_code}",
             html=html,
         )
     )
+
 
 @celery_app.task
 def send_success_password_reset_email(
@@ -49,10 +50,7 @@ def send_success_password_reset_email(
         email_service.send(
             email_receiver=email,
             subject="Password Changed",
-            body=f'Your password has been changed!',
+            body=f"Your password has been changed!",
             html=html,
         )
     )
-
-
-

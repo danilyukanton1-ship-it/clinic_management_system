@@ -6,14 +6,17 @@ from db.database import AsyncSessionLocal
 from db.unit_of_work import UnitOfWork
 from db.redis import redis_client
 
+
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         yield session
+
 
 async def get_uow(
     session: AsyncSession = Depends(get_session),
 ):
     return UnitOfWork(session)
+
 
 async def get_redis() -> Redis:
     return redis_client

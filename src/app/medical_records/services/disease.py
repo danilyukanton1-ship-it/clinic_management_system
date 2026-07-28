@@ -1,7 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.medical_records.schemas.disease import DiseaseCreateSchema, DiseaseUpdateSchema, DiseaseResponseSchema
-from app.medical_records.exceptions.disease import DiseaseNotFoundException, DiseaseAlreadyExistsException
+from app.medical_records.schemas.disease import (
+    DiseaseCreateSchema,
+    DiseaseUpdateSchema,
+    DiseaseResponseSchema,
+)
+from app.medical_records.exceptions.disease import (
+    DiseaseNotFoundException,
+    DiseaseAlreadyExistsException,
+)
 from db.unit_of_work import UnitOfWork
+
 
 class DiseaseService:
 
@@ -21,18 +29,26 @@ class DiseaseService:
             disease = await self.uow.diseases.create_disease(data=data)
         return DiseaseResponseSchema.model_validate(disease)
 
-    async def update(self, disease_id: int, data: DiseaseUpdateSchema) -> DiseaseResponseSchema:
+    async def update(
+        self, disease_id: int, data: DiseaseUpdateSchema
+    ) -> DiseaseResponseSchema:
         disease = await self.uow.diseases.get_disease_by_id(disease_id)
         if not disease:
             raise DiseaseNotFoundException()
-        disease_by_name = await self.uow.diseases.get_disease_by_name(disease_name=data.name)
+        disease_by_name = await self.uow.diseases.get_disease_by_name(
+            disease_name=data.name
+        )
         if disease_by_name and disease.name != data.name:
             raise DiseaseAlreadyExistsException()
-        disease_by_code = await self.uow.diseases.get_disease_by_code(disease_code=data.code)
+        disease_by_code = await self.uow.diseases.get_disease_by_code(
+            disease_code=data.code
+        )
         if disease_by_code and disease.code != data.code:
             raise DiseaseAlreadyExistsException()
         async with self.uow:
-            updated_disease = await self.uow.diseases.update_disease(disease=disease, data=data)
+            updated_disease = await self.uow.diseases.update_disease(
+                disease=disease, data=data
+            )
         return DiseaseResponseSchema.model_validate(updated_disease)
 
     async def get_all(self) -> list[DiseaseResponseSchema]:
@@ -60,5 +76,3 @@ class DiseaseService:
         async with self.uow:
             await self.uow.diseases.delete_disease(disease=disease)
         return None
-
-

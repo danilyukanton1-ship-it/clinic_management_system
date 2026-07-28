@@ -1,9 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.medical_records.schemas.prescription import PrescriptionCreateSchema, PrescriptionUpdateSchema
+from app.medical_records.schemas.prescription import (
+    PrescriptionCreateSchema,
+    PrescriptionUpdateSchema,
+)
 
 from app.medical_records.models.prescription import Prescription
+
 
 class PrescriptionRepository:
 
@@ -20,19 +24,15 @@ class PrescriptionRepository:
         await self.session.refresh(prescription)
         return prescription
 
-    async def get_prescription_by_appointment_id(self, appointment_id: int) -> Prescription | None:
-        stmt = (
-            select(Prescription)
-            .where(Prescription.appointment_id == appointment_id)
-        )
+    async def get_prescription_by_appointment_id(
+        self, appointment_id: int
+    ) -> Prescription | None:
+        stmt = select(Prescription).where(Prescription.appointment_id == appointment_id)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
     async def get_prescription_by_id(self, prescription_id: int) -> Prescription | None:
-        stmt = (
-            select(Prescription)
-            .where(Prescription.id == prescription_id)
-        )
+        stmt = select(Prescription).where(Prescription.id == prescription_id)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -41,9 +41,10 @@ class PrescriptionRepository:
         await self.session.flush()
         await self.session.refresh(prescription)
 
-    async def update_prescription(self, prescription: Prescription, data: PrescriptionUpdateSchema) -> Prescription:
+    async def update_prescription(
+        self, prescription: Prescription, data: PrescriptionUpdateSchema
+    ) -> Prescription:
         prescription.recommendations = data.recommendations
         await self.session.flush()
         await self.session.refresh(prescription)
         return prescription
-

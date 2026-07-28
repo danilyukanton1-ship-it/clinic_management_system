@@ -4,6 +4,7 @@ from app.users.models.user import User
 from common.enums.user_role import UserRole
 from common.permissions.exceptions import ForbiddenException
 
+
 class AppointmentPolicy:
 
     @staticmethod
@@ -15,5 +16,3 @@ class AppointmentPolicy:
         if appointment.doctor_id == user.id:
             return
         raise ForbiddenException()
-
-

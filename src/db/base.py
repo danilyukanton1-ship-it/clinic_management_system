@@ -4,6 +4,7 @@ from sqlalchemy import func, DateTime
 from db import orm as orm_column
 from db.database import Base
 
+
 class BaseModel(Base):
     __abstract__ = True
     id: Mapped[orm_column.id_pk]

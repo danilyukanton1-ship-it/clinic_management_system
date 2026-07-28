@@ -7,10 +7,20 @@ from app.users.exceptions.user import UserNotFoundException
 from app.users.schemas.user import PatientResponseSchema
 from db.unit_of_work import UnitOfWork
 from app.auth.security import get_password_hash
-from app.auth.schemas.register import RegisterSchema, VerifyEmailSchema, ForgotPasswordSchema, ResetPasswordSchema
-from app.auth.exceptions.register import EmailAlreadyExistsException, PhoneAlreadyExistsException, \
-    UserAlreadyVerifiedException, VerificationCodeNotFoundException, IncorrectVerificationCodeException, \
-    UserNotVerifiedException
+from app.auth.schemas.register import (
+    RegisterSchema,
+    VerifyEmailSchema,
+    ForgotPasswordSchema,
+    ResetPasswordSchema,
+)
+from app.auth.exceptions.register import (
+    EmailAlreadyExistsException,
+    PhoneAlreadyExistsException,
+    UserAlreadyVerifiedException,
+    VerificationCodeNotFoundException,
+    IncorrectVerificationCodeException,
+    UserNotVerifiedException,
+)
 
 
 class RegisterService:
@@ -54,7 +64,9 @@ class RegisterService:
                 email=user.email,
                 verification_code=data.verification_code,
             )
-            verified_user = await self.uow.users.change_user_verification_status(user=user, is_verified=True)
+            verified_user = await self.uow.users.change_user_verification_status(
+                user=user, is_verified=True
+            )
         return PatientResponseSchema.model_validate(verified_user)
 
     async def forgot_password(self, data: ForgotPasswordSchema) -> None:
@@ -93,7 +105,6 @@ class RegisterService:
                 changed_at=datetime.now(),
             )
         return PatientResponseSchema.model_validate(user)
-
 
     async def register(self, data: RegisterSchema) -> PatientResponseSchema:
         async with self.uow:

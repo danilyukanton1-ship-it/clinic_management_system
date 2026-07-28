@@ -7,13 +7,10 @@ from app.users.services.specialization import SpecializationService
 
 
 async def get_user_service(
-    session: AsyncSession = Depends(get_session),
-    redis: Redis = Depends(get_redis)
+    session: AsyncSession = Depends(get_session), redis: Redis = Depends(get_redis)
 ):
     return UserService(session=session, redis=redis)
 
-async def get_specialization_service(
-    session: AsyncSession = Depends(get_session)
-):
-    return SpecializationService(session)
 
+async def get_specialization_service(session: AsyncSession = Depends(get_session)):
+    return SpecializationService(session)

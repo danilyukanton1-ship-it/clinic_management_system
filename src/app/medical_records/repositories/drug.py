@@ -3,12 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.medical_records.schemas.drug import DrugCreateSchema, DrugUpdateSchema
 from app.medical_records.models.drug import Drug
 
+
 class DrugRepository:
 
     def __init__(self, session: AsyncSession):
         self.session = session
-
-
 
     async def create_drug(self, data: DrugCreateSchema) -> Drug:
         drug = Drug(
@@ -24,33 +23,22 @@ class DrugRepository:
         return drug
 
     async def get_all_drugs(self) -> list[Drug]:
-        stmt = (
-            select(Drug)
-        )
+        stmt = select(Drug)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
     async def get_drug_by_id(self, drug_id: int) -> Drug:
-        stmt = (
-            select(Drug)
-            .where(Drug.id==drug_id)
-        )
+        stmt = select(Drug).where(Drug.id == drug_id)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
     async def get_drug_by_name(self, drug_name: str) -> Drug:
-        stmt = (
-            select(Drug)
-            .where(Drug.name==drug_name)
-        )
+        stmt = select(Drug).where(Drug.name == drug_name)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
     async def get_drugs_by_ids(self, drug_ids: list) -> list[Drug]:
-        stmt = (
-            select(Drug)
-            .where(Drug.id.in_(drug_ids))
-        )
+        stmt = select(Drug).where(Drug.id.in_(drug_ids))
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
@@ -67,4 +55,3 @@ class DrugRepository:
     async def delete_drug(self, drug: Drug) -> None:
         await self.session.delete(drug)
         return None
-    

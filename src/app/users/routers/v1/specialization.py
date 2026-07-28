@@ -14,7 +14,8 @@ from app.users.models.user import User
 from common.enums.user_role import UserRole
 from common.permissions.checks import check_role
 
-router = APIRouter(prefix="/specializations",tags=["Specializations"])
+router = APIRouter(prefix="/specializations", tags=["Specializations"])
+
 
 @router.get(
     path="",
@@ -22,9 +23,12 @@ router = APIRouter(prefix="/specializations",tags=["Specializations"])
     response_model=list[SpecializationResponseSchema],
 )
 async def get_all(
-    specializations_service: SpecializationService = Depends(get_specialization_service),
+    specializations_service: SpecializationService = Depends(
+        get_specialization_service
+    ),
 ) -> list[SpecializationResponseSchema]:
     return await specializations_service.get_all()
+
 
 @router.get(
     path="/id/{specialization_id}",
@@ -37,6 +41,7 @@ async def get_by_id(
 ) -> SpecializationResponseSchema:
     return await specialization_service.get_by_id(specialization_id=specialization_id)
 
+
 @router.get(
     path="/name/{specialization_name}",
     status_code=status.HTTP_200_OK,
@@ -46,7 +51,9 @@ async def get_by_name(
     specialization_name: str,
     specialization_service: SpecializationService = Depends(get_specialization_service),
 ) -> SpecializationResponseSchema:
-    return await specialization_service.get_by_name(specialization_name=specialization_name)
+    return await specialization_service.get_by_name(
+        specialization_name=specialization_name
+    )
 
 
 @router.post(
@@ -65,6 +72,7 @@ async def create(
     )
     return await specialization_service.create(data=specialization)
 
+
 @router.delete(
     path="/{specialization_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -79,6 +87,7 @@ async def delete(
         UserRole.ADMIN,
     )
     return await specialization_service.delete(specialization_id=specialization_id)
+
 
 @router.put(
     path="/{specialization_id}",

@@ -3,10 +3,10 @@ from fastapi import APIRouter, Depends, status
 from app.users.dependencies import get_user_service
 
 from app.users.services.user import UserService
-from app.users.schemas.user import(
+from app.users.schemas.user import (
     AdminResponseSchema,
     AdminCreateSchema,
-    AdminUpdateSchema
+    AdminUpdateSchema,
 )
 from app.auth.dependencies import get_current_user
 from app.users.models.user import User
@@ -17,6 +17,7 @@ router = APIRouter(
     prefix="/admins",
     tags=["Admins"],
 )
+
 
 @router.post(
     path="",
@@ -34,6 +35,7 @@ async def create(
     )
     return await user_service.create_admin(data=data)
 
+
 @router.get(
     path="/{admin_id}",
     status_code=status.HTTP_200_OK,
@@ -49,6 +51,7 @@ async def get_admin(
         UserRole.ADMIN,
     )
     return await user_service.get_admin_by_id(admin_id=admin_id)
+
 
 @router.put(
     path="/{admin_id}",
@@ -66,6 +69,7 @@ async def update(
         UserRole.ADMIN,
     )
     return await user_service.update_admin(data=data, admin_id=admin_id)
+
 
 @router.patch(
     path="/{admin_id}/deactivate",

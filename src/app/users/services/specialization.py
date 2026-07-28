@@ -3,9 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.users.schemas.specialization import (
     SpecializationCreateSchema,
     SpecializationResponseSchema,
-    SpecializationUpdateSchema
+    SpecializationUpdateSchema,
 )
-from app.users.exceptions.specialization import SpecializationNotFoundException, SpecializationAlreadyExistsException
+from app.users.exceptions.specialization import (
+    SpecializationNotFoundException,
+    SpecializationAlreadyExistsException,
+)
 from db.unit_of_work import UnitOfWork
 
 
@@ -24,7 +27,9 @@ class SpecializationService:
             raise SpecializationNotFoundException()
         return SpecializationResponseSchema.model_validate(specialization)
 
-    async def get_by_name(self, specialization_name: str) -> SpecializationResponseSchema:
+    async def get_by_name(
+        self, specialization_name: str
+    ) -> SpecializationResponseSchema:
         specialization = await self.uow.specializations.get_specialization_by_name(
             specialization_name=specialization_name
         )
@@ -34,16 +39,22 @@ class SpecializationService:
 
     async def get_all(self) -> list[SpecializationResponseSchema]:
         specializations = await self.uow.specializations.get_all_specializations()
-        return [SpecializationResponseSchema.model_validate(specialization) for specialization in specializations]
+        return [
+            SpecializationResponseSchema.model_validate(specialization)
+            for specialization in specializations
+        ]
 
-
-    async def create(self, data: SpecializationCreateSchema) -> SpecializationResponseSchema:
+    async def create(
+        self, data: SpecializationCreateSchema
+    ) -> SpecializationResponseSchema:
         async with self.uow:
             if await self.uow.specializations.get_specialization_by_name(
                 specialization_name=data.name
             ):
                 raise SpecializationAlreadyExistsException()
-            specialization = await self.uow.specializations.create_specialization(data=data)
+            specialization = await self.uow.specializations.create_specialization(
+                data=data
+            )
         return SpecializationResponseSchema.model_validate(specialization)
 
     async def delete(self, specialization_id: int) -> None:
@@ -53,23 +64,30 @@ class SpecializationService:
             )
             if not specialization:
                 raise SpecializationNotFoundException()
-            await self.uow.specializations.delete_specialization(specialization=specialization)
+            await self.uow.specializations.delete_specialization(
+                specialization=specialization
+            )
         return None
 
-    async def update(self, specialization_id: int, data: SpecializationUpdateSchema) -> SpecializationResponseSchema:
+    async def update(
+        self, specialization_id: int, data: SpecializationUpdateSchema
+    ) -> SpecializationResponseSchema:
         async with self.uow:
             specialization = await self.uow.specializations.get_specialization_by_id(
                 specialization_id=specialization_id
             )
             if not specialization:
                 raise SpecializationNotFoundException()
-            name_specialization = await self.uow.specializations.get_specialization_by_name(
-                specialization_name=data.name
+            name_specialization = (
+                await self.uow.specializations.get_specialization_by_name(
+                    specialization_name=data.name
+                )
             )
             if name_specialization and data.name != specialization.name:
                 raise SpecializationAlreadyExistsException()
-            updated_specialization = await self.uow.specializations.update_specialization(
-                specialization=specialization,
-                data=data
+            updated_specialization = (
+                await self.uow.specializations.update_specialization(
+                    specialization=specialization, data=data
+                )
             )
         return SpecializationResponseSchema.model_validate(updated_specialization)

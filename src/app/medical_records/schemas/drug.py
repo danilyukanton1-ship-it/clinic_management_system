@@ -21,11 +21,14 @@ class DrugSchema(BaseModel):
         max_length=1000,
     )
 
+
 class DrugCreateSchema(DrugSchema):
     pass
 
+
 class DrugUpdateSchema(DrugSchema):
     pass
+
 
 class DrugResponseSchema(BaseModel):
     id: PositiveInt

@@ -12,9 +12,10 @@ from app.medical_records.models.prescription import Prescription
 from app.medical_records.models.prescription_item import PrescriptionItem
 from app.users.models.user import User
 
+
 class AppointmentRepository:
 
-    def __init__(self, session: AsyncSession ):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
     async def create(self, data: AppointmentCreateSchema) -> Appointment:
@@ -28,7 +29,9 @@ class AppointmentRepository:
         await self.session.flush()
         return appointment
 
-    async def get_appointment_by_id_with_relations(self, appointment_id: int) -> Appointment | None:
+    async def get_appointment_by_id_with_relations(
+        self, appointment_id: int
+    ) -> Appointment | None:
         stmt = (
             select(Appointment)
             .where(
@@ -48,11 +51,13 @@ class AppointmentRepository:
             select(Appointment)
             .options(joinedload(Appointment.slot))
             .where(Appointment.id == appointment_id)
-            )
+        )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_upcoming_appointments_for_reminder(self, start: datetime, end: datetime) -> list[Appointment]:
+    async def get_upcoming_appointments_for_reminder(
+        self, start: datetime, end: datetime
+    ) -> list[Appointment]:
         stmt = (
             select(Appointment)
             .join(Appointment.slot)
@@ -69,7 +74,9 @@ class AppointmentRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_future_appointments_by_user_id(self, user_id: int) -> list[Appointment]:
+    async def get_future_appointments_by_user_id(
+        self, user_id: int
+    ) -> list[Appointment]:
         stmt = (
             select(Appointment)
             .join(Appointment.slot)
@@ -78,7 +85,7 @@ class AppointmentRepository:
                     Appointment.patient_id == user_id,
                     Appointment.doctor_id == user_id,
                 ),
-                ScheduleSlot.slot_start >= datetime.now()
+                ScheduleSlot.slot_start >= datetime.now(),
             )
         )
         result = await self.session.execute(stmt)
@@ -93,15 +100,15 @@ class AppointmentRepository:
                     Appointment.patient_id == user_id,
                     Appointment.doctor_id == user_id,
                 ),
-                ScheduleSlot.slot_start <= datetime.now()
+                ScheduleSlot.slot_start <= datetime.now(),
             )
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
     async def get_appointment_by_diagnosis_id(
-            self,
-            diagnosis_id: int,
+        self,
+        diagnosis_id: int,
     ) -> Appointment | None:
         stmt = (
             select(Appointment)
@@ -135,8 +142,8 @@ class AppointmentRepository:
         return result.scalar_one_or_none()
 
     async def get_appointments_to_delete_by_schedule_ids(
-            self,
-            schedule_ids: list[int],
+        self,
+        schedule_ids: list[int],
     ) -> list[Appointment]:
         stmt = (
             select(Appointment)
@@ -171,8 +178,6 @@ class AppointmentRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-
     async def delete_appointment(self, appointment: Appointment) -> None:
         await self.session.delete(appointment)
         return None
-

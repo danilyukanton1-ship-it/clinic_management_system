@@ -15,6 +15,7 @@ class ScheduleSlotSchema(BaseModel):
             raise ValueError("Slot end time must be after slot start time")
         return self
 
+
 class ScheduleSlotResponseSchema(BaseModel):
     id: PositiveInt
     doctor_id: PositiveInt
@@ -22,9 +23,8 @@ class ScheduleSlotResponseSchema(BaseModel):
     slot_end: datetime
     status: SlotStatus
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+    model_config = ConfigDict(from_attributes=True)
+
 
 class ScheduleSlotCreateSchema(ScheduleSlotSchema):
     schedule_id: PositiveInt
@@ -34,9 +34,8 @@ class ScheduleSlotCreateSchema(ScheduleSlotSchema):
 class ScheduleSlotUpdateSchema(ScheduleSlotSchema):
     pass
 
+
 class ScheduleSlotBulkCreateSchema(BaseModel):
     start_date: date
     end_date: date
     doctor_id: PositiveInt
-
-

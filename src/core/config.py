@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+
 class DBSettings(BaseSettings):
     HOST: str
     PORT: int
@@ -28,29 +29,32 @@ class DBSettings(BaseSettings):
             f"{self.NAME}"
         )
 
+
 class JWT(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_MINUTES: int
 
+
 class Redis(BaseSettings):
     HOST: str
     PORT: int
+
 
 class Celery(BaseSettings):
     BROKER_URL: str
     RESULT_BACKEND: str | None = None
 
+
 class SMTP(BaseSettings):
     API_KEY: str
     FROM: str
 
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / ".env",
-        env_nested_delimiter="__",
-        extra="ignore"
+        env_file=BASE_DIR / ".env", env_nested_delimiter="__", extra="ignore"
     )
 
     db: DBSettings
@@ -60,5 +64,6 @@ class Settings(BaseSettings):
     smtp: SMTP
 
     SLOT_RETENTION_DAYS: int = 365 * 5
+
 
 settings = Settings()

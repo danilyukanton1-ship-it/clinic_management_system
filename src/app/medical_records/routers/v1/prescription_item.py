@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Depends, status
 
 from app.medical_records.dependencies import get_prescription_item_service
-from app.medical_records.schemas.prescription_item import PrescriptionItemResponseSchema, PrescriptionItemUpdateSchema, \
-    PrescriptionItemCreateSchema
+from app.medical_records.schemas.prescription_item import (
+    PrescriptionItemResponseSchema,
+    PrescriptionItemUpdateSchema,
+    PrescriptionItemCreateSchema,
+)
 from app.medical_records.services.prescription_item import PrescriptionItemService
 from app.auth.dependencies import get_current_user
 from app.users.models.user import User
@@ -14,6 +17,7 @@ router = APIRouter(
     tags=["Prescription items"],
 )
 
+
 @router.get(
     path="/prescription/{prescription_id}",
     status_code=status.HTTP_200_OK,
@@ -21,13 +25,16 @@ router = APIRouter(
 )
 async def get_by_prescription_id(
     prescription_id: int,
-    prescription_item_service: PrescriptionItemService = Depends(get_prescription_item_service),
+    prescription_item_service: PrescriptionItemService = Depends(
+        get_prescription_item_service
+    ),
     current_user: User = Depends(get_current_user),
 ):
     return await prescription_item_service.get_by_prescription_id(
         prescription_id=prescription_id,
         current_user=current_user,
     )
+
 
 @router.get(
     path="/{prescription_item_id}",
@@ -36,13 +43,16 @@ async def get_by_prescription_id(
 )
 async def get_by_id(
     prescription_item_id: int,
-    prescription_item_service: PrescriptionItemService = Depends(get_prescription_item_service),
+    prescription_item_service: PrescriptionItemService = Depends(
+        get_prescription_item_service
+    ),
     current_user: User = Depends(get_current_user),
 ):
     return await prescription_item_service.get_by_id(
         prescription_item_id=prescription_item_id,
         current_user=current_user,
     )
+
 
 @router.put(
     path="/{prescription_item_id}",
@@ -52,7 +62,9 @@ async def get_by_id(
 async def update(
     prescription_item_id: int,
     data: PrescriptionItemUpdateSchema,
-    prescription_item_service: PrescriptionItemService = Depends(get_prescription_item_service),
+    prescription_item_service: PrescriptionItemService = Depends(
+        get_prescription_item_service
+    ),
     current_user: User = Depends(get_current_user),
 ):
     return await prescription_item_service.update(
@@ -61,13 +73,13 @@ async def update(
         current_user=current_user,
     )
 
-@router.delete(
-    path="/{prescription_item_id}",
-    status_code=status.HTTP_204_NO_CONTENT
-)
+
+@router.delete(path="/{prescription_item_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete(
     prescription_item_id: int,
-    prescription_item_service: PrescriptionItemService = Depends(get_prescription_item_service),
+    prescription_item_service: PrescriptionItemService = Depends(
+        get_prescription_item_service
+    ),
     current_user: User = Depends(get_current_user),
 ):
     return await prescription_item_service.delete(
@@ -83,12 +95,10 @@ async def delete(
 )
 async def create(
     data: PrescriptionItemCreateSchema,
-    prescription_service: PrescriptionItemService = Depends(get_prescription_item_service),
+    prescription_service: PrescriptionItemService = Depends(
+        get_prescription_item_service
+    ),
     current_user: User = Depends(get_current_user),
 ):
-    check_role(
-        current_user,
-        UserRole.ADMIN,
-        UserRole.DOCTOR
-    )
+    check_role(current_user, UserRole.ADMIN, UserRole.DOCTOR)
     return await prescription_service.create(data)

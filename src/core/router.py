@@ -14,14 +14,19 @@ from app.auth.routers.v1.auth import router as auth_router
 from app.medical_records.routers.v1.disease import router as disease_router
 from app.medical_records.routers.v1.drug import router as drugs_router
 from app.medical_records.routers.v1.diagnosis import router as diagnosis_router
-from app.medical_records.routers.v1.full_prescription import router as full_prescription_router
+from app.medical_records.routers.v1.full_prescription import (
+    router as full_prescription_router,
+)
 from app.medical_records.routers.v1.prescription import router as prescription_router
-from app.medical_records.routers.v1.prescription_item import router as prescription_item_router
+from app.medical_records.routers.v1.prescription_item import (
+    router as prescription_item_router,
+)
 from app.scheduling.routers.v1.schedule_absence import router as schedule_absence_router
 from app.appointments.routers.v1.attachment import router as attachment_router
 from app.users.routers.v1.admin import router as admin_router
 
 router = APIRouter()
+
 
 @router.get(
     path="/health",
@@ -30,6 +35,7 @@ router = APIRouter()
 async def health():
     return {"status": status.HTTP_200_OK}
 
+
 @router.get(
     path="/health/db",
     tags=["Health"],
@@ -37,6 +43,7 @@ async def health():
 async def db_health(session: AsyncSession = Depends(get_session)):
     result = await session.execute(text("SELECT 1"))
     return {"status": result.scalar()}
+
 
 router.include_router(appointment_router)
 router.include_router(schedule_slot_router)

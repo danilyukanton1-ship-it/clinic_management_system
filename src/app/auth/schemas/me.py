@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, PositiveInt, ConfigDict
 
 from common.enums.user_role import UserRole
 
+
 class MeSchema(BaseModel):
     id: PositiveInt
     email: EmailStr

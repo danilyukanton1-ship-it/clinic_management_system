@@ -1,15 +1,21 @@
 from fastapi import APIRouter, Depends, status
 from app.medical_records.dependencies import get_diagnosis_service
-from app.medical_records.schemas.diagnosis import DiagnosisCreateSchema, DiagnosisUpdateSchema, DiagnosisResponseSchema
+from app.medical_records.schemas.diagnosis import (
+    DiagnosisCreateSchema,
+    DiagnosisUpdateSchema,
+    DiagnosisResponseSchema,
+)
 from app.medical_records.services.diagnosis import DiagnosisService
 from app.auth.dependencies import get_current_user
 from app.users.models.user import User
 from common.enums.user_role import UserRole
 from common.permissions.checks import check_role
+
 router = APIRouter(
     prefix="/diagnoses",
     tags=["Diagnoses"],
 )
+
 
 @router.get(
     path="/id/{diagnosis_id}",
@@ -22,9 +28,9 @@ async def get_by_id(
     current_user: User = Depends(get_current_user),
 ):
     return await diagnosis_service.get_by_id(
-        diagnosis_id=diagnosis_id,
-        current_user=current_user
+        diagnosis_id=diagnosis_id, current_user=current_user
     )
+
 
 @router.get(
     path="/prescription/{prescription_id}",
@@ -37,9 +43,9 @@ async def get_by_prescription_id(
     current_user: User = Depends(get_current_user),
 ):
     return await diagnosis_service.get_by_prescription_id(
-        prescription_id=prescription_id,
-        current_user=current_user
+        prescription_id=prescription_id, current_user=current_user
     )
+
 
 @router.get(
     path="/disease/{disease_id}",
@@ -58,6 +64,7 @@ async def get_by_disease_id(
     )
     return await diagnosis_service.get_by_disease_id(disease_id=disease_id)
 
+
 @router.put(
     path="/{diagnosis_id}",
     status_code=status.HTTP_202_ACCEPTED,
@@ -70,10 +77,9 @@ async def update(
     current_user: User = Depends(get_current_user),
 ):
     return await diagnosis_service.update(
-        diagnosis_id=diagnosis_id,
-        data=data,
-        current_user=current_user
+        diagnosis_id=diagnosis_id, data=data, current_user=current_user
     )
+
 
 @router.delete(
     path="/{diagnosis_id}",
@@ -85,9 +91,9 @@ async def delete(
     current_user: User = Depends(get_current_user),
 ):
     return await diagnosis_service.delete(
-        diagnosis_id=diagnosis_id,
-        current_user=current_user
+        diagnosis_id=diagnosis_id, current_user=current_user
     )
+
 
 @router.post(
     path="",

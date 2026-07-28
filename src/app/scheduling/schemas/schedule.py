@@ -4,15 +4,13 @@ from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
 
 from common.enums.weekday import Weekday
 
+
 class ScheduleSchema(BaseModel):
     start_time: time
     end_time: time
     lunch_start_time: time
     lunch_end_time: time
-    slot_duration_minutes: PositiveInt = Field(
-        ge=5,
-        le=180
-    )
+    slot_duration_minutes: PositiveInt = Field(ge=5, le=180)
 
     @model_validator(mode="after")
     def validate_schedule(self):
@@ -50,6 +48,7 @@ class ScheduleResponseSchema(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
     )
+
 
 class ScheduleUpdateSchema(ScheduleSchema):
     pass

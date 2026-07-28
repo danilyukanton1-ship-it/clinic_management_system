@@ -9,4 +9,3 @@ def check_role(
 ):
     if user.role not in roles:
         raise ForbiddenException()
-

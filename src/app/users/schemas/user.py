@@ -4,10 +4,11 @@ from pydantic import (
     Field,
     PositiveInt,
     EmailStr,
-    field_validator
+    field_validator,
 )
 
 from common.enums.user_role import UserRole
+
 
 class UserSchema(BaseModel):
     first_name: str = Field(
@@ -65,6 +66,7 @@ class UserSchema(BaseModel):
             return None
         return value
 
+
 class UserResponseSchema(BaseModel):
     id: PositiveInt
     first_name: str
@@ -76,14 +78,17 @@ class UserResponseSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class UserCreateSchema(UserSchema):
     password: str = Field(
         min_length=8,
         max_length=128,
     )
 
+
 class DoctorCreateSchema(UserCreateSchema):
     specialization_id: PositiveInt
+
 
 class AdminCreateSchema(UserCreateSchema):
     pass
@@ -92,20 +97,26 @@ class AdminCreateSchema(UserCreateSchema):
 class PatientResponseSchema(UserResponseSchema):
     pass
 
+
 class DoctorResponseSchema(UserResponseSchema):
     specialization_id: PositiveInt
+
 
 class AdminResponseSchema(UserResponseSchema):
     pass
 
+
 class UserUpdateSchema(UserSchema):
     pass
+
 
 class PatientUpdateSchema(UserUpdateSchema):
     pass
 
+
 class AdminUpdateSchema(UserUpdateSchema):
     pass
+
 
 class DoctorUpdateSchema(UserUpdateSchema):
     specialization_id: PositiveInt

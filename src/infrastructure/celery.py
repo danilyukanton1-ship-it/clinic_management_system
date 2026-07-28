@@ -4,15 +4,15 @@ from celery.schedules import crontab
 from core.config import settings
 
 celery_app = Celery(
-    'Clinic_management_system',
+    "Clinic_management_system",
     broker=settings.celery.BROKER_URL,
-    backend=settings.celery.RESULT_BACKEND
+    backend=settings.celery.RESULT_BACKEND,
 )
 
 celery_app.conf.update(
-    task_serializer='json',
-    result_serializer='json',
-    accept_content=['json'],
+    task_serializer="json",
+    result_serializer="json",
+    accept_content=["json"],
     timezone="UTC",
     enable_utc=True,
 )
@@ -43,5 +43,5 @@ celery_app.conf.beat_schedule = {
         "task": "app.schedules.tasks.cleanup_schedules",
         "schedule": crontab(hour=3, minute=0),
         "args": (),
-    }
+    },
 }

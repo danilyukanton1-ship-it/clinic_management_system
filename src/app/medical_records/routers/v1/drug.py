@@ -19,9 +19,7 @@ router = APIRouter(
 
 
 @router.get(
-    path="",
-    status_code=status.HTTP_200_OK,
-    response_model=list[DrugResponseSchema]
+    path="", status_code=status.HTTP_200_OK, response_model=list[DrugResponseSchema]
 )
 async def get_drugs(
     drug_service: DrugService = Depends(get_drug_service),
@@ -34,10 +32,9 @@ async def get_drugs(
     )
     return await drug_service.get_all()
 
+
 @router.get(
-    path="/{drug_id}",
-    status_code=status.HTTP_200_OK,
-    response_model=DrugResponseSchema
+    path="/{drug_id}", status_code=status.HTTP_200_OK, response_model=DrugResponseSchema
 )
 async def get_by_id(
     drug_id: ID,
@@ -49,9 +46,8 @@ async def get_by_id(
         UserRole.ADMIN,
         UserRole.DOCTOR,
     )
-    return await drug_service.get_by_id(
-        drug_id=drug_id
-    )
+    return await drug_service.get_by_id(drug_id=drug_id)
+
 
 @router.get(
     path="/name/{drug_name}",
@@ -72,9 +68,7 @@ async def get_by_name(
 
 
 @router.post(
-    path="",
-    status_code=status.HTTP_201_CREATED,
-    response_model=DrugResponseSchema
+    path="", status_code=status.HTTP_201_CREATED, response_model=DrugResponseSchema
 )
 async def create(
     data: DrugCreateSchema,

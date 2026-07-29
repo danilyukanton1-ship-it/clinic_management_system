@@ -39,9 +39,7 @@ class DrugService:
         return DrugResponseSchema.model_validate(drug)
 
     async def get_by_id(self, drug_id: int) -> DrugResponseSchema:
-        drug = await self.uow.drugs.get_drug_by_id(
-            drug_id=drug_id
-        )
+        drug = await self.uow.drugs.get_drug_by_id(drug_id=drug_id)
         if not drug:
             raise DrugNotFoundException
         return DrugResponseSchema.model_validate(drug)

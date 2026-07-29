@@ -17,6 +17,7 @@ router = APIRouter(
     tags=["Prescription items"],
 )
 
+
 @router.get(
     path="/prescription/{prescription_id}",
     status_code=status.HTTP_200_OK,

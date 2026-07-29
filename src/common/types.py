@@ -18,4 +18,3 @@ Phone = Annotated[
 ]
 
 Email = EmailStr
-

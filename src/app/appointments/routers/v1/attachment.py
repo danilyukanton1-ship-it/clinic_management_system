@@ -123,6 +123,5 @@ async def delete(
         UserRole.ADMIN,
     )
     return await attachment_service.delete(
-        attachment_id=attachment_id,
-        current_user=current_user
+        attachment_id=attachment_id, current_user=current_user
     )

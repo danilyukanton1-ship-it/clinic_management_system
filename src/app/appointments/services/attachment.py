@@ -1,3 +1,4 @@
+from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.appointments.exceptions.appointment import (
@@ -5,6 +6,7 @@ from app.appointments.exceptions.appointment import (
     AppointmentRelatesToDifferentPatientException,
 )
 from app.appointments.schemas.attachment import (
+    AttachmentSchema,
     AttachmentCreateSchema,
     AttachmentUpdateSchema,
     AttachmentResponseSchema,
@@ -14,18 +16,20 @@ from app.users.exceptions.user import UserNotFoundException
 from app.users.models.user import User
 from app.appointments.policy.attachments import AttachmentPolicy
 
+from infrastructure.storages.interface import StorageInterface
 from db.unit_of_work import UnitOfWork
+from infrastructure.storages.schemas import DownloadUrl
 
 
 class AttachmentService:
 
-    def __init__(self, session: AsyncSession):
-        self.session = session
+    def __init__(self, session: AsyncSession, storage: StorageInterface) -> None:
         self.policy = AttachmentPolicy()
-        self.uow = UnitOfWork(self.session)
+        self.uow = UnitOfWork(session)
+        self.storage = storage
 
     async def create(
-        self, data: AttachmentCreateSchema, current_user: User
+        self, data: AttachmentCreateSchema, file: UploadFile, current_user: User
     ) -> AttachmentResponseSchema:
         async with self.uow:
             patient = await self.uow.users.get_patient_by_id(patient_id=data.patient_id)
@@ -38,8 +42,17 @@ class AttachmentService:
                 raise AppointmentNotFoundException()
             if appointment.patient_id != patient.id:
                 raise AppointmentRelatesToDifferentPatientException()
+            stored_file = await self.storage.save(file=file)
+            attachment_data = AttachmentSchema(
+                filename=file.filename,
+                file_path=stored_file.key,
+                file_size=stored_file.size,
+                file_mime_type=stored_file.content_type,
+                patient_id=patient.id,
+                appointment_id=appointment.id,
+            )
             attachment = await self.uow.attachments.create_attachment(
-                data=data, uploaded_by_id=current_user.id
+                data=attachment_data, uploaded_by_id=current_user.id
             )
         return AttachmentResponseSchema.model_validate(attachment)
 
@@ -66,41 +79,43 @@ class AttachmentService:
             if not attachment:
                 raise AttachmentDoesNotExistException()
             self.policy.can_delete(user=current_user, attachment=attachment)
+            await self.storage.delete(attachment.file_path)
             await self.uow.attachments.delete_attachment(attachment=attachment)
 
-    async def get_by_id(
-        self, attachment_id: int, current_user: User
-    ) -> AttachmentResponseSchema:
+    async def get_by_id(self, attachment_id: int) -> AttachmentResponseSchema:
         attachment = await self.uow.attachments.get_attachment_by_id(
             attachment_id=attachment_id
         )
         if not attachment:
             raise AttachmentDoesNotExistException()
-        self.policy.can_view(user=current_user, attachment=attachment)
         return AttachmentResponseSchema.model_validate(attachment)
 
     async def get_by_appointment_id(
-        self, appointment_id: int, current_user: User
+        self, appointment_id: int
     ) -> list[AttachmentResponseSchema]:
         attachments = await self.uow.attachments.get_attachments_by_appointment_id(
             appointment_id=appointment_id
         )
-        for attachment in attachments:
-            self.policy.can_view(user=current_user, attachment=attachment)
         return [
             AttachmentResponseSchema.model_validate(attachment)
             for attachment in attachments
         ]
 
     async def get_by_patient_id(
-        self, patient_id: int, current_user: User
+        self, patient_id: int
     ) -> list[AttachmentResponseSchema]:
         attachments = await self.uow.attachments.get_attachments_by_patient_id(
             patient_id=patient_id
         )
-        for attachment in attachments:
-            self.policy.can_view(user=current_user, attachment=attachment)
         return [
             AttachmentResponseSchema.model_validate(attachment)
             for attachment in attachments
         ]
+
+    async def get_download_url(self, attachment_id: int) -> DownloadUrl:
+        attachment = await self.uow.attachments.get_attachment_by_id(
+            attachment_id=attachment_id
+        )
+        if not attachment:
+            raise AttachmentDoesNotExistException()
+        return await self.storage.get_download_url(attachment.file_path)

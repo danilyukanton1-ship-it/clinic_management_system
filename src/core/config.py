@@ -52,6 +52,15 @@ class SMTP(BaseSettings):
     FROM: str
 
 
+class Minio(BaseSettings):
+    ACCESS_KEY: str
+    ENDPOINT: str
+    PUBLIC_ENDPOINT: str
+    SECRET_KEY: str
+    BUCKET: str
+    SECURE: bool
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env", env_nested_delimiter="__", extra="ignore"
@@ -62,6 +71,7 @@ class Settings(BaseSettings):
     redis: Redis
     celery: Celery
     smtp: SMTP
+    minio: Minio
 
     SLOT_RETENTION_DAYS: int = 365 * 5
 

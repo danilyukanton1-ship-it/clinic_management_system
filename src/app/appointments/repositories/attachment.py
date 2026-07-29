@@ -1,13 +1,8 @@
-from datetime import datetime
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.appointments.models.attachment import Attachment
-from app.appointments.schemas.attachment import (
-    AttachmentCreateSchema,
-    AttachmentUpdateSchema,
-)
+from app.appointments.schemas.attachment import AttachmentSchema, AttachmentUpdateSchema
 
 
 class AttachmentRepository:
@@ -16,7 +11,7 @@ class AttachmentRepository:
         self.session = session
 
     async def create_attachment(
-        self, data: AttachmentCreateSchema, uploaded_by_id: int
+        self, data: AttachmentSchema, uploaded_by_id: int
     ) -> Attachment:
         attachment = Attachment(**data.model_dump(), uploaded_by_id=uploaded_by_id)
         self.session.add(attachment)
@@ -47,14 +42,10 @@ class AttachmentRepository:
         data: AttachmentUpdateSchema,
     ) -> Attachment:
         attachment.filename = data.filename
-        attachment.file_path = data.file_path
-        attachment.file_mime_type = data.file_mime_type
-        attachment.file_size = data.file_size
         await self.session.flush()
         await self.session.refresh(attachment)
         return attachment
 
     async def delete_attachment(self, attachment: Attachment) -> None:
         await self.session.delete(attachment)
-        await self.session.flush()
         return None

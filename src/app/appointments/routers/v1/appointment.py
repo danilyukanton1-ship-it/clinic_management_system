@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-
+from common.types import ID
 from app.appointments.dependencies import get_appointment_service
 from app.appointments.services.appointment import AppointmentService
 from app.appointments.schemas.appointment import (
@@ -20,7 +20,7 @@ router = APIRouter(tags=["Appointments"], prefix="/appointments")
     response_model=AppointmentResponseSchema,
 )
 async def get_by_id(
-    appointment_id: int,
+    appointment_id: ID,
     appointment_service: AppointmentService = Depends(get_appointment_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -37,7 +37,7 @@ async def get_by_id(
 
 
 @router.post(
-    path="/",
+    path="",
     status_code=status.HTTP_201_CREATED,
     response_model=AppointmentResponseSchema,
 )
@@ -100,7 +100,7 @@ async def get_future_appointments_by_current_user(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(
-    appointment_id: int,
+    appointment_id: ID,
     current_user: User = Depends(get_current_user),
     appointment_service: AppointmentService = Depends(get_appointment_service),
 ):

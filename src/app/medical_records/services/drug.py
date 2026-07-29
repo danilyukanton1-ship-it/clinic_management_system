@@ -1,3 +1,4 @@
+from requests import session
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.medical_records.schemas.drug import (
     DrugCreateSchema,
@@ -35,6 +36,14 @@ class DrugService:
             raise DrugAlreadyExistsException()
         async with self.uow:
             drug = await self.uow.drugs.update_drug(drug=drug, data=data)
+        return DrugResponseSchema.model_validate(drug)
+
+    async def get_by_id(self, drug_id: int) -> DrugResponseSchema:
+        drug = await self.uow.drugs.get_drug_by_id(
+            drug_id=drug_id
+        )
+        if not drug:
+            raise DrugNotFoundException
         return DrugResponseSchema.model_validate(drug)
 
     async def get_all(self) -> list[DrugResponseSchema]:

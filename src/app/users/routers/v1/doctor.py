@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-
+from common.types import Email, ID
 from app.users.dependencies import get_user_service
 
 from app.users.services.user import UserService
@@ -51,7 +51,7 @@ async def create_doctor(
     response_model=DoctorResponseSchema,
 )
 async def get_doctor_by_id(
-    doctor_id: int,
+    doctor_id: ID,
     user_service: UserService = Depends(get_user_service),
 ) -> DoctorResponseSchema:
     doctor = await user_service.get_doctor_by_id(doctor_id=doctor_id)
@@ -64,7 +64,7 @@ async def get_doctor_by_id(
     response_model=DoctorResponseSchema,
 )
 async def get_doctor_by_email(
-    doctor_email: str,
+    doctor_email: Email,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
 ) -> DoctorResponseSchema:
@@ -81,7 +81,7 @@ async def get_doctor_by_email(
     response_model=list[DoctorResponseSchema],
 )
 async def get_by_specialization_id(
-    specialization_id: int,
+    specialization_id: ID,
     user_service: UserService = Depends(get_user_service),
 ):
     return await user_service.get_doctors_by_specialization_id(
@@ -95,7 +95,7 @@ async def get_by_specialization_id(
     response_model=DoctorResponseSchema,
 )
 async def update(
-    doctor_id: int,
+    doctor_id: ID,
     data: DoctorUpdateSchema,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
@@ -113,7 +113,7 @@ async def update(
     response_model=DoctorResponseSchema,
 )
 async def deactivate(
-    doctor_id: int,
+    doctor_id: ID,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
 ):

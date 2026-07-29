@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-
+from common.types import Email, ID, Phone
 from app.users.dependencies import get_user_service
 
 from app.users.services.user import UserService
@@ -37,7 +37,7 @@ async def get_patients(
     response_model=PatientResponseSchema,
 )
 async def get_patient_by_id(
-    patient_id: int,
+    patient_id: ID,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
 ) -> PatientResponseSchema:
@@ -53,7 +53,7 @@ async def get_patient_by_id(
     response_model=PatientResponseSchema,
 )
 async def get_patient_by_email(
-    patient_email: str,
+    patient_email: Email,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
 ) -> PatientResponseSchema:
@@ -69,7 +69,7 @@ async def get_patient_by_email(
     response_model=PatientResponseSchema,
 )
 async def get_patient_by_phone(
-    phone_number: str,
+    phone_number: Phone,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -85,7 +85,7 @@ async def get_patient_by_phone(
     response_model=PatientResponseSchema,
 )
 async def update(
-    patient_id: int,
+    patient_id: ID,
     data: PatientUpdateSchema,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
@@ -103,7 +103,7 @@ async def update(
     response_model=PatientResponseSchema,
 )
 async def deactivate(
-    patient_id: int,
+    patient_id: ID,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
 ):

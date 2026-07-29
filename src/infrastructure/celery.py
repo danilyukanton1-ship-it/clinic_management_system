@@ -21,6 +21,7 @@ celery_app.conf.imports = (
     "app.appointments.tasks",
     "app.auth.tasks",
     "app.users.tasks",
+    "app.schedules.tasks",
 )
 
 celery_app.conf.beat_schedule = {

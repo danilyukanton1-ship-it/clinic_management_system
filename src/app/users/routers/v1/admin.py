@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-
+from common.types import Email, ID
 from app.users.dependencies import get_user_service
 
 from app.users.services.user import UserService
@@ -42,7 +42,7 @@ async def create(
     response_model=AdminResponseSchema,
 )
 async def get_admin(
-    admin_id: int,
+    admin_id: ID,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -59,7 +59,7 @@ async def get_admin(
     response_model=AdminResponseSchema,
 )
 async def update(
-    admin_id: int,
+    admin_id: ID,
     data: AdminUpdateSchema,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
@@ -77,7 +77,7 @@ async def update(
     response_model=AdminResponseSchema,
 )
 async def deactivate(
-    admin_id: int,
+    admin_id: ID,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
 ):

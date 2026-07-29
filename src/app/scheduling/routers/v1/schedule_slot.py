@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-
+from common.types import ID
 from app.scheduling.dependencies import get_schedule_slot_service
 
 from app.scheduling.services.schedule_slot import ScheduleSlotService
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/schedule-slots", tags=["Schedule slots"])
     response_model=list[ScheduleSlotResponseSchema],
 )
 async def get_future_slots_by_doctor_id_status(
-    doctor_id: int,
+    doctor_id: ID,
     slot_status: SlotStatus,
     schedule_slot_service: ScheduleSlotService = Depends(get_schedule_slot_service),
 ):
@@ -40,7 +40,7 @@ async def get_future_slots_by_doctor_id_status(
     response_model=list[ScheduleSlotResponseSchema],
 )
 async def get_past_slots_by_doctor_id_status(
-    doctor_id: int,
+    doctor_id: ID,
     slot_status: SlotStatus,
     schedule_slot_service: ScheduleSlotService = Depends(get_schedule_slot_service),
 ):
@@ -72,7 +72,7 @@ async def create_schedule_slots(
     response_model=ScheduleSlotResponseSchema,
 )
 async def update_slot(
-    slot_id: int,
+    slot_id: ID,
     data: ScheduleSlotUpdateSchema,
     slot_schedule_service: ScheduleSlotService = Depends(get_schedule_slot_service),
     current_user: User = Depends(get_current_user),
@@ -88,7 +88,7 @@ async def update_slot(
     response_model=ScheduleSlotResponseSchema,
 )
 async def change_slot_status(
-    slot_id: int,
+    slot_id: ID,
     slot_status: SlotStatus,
     slot_schedule_service: ScheduleSlotService = Depends(get_schedule_slot_service),
     current_user: User = Depends(get_current_user),

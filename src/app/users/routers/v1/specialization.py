@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-
+from common.types import Email, ID
 from app.users.services.specialization import SpecializationService
 
 from app.users.dependencies import get_specialization_service
@@ -36,7 +36,7 @@ async def get_all(
     response_model=SpecializationResponseSchema,
 )
 async def get_by_id(
-    specialization_id: int,
+    specialization_id: ID,
     specialization_service: SpecializationService = Depends(get_specialization_service),
 ) -> SpecializationResponseSchema:
     return await specialization_service.get_by_id(specialization_id=specialization_id)

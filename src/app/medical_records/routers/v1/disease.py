@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from common.types import ID
 from app.medical_records.dependencies import get_disease_service
 from app.medical_records.services.disease import DiseaseService
 from app.medical_records.schemas.disease import (
@@ -74,7 +75,7 @@ async def create(
     response_model=DiseaseResponseSchema,
 )
 async def update(
-    disease_id: int,
+    disease_id: ID,
     data: DiseaseUpdateSchema,
     disease_service: DiseaseService = Depends(get_disease_service),
     current_user: User = Depends(get_current_user),
@@ -88,7 +89,7 @@ async def update(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(
-    disease_id: int,
+    disease_id: ID,
     disease_service: DiseaseService = Depends(get_disease_service),
     current_user: User = Depends(get_current_user),
 ):

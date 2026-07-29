@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-
+from common.types import ID
 from app.scheduling.dependencies import get_schedule_service
 
 from app.scheduling.services.schedule import ScheduleService
@@ -24,7 +24,7 @@ router = APIRouter(prefix="/schedule", tags=["Schedules"])
     response_model=list[ScheduleResponseSchema],
 )
 async def get_all_by_doctor_id(
-    doctor_id: int,
+    doctor_id: ID,
     schedule_service: ScheduleService = Depends(get_schedule_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -37,7 +37,7 @@ async def get_all_by_doctor_id(
     response_model=ScheduleResponseSchema,
 )
 async def get_by_doctor_id_and_weekday(
-    doctor_id: int,
+    doctor_id: ID,
     weekday: Weekday,
     schedule_service: ScheduleService = Depends(get_schedule_service),
     current_user: User = Depends(get_current_user),
@@ -71,7 +71,7 @@ async def create(
 )
 async def update(
     data: ScheduleUpdateSchema,
-    doctor_id: int,
+    doctor_id: ID,
     weekday: Weekday,
     schedule_service: ScheduleService = Depends(get_schedule_service),
     current_user: User = Depends(get_current_user),
@@ -90,7 +90,7 @@ async def update(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def deactivate(
-    schedule_id: int,
+    schedule_id: ID,
     schedule_service: ScheduleService = Depends(get_schedule_service),
     current_user: User = Depends(get_current_user),
 ):

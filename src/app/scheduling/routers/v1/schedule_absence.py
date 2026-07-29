@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-
+from common.types import ID
 from app.scheduling.dependencies import get_schedule_absence_service
 from app.scheduling.schemas.schedule_absence import (
     ScheduleAbsenceResponseSchema,
@@ -40,7 +40,7 @@ async def create(
     response_model=ScheduleAbsenceResponseSchema,
 )
 async def update(
-    absence_id: int,
+    absence_id: ID,
     data: ScheduleAbsenceUpdateSchema,
     schedule_absence_service: ScheduleAbsenceService = Depends(
         get_schedule_absence_service
@@ -56,7 +56,7 @@ async def update(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(
-    absence_id: int,
+    absence_id: ID,
     schedule_absence_service: ScheduleAbsenceService = Depends(
         get_schedule_absence_service
     ),
@@ -72,7 +72,7 @@ async def delete(
     response_model=list[ScheduleAbsenceResponseSchema],
 )
 async def get_past(
-    doctor_id: int,
+    doctor_id: ID,
     schedule_absence_service: ScheduleAbsenceService = Depends(
         get_schedule_absence_service
     ),
@@ -90,7 +90,7 @@ async def get_past(
     response_model=list[ScheduleAbsenceResponseSchema],
 )
 async def get_future(
-    doctor_id: int,
+    doctor_id: ID,
     schedule_absence_service: ScheduleAbsenceService = Depends(
         get_schedule_absence_service
     ),
@@ -108,7 +108,7 @@ async def get_future(
     response_model=ScheduleAbsenceResponseSchema,
 )
 async def get_absence(
-    absence_id: int,
+    absence_id: ID,
     schedule_absence_service: ScheduleAbsenceService = Depends(
         get_schedule_absence_service
     ),

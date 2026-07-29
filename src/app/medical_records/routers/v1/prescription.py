@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-
+from common.types import ID
 from app.medical_records.dependencies import get_prescription_service
 from app.medical_records.schemas.prescription import (
     PrescriptionResponseSchema,
@@ -21,7 +21,7 @@ router = APIRouter(
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def update(
-    prescription_id: int,
+    prescription_id: ID,
     data: PrescriptionUpdateSchema,
     prescription_service: PrescriptionService = Depends(get_prescription_service),
     current_user: User = Depends(get_current_user),

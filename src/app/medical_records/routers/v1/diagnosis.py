@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from common.types import ID
 from app.medical_records.dependencies import get_diagnosis_service
 from app.medical_records.schemas.diagnosis import (
     DiagnosisCreateSchema,
@@ -23,7 +24,7 @@ router = APIRouter(
     response_model=DiagnosisResponseSchema,
 )
 async def get_by_id(
-    diagnosis_id: int,
+    diagnosis_id: ID,
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -38,7 +39,7 @@ async def get_by_id(
     response_model=list[DiagnosisResponseSchema],
 )
 async def get_by_prescription_id(
-    prescription_id: int,
+    prescription_id: ID,
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -53,7 +54,7 @@ async def get_by_prescription_id(
     response_model=list[DiagnosisResponseSchema],
 )
 async def get_by_disease_id(
-    disease_id: int,
+    disease_id: ID,
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -71,7 +72,7 @@ async def get_by_disease_id(
     response_model=DiagnosisResponseSchema,
 )
 async def update(
-    diagnosis_id: int,
+    diagnosis_id: ID,
     data: DiagnosisUpdateSchema,
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
     current_user: User = Depends(get_current_user),
@@ -86,7 +87,7 @@ async def update(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(
-    diagnosis_id: int,
+    diagnosis_id: ID,
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
     current_user: User = Depends(get_current_user),
 ):

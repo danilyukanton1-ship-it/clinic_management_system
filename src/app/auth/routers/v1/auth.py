@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status, Request
-
+from common.types import Email
 from app.auth.schemas.me import MeSchema
 from app.auth.schemas.register import (
     RegisterSchema,
@@ -63,7 +63,7 @@ async def verify_email(
 )
 @limiter.limit("3/minute")
 async def resend_email_verification_code(
-    email: str,
+    email: Email,
     request: Request,
     service: RegisterService = Depends(get_register_service),
 ) -> dict:

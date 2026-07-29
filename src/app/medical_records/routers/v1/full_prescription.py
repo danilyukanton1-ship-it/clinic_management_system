@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from common.types import ID
 from app.medical_records.schemas.prescription import (
     FullPrescriptionCreateSchema,
     FullPrescriptionResponseSchema,
@@ -38,7 +39,7 @@ async def create(
     status_code=status.HTTP_200_OK,
 )
 async def get_by_appointment_id(
-    appointment_id: int,
+    appointment_id: ID,
     prescription_service: FullPrescriptionService = Depends(
         get_full_prescription_service
     ),
@@ -56,7 +57,7 @@ async def get_by_appointment_id(
     status_code=status.HTTP_200_OK,
 )
 async def get_by_prescription_id(
-    prescription_id: int,
+    prescription_id: ID,
     prescription_service: FullPrescriptionService = Depends(
         get_full_prescription_service
     ),
@@ -73,7 +74,7 @@ async def get_by_prescription_id(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_by_id(
-    prescription_id: int,
+    prescription_id: ID,
     prescription_service: FullPrescriptionService = Depends(
         get_full_prescription_service
     ),

@@ -80,6 +80,7 @@ class TestDiagnosisService:
         self,
         diagnosis_service,
         diagnosis,
+        disease_1,
         appointment_patient_1,
         diagnosis_update_schema,
         patient_1,
@@ -87,19 +88,49 @@ class TestDiagnosisService:
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
         )
+
+        diagnosis_service.uow.diseases.get_disease_by_id = AsyncMock(
+            return_value=disease_1,
+        )
+
         diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id = AsyncMock(
             return_value=appointment_patient_1
         )
+
         diagnosis_service.policy.can_update = MagicMock()
+
         diagnosis_service.uow.diagnoses.update_diagnosis = AsyncMock(
             return_value=diagnosis
         )
-        result = await diagnosis_service.update(1, patient_1, diagnosis_update_schema)
+
+        result = await diagnosis_service.update(
+            diagnosis_id=1,
+            current_user=patient_1,
+            data=diagnosis_update_schema,
+        )
+
+        diagnosis_service.uow.diagnoses.get_diagnosis_by_id.assert_awaited_once_with(
+            diagnosis_id=1,
+        )
+
+        diagnosis_service.uow.diseases.get_disease_by_id.assert_awaited_once_with(
+            disease_id=diagnosis_update_schema.disease_id,
+        )
+
+        diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id.assert_awaited_once_with(
+            diagnosis_id=1,
+        )
+
         diagnosis_service.policy.can_update.assert_called_once_with(
             user=patient_1,
             appointment=appointment_patient_1,
         )
-        diagnosis_service.uow.diagnoses.update_diagnosis.assert_awaited_once()
+
+        diagnosis_service.uow.diagnoses.update_diagnosis.assert_awaited_once_with(
+            diagnosis=diagnosis,
+            data=diagnosis_update_schema,
+        )
+
         assert result == diagnosis
 
     @pytest.mark.asyncio
@@ -123,7 +154,7 @@ class TestDiagnosisService:
         diagnosis_service.uow.diagnoses.update_diagnosis.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_update_appointment_not_found(
+    async def test_update_disease_not_found(
         self,
         diagnosis_service,
         diagnosis,
@@ -133,16 +164,64 @@ class TestDiagnosisService:
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
         )
+
+        diagnosis_service.uow.diseases.get_disease_by_id = AsyncMock(
+            return_value=None,
+        )
+
+        with pytest.raises(DiseaseNotFoundException):
+            await diagnosis_service.update(
+                diagnosis_id=1,
+                current_user=patient_1,
+                data=diagnosis_update_schema,
+            )
+
+        diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id.assert_not_called()
+        diagnosis_service.policy.can_update.assert_not_called()
+        diagnosis_service.uow.diagnoses.update_diagnosis.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_update_appointment_not_found(
+        self,
+        diagnosis_service,
+        diagnosis,
+        disease_1,
+        diagnosis_update_schema,
+        patient_1,
+    ):
+        diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
+            return_value=diagnosis
+        )
+
+        diagnosis_service.uow.diseases.get_disease_by_id = AsyncMock(
+            return_value=disease_1,
+        )
+
         diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id = AsyncMock(
             return_value=None
         )
+
         with pytest.raises(AppointmentNotFoundException):
             await diagnosis_service.update(
-                1,
-                patient_1,
-                diagnosis_update_schema,
+                diagnosis_id=1,
+                current_user=patient_1,
+                data=diagnosis_update_schema,
             )
+
+        diagnosis_service.uow.diagnoses.get_diagnosis_by_id.assert_awaited_once_with(
+            diagnosis_id=1,
+        )
+
+        diagnosis_service.uow.diseases.get_disease_by_id.assert_awaited_once_with(
+            disease_id=diagnosis_update_schema.disease_id,
+        )
+
+        diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id.assert_awaited_once_with(
+            diagnosis_id=1,
+        )
+
         diagnosis_service.policy.can_update.assert_not_called()
+
         diagnosis_service.uow.diagnoses.update_diagnosis.assert_not_called()
 
     @pytest.mark.asyncio
@@ -150,6 +229,7 @@ class TestDiagnosisService:
         self,
         diagnosis_service,
         diagnosis,
+        disease_1,
         diagnosis_update_schema,
         patient_1,
         appointment_patient_1,
@@ -157,22 +237,46 @@ class TestDiagnosisService:
         diagnosis_service.uow.diagnoses.get_diagnosis_by_id = AsyncMock(
             return_value=diagnosis
         )
+
+        diagnosis_service.uow.diseases.get_disease_by_id = AsyncMock(
+            return_value=disease_1,
+        )
+
         diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id = AsyncMock(
             return_value=appointment_patient_1
         )
+
         diagnosis_service.policy.can_update = MagicMock(
             side_effect=ForbiddenException()
         )
+
+        diagnosis_service.uow.diagnoses.update_diagnosis = AsyncMock()
+
         with pytest.raises(ForbiddenException):
             await diagnosis_service.update(
-                1,
-                patient_1,
-                diagnosis_update_schema,
+                diagnosis_id=1,
+                current_user=patient_1,
+                data=diagnosis_update_schema,
             )
+
+        diagnosis_service.uow.diagnoses.get_diagnosis_by_id.assert_awaited_once_with(
+            diagnosis_id=1,
+        )
+
+        diagnosis_service.uow.diseases.get_disease_by_id.assert_awaited_once_with(
+            disease_id=diagnosis_update_schema.disease_id,
+        )
+
+        diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id.assert_awaited_once_with(
+            diagnosis_id=1,
+        )
+
         diagnosis_service.policy.can_update.assert_called_once_with(
             user=patient_1,
             appointment=appointment_patient_1,
         )
+
+        diagnosis_service.uow.diagnoses.update_diagnosis.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_delete_success(

@@ -170,6 +170,7 @@ class TestUserService:
 
         user_service.uow.users.get_patient_by_id.assert_awaited_once_with(
             patient_id=patient_1.id,
+            admin=None,
         )
 
     @pytest.mark.asyncio
@@ -188,6 +189,7 @@ class TestUserService:
 
         user_service.uow.users.get_patient_by_id.assert_awaited_once_with(
             patient_id=1,
+            admin=None,
         )
 
     @pytest.mark.asyncio
@@ -312,9 +314,12 @@ class TestUserService:
         specialization,
     ):
         user_service._check_email_exists = AsyncMock()
+
         user_service._get_specialization = AsyncMock(
             return_value=specialization,
         )
+
+        user_service._send_verification_email = AsyncMock()
 
         user_service.uow.users.create_doctor = AsyncMock(
             return_value=doctor_1,
@@ -328,7 +333,9 @@ class TestUserService:
                 data=doctor_create_schema,
             )
 
-        assert result == DoctorResponseSchema.model_validate(doctor_1)
+        assert result == DoctorResponseSchema.model_validate(
+            doctor_1,
+        )
 
         user_service._check_email_exists.assert_awaited_once_with(
             email=doctor_create_schema.email,
@@ -346,6 +353,11 @@ class TestUserService:
             data=doctor_create_schema,
             specialization_id=specialization.id,
             password_hash="hashed_password",
+        )
+
+        user_service._send_verification_email.assert_awaited_once_with(
+            email=doctor_1.email,
+            username=doctor_1.first_name,
         )
 
     @pytest.mark.asyncio
@@ -398,6 +410,7 @@ class TestUserService:
         admin_1,
     ):
         user_service._check_email_exists = AsyncMock()
+        user_service._send_verification_email = AsyncMock()
 
         user_service.uow.users.create_admin = AsyncMock(
             return_value=admin_1,
@@ -424,6 +437,11 @@ class TestUserService:
         user_service.uow.users.create_admin.assert_awaited_once_with(
             data=admin_create_schema,
             password_hash="hashed_password",
+        )
+
+        user_service._send_verification_email.assert_awaited_once_with(
+            email=admin_1.email,
+            username=admin_1.first_name,
         )
 
     @pytest.mark.asyncio
@@ -471,7 +489,12 @@ class TestUserService:
         user_service,
         doctor_1,
         doctor_2,
+        specialization,
     ):
+        user_service.uow.specializations.get_specialization_by_id = AsyncMock(
+            return_value=specialization,
+        )
+
         user_service.uow.users.get_doctors_by_specialization_id = AsyncMock(
             return_value=[doctor_1, doctor_2],
         )
@@ -485,8 +508,13 @@ class TestUserService:
             DoctorResponseSchema.model_validate(doctor_2),
         ]
 
+        user_service.uow.specializations.get_specialization_by_id.assert_awaited_once_with(
+            specialization_id=1,
+        )
+
         user_service.uow.users.get_doctors_by_specialization_id.assert_awaited_once_with(
             specialization_id=1,
+            admin=None,
         )
 
     @pytest.mark.asyncio
@@ -519,6 +547,10 @@ class TestUserService:
             return_value=doctor_1,
         )
 
+        user_service.uow.schedules.get_all_by_doctor_id = AsyncMock(
+            return_value=[MagicMock()],
+        )
+
         result = await user_service.get_doctor_by_id(
             doctor_id=doctor_1.id,
         )
@@ -526,6 +558,10 @@ class TestUserService:
         assert result == DoctorResponseSchema.model_validate(doctor_1)
 
         user_service._get_doctor.assert_awaited_once_with(
+            doctor_id=doctor_1.id,
+        )
+
+        user_service.uow.schedules.get_all_by_doctor_id.assert_awaited_once_with(
             doctor_id=doctor_1.id,
         )
 
@@ -571,6 +607,7 @@ class TestUserService:
 
         user_service._get_patient.assert_awaited_once_with(
             patient_id=patient_1.id,
+            admin=None,
         )
 
         user_service.policy.can_view.assert_called_once_with(
@@ -877,6 +914,8 @@ class TestUserService:
 
         user_service._validate_user_contacts = AsyncMock()
 
+        user_service._new_email_verification = AsyncMock()
+
         user_service.uow.users.update_admin = AsyncMock(
             return_value=admin_2,
         )
@@ -896,6 +935,11 @@ class TestUserService:
             user_id=admin_1.id,
             email=admin_update_schema.email,
             phone=admin_update_schema.phone,
+        )
+
+        user_service._new_email_verification.assert_awaited_once_with(
+            user=admin_1,
+            data=admin_update_schema,
         )
 
         user_service.uow.users.update_admin.assert_awaited_once_with(
@@ -969,6 +1013,8 @@ class TestUserService:
 
         user_service._get_specialization = AsyncMock()
 
+        user_service._new_email_verification = AsyncMock()
+
         user_service.uow.users.update_doctor = AsyncMock(
             return_value=doctor_2,
         )
@@ -990,6 +1036,11 @@ class TestUserService:
 
         user_service._get_specialization.assert_awaited_once_with(
             specialization_id=doctor_update_schema.specialization_id,
+        )
+
+        user_service._new_email_verification.assert_awaited_once_with(
+            user=doctor_1,
+            data=doctor_update_schema,
         )
 
         user_service.uow.users.update_doctor.assert_awaited_once_with(
@@ -1120,6 +1171,8 @@ class TestUserService:
 
         user_service._validate_user_contacts = AsyncMock()
 
+        user_service._new_email_verification = AsyncMock()
+
         user_service.uow.users.update_patient = AsyncMock(
             return_value=patient_2,
         )
@@ -1141,6 +1194,11 @@ class TestUserService:
             user_id=patient_1.id,
             email=patient_update_schema.email,
             phone=patient_update_schema.phone,
+        )
+
+        user_service._new_email_verification.assert_awaited_once_with(
+            user=patient_1,
+            data=patient_update_schema,
         )
 
         user_service.uow.users.update_patient.assert_awaited_once_with(
@@ -1434,4 +1492,245 @@ class TestUserService:
 
         user_service._deactivate.assert_awaited_once_with(
             user=admin_1,
+        )
+
+    @pytest.mark.asyncio
+    async def test_new_email_verification_email_changed(
+        self,
+        user_service,
+        doctor_1,
+    ):
+        data = MagicMock(
+            email="new@test.com",
+            first_name="Anton",
+        )
+
+        user_service.uow.users.change_user_verification_status = AsyncMock()
+        user_service._send_verification_email = AsyncMock()
+
+        await user_service._new_email_verification(
+            user=doctor_1,
+            data=data,
+        )
+
+        user_service.uow.users.change_user_verification_status.assert_awaited_once_with(
+            user=doctor_1,
+            is_verified=False,
+        )
+
+        user_service._send_verification_email.assert_awaited_once_with(
+            email="new@test.com",
+            username="Anton",
+        )
+
+    @pytest.mark.asyncio
+    async def test_new_email_verification_email_not_changed(
+        self,
+        user_service,
+        doctor_1,
+    ):
+        data = MagicMock(
+            email=doctor_1.email,
+            first_name=doctor_1.first_name,
+        )
+
+        user_service.uow.users.change_user_verification_status = AsyncMock()
+        user_service._send_verification_email = AsyncMock()
+
+        await user_service._new_email_verification(
+            user=doctor_1,
+            data=data,
+        )
+
+        user_service.uow.users.change_user_verification_status.assert_not_awaited()
+        user_service._send_verification_email.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_deactivate_success(
+        self,
+        user_service,
+        doctor_1,
+    ):
+        doctor_1.is_active = True
+
+        user_service.uow.users.make_user_inactive = AsyncMock(
+            return_value=doctor_1,
+        )
+
+        result = await user_service._deactivate(
+            user=doctor_1,
+        )
+
+        assert result == doctor_1
+
+        user_service.uow.users.make_user_inactive.assert_awaited_once_with(
+            user=doctor_1,
+        )
+
+    @pytest.mark.asyncio
+    async def test_deactivate_user_already_inactive(
+        self,
+        user_service,
+        doctor_1,
+    ):
+        doctor_1.is_active = False
+
+        user_service.uow.users.make_user_inactive = AsyncMock()
+
+        with pytest.raises(UserAlreadyInactiveException):
+            await user_service._deactivate(
+                user=doctor_1,
+            )
+
+        user_service.uow.users.make_user_inactive.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_get_all_doctors_for_admin_success(
+        self,
+        user_service,
+        doctor_1,
+        doctor_2,
+    ):
+        user_service.uow.users.get_all_doctors_for_admin = AsyncMock(
+            return_value=[doctor_1, doctor_2],
+        )
+
+        result = await user_service.get_all_doctors_for_admin()
+
+        assert result == [
+            DoctorResponseSchema.model_validate(doctor_1),
+            DoctorResponseSchema.model_validate(doctor_2),
+        ]
+
+        user_service.uow.users.get_all_doctors_for_admin.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_get_all_admins_success(
+        self,
+        user_service,
+        admin_1,
+        admin_2,
+    ):
+        user_service.uow.users.get_all_admins = AsyncMock(
+            return_value=[admin_1, admin_2],
+        )
+
+        result = await user_service.get_all_admins()
+
+        assert result == [
+            AdminResponseSchema.model_validate(admin_1),
+            AdminResponseSchema.model_validate(admin_2),
+        ]
+
+        user_service.uow.users.get_all_admins.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_get_doctor_by_id_for_admin_success(
+        self,
+        user_service,
+        doctor_1,
+    ):
+        user_service.uow.users.get_doctor_by_id_for_admin = AsyncMock(
+            return_value=doctor_1,
+        )
+
+        result = await user_service.get_doctor_by_id_for_admin(
+            doctor_id=doctor_1.id,
+        )
+
+        assert result == DoctorResponseSchema.model_validate(doctor_1)
+
+        user_service.uow.users.get_doctor_by_id_for_admin.assert_awaited_once_with(
+            doctor_id=doctor_1.id,
+        )
+
+    @pytest.mark.asyncio
+    async def test_get_doctor_by_id_for_admin_not_found(
+        self,
+        user_service,
+    ):
+        user_service.uow.users.get_doctor_by_id_for_admin = AsyncMock(
+            return_value=None,
+        )
+
+        with pytest.raises(UserNotFoundException):
+            await user_service.get_doctor_by_id_for_admin(
+                doctor_id=1,
+            )
+
+        user_service.uow.users.get_doctor_by_id_for_admin.assert_awaited_once_with(
+            doctor_id=1,
+        )
+
+    @pytest.mark.asyncio
+    async def test_new_email_verification_email_changed(
+        self,
+        user_service,
+        doctor_1,
+    ):
+        data = MagicMock(
+            email="new@test.com",
+            first_name="Anton",
+        )
+
+        user_service.uow.users.change_user_verification_status = AsyncMock()
+        user_service._send_verification_email = AsyncMock()
+
+        await user_service._new_email_verification(
+            user=doctor_1,
+            data=data,
+        )
+
+        user_service.uow.users.change_user_verification_status.assert_awaited_once_with(
+            user=doctor_1,
+            is_verified=False,
+        )
+
+        user_service._send_verification_email.assert_awaited_once_with(
+            email="new@test.com",
+            username="Anton",
+        )
+
+    @pytest.mark.asyncio
+    async def test_new_email_verification_email_not_changed(
+        self,
+        user_service,
+        doctor_1,
+    ):
+        data = MagicMock(
+            email=doctor_1.email,
+            first_name=doctor_1.first_name,
+        )
+
+        user_service.uow.users.change_user_verification_status = AsyncMock()
+        user_service._send_verification_email = AsyncMock()
+
+        await user_service._new_email_verification(
+            user=doctor_1,
+            data=data,
+        )
+
+        user_service.uow.users.change_user_verification_status.assert_not_awaited()
+        user_service._send_verification_email.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_deactivate_success(
+        self,
+        user_service,
+        doctor_1,
+    ):
+        doctor_1.is_active = True
+
+        user_service.uow.users.make_user_inactive = AsyncMock(
+            return_value=doctor_1,
+        )
+
+        result = await user_service._deactivate(
+            user=doctor_1,
+        )
+
+        assert result == doctor_1
+
+        user_service.uow.users.make_user_inactive.assert_awaited_once_with(
+            user=doctor_1,
         )

@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone
 from unittest.mock import MagicMock
 
 import pytest
@@ -8,7 +8,6 @@ from app.scheduling.models.schedule_absence import ScheduleAbsence
 from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.scheduling.schemas.schedule import ScheduleUpdateSchema, ScheduleCreateSchema
 from app.scheduling.schemas.schedule_absence import (
-    ScheduleAbsenceSchema,
     ScheduleAbsenceCreateSchema,
     ScheduleAbsenceUpdateSchema,
 )
@@ -23,8 +22,8 @@ from common.enums.absence_reason import AbsenceReason
 from common.enums.slot_status import SlotStatus
 from common.enums.weekday import Weekday
 
-TEST_START_DATETIME = datetime(2030, 1, 7, 10, 0)
-TEST_END_DATETIME = datetime(2030, 1, 7, 10, 30)
+TEST_START_DATETIME = datetime(2030, 1, 7, 10, 0, tzinfo=timezone.utc)
+TEST_END_DATETIME = datetime(2030, 1, 7, 10, 30, tzinfo=timezone.utc)
 
 
 @pytest.fixture

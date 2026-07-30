@@ -1,7 +1,8 @@
 from datetime import datetime
 
 import pytest
-
+from fastapi import UploadFile
+from io import BytesIO
 from unittest.mock import MagicMock
 
 from app.appointments.models.attachment import Attachment
@@ -18,8 +19,25 @@ from app.appointments.schemas.attachment import (
 
 
 @pytest.fixture
-def attachment_service(mock_async_session, mock_uow) -> AttachmentService:
-    service = AttachmentService(mock_async_session)
+def upload_file():
+    return UploadFile(
+        filename="test.pdf",
+        file=BytesIO(b"test file"),
+    )
+
+
+@pytest.fixture
+def stored_file():
+    stored = MagicMock()
+    stored.key = "attachments/test.pdf"
+    stored.size = 9
+    stored.content_type = "application/pdf"
+    return stored
+
+
+@pytest.fixture
+def attachment_service(mock_async_session, mock_uow, mock_storage) -> AttachmentService:
+    service = AttachmentService(mock_async_session, mock_storage)
     service.uow = mock_uow
     service.policy = MagicMock()
     return service
@@ -45,10 +63,6 @@ def appointment_create_schema():
 @pytest.fixture
 def attachment_create_schema():
     return AttachmentCreateSchema(
-        filename="test.pdf",
-        file_path="/uploads/test.pdf",
-        file_size=1024,
-        file_mime_type="application/pdf",
         patient_id=1,
         appointment_id=1,
     )
@@ -58,9 +72,6 @@ def attachment_create_schema():
 def attachment_update_schema():
     return AttachmentUpdateSchema(
         filename="test.jpg",
-        file_path="/test/test.jpg",
-        file_size=2048,
-        file_mime_type="image/jpeg",
     )
 
 
@@ -69,7 +80,6 @@ def attachment_response_schema_1():
     return AttachmentResponseSchema(
         id=1,
         filename="test.pdf",
-        file_path="/uploads/test.pdf",
         file_size=1024,
         file_mime_type="application/pdf",
         patient_id=1,
@@ -85,7 +95,6 @@ def attachment_response_schema_2():
     return AttachmentResponseSchema(
         id=1,
         filename="test.jpg",
-        file_path="/test/test.jpg",
         file_size=2048,
         file_mime_type="image/jpeg",
         patient_id=1,

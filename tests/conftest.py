@@ -23,6 +23,12 @@ def mock_async_session() -> AsyncSession:
 
 
 @pytest.fixture
+def mock_storage() -> AsyncMock:
+    storage = AsyncMock()
+    return storage
+
+
+@pytest.fixture
 def mock_uow() -> UnitOfWork:
     uow = MagicMock()
     uow.__aenter__ = AsyncMock(return_value=uow)

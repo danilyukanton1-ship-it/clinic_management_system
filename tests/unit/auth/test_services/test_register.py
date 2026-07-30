@@ -126,7 +126,7 @@ class TestRegisterService:
             return_value=patient_1_unverified
         )
 
-        register_service.uow.users.make_user_verified = AsyncMock(
+        register_service.uow.users.change_user_verification_status = AsyncMock(
             return_value=patient_1_unverified
         )
 
@@ -134,20 +134,22 @@ class TestRegisterService:
 
         result = await register_service.verify_email(verify_email_schema)
 
-        register_service.uow.users.get_patient_by_email.assert_called_once_with(
+        register_service.uow.users.get_patient_by_email.assert_awaited_once_with(
             email=verify_email_schema.email,
         )
 
-        register_service._verify_email_code.assert_called_once_with(
+        register_service._verify_email_code.assert_awaited_once_with(
             email=patient_1_unverified.email,
             verification_code=verify_email_schema.verification_code,
         )
 
-        register_service.uow.users.make_user_verified.assert_called_once_with(
+        register_service.uow.users.change_user_verification_status.assert_awaited_once_with(
             user=patient_1_unverified,
+            is_verified=True,
         )
 
         assert isinstance(result, PatientResponseSchema)
+        assert result.id == patient_1_unverified.id
 
     @pytest.mark.asyncio
     async def test_verify_email_user_not_found(

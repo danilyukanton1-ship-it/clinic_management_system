@@ -551,7 +551,7 @@ class TestScheduleAbsence:
         schedule_absence_service.policy.can_view.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_get_future_by_doctor_id_absence_not_found(
+    async def test_get_future_by_doctor_id_no_absences(
         self,
         schedule_absence_service,
         doctor_1,
@@ -565,11 +565,10 @@ class TestScheduleAbsence:
         )
         schedule_absence_service.policy.can_view = MagicMock()
 
-        with pytest.raises(AbsenceNotFoundException):
-            await schedule_absence_service.get_future_by_doctor_id(
-                doctor_id=doctor_1.id,
-                current_user=admin_1,
-            )
+        result = await schedule_absence_service.get_future_by_doctor_id(
+            doctor_id=doctor_1.id,
+            current_user=admin_1,
+        )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
             doctor_id=doctor_1.id
@@ -578,6 +577,8 @@ class TestScheduleAbsence:
             doctor_id=doctor_1.id
         )
         schedule_absence_service.policy.can_view.assert_not_called()
+
+        assert result == []
 
     @pytest.mark.asyncio
     async def test_get_future_by_doctor_id_forbidden(
@@ -677,7 +678,7 @@ class TestScheduleAbsence:
         schedule_absence_service.policy.can_view.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_get_past_by_doctor_id_absence_not_found(
+    async def test_get_past_by_doctor_id_no_absences(
         self,
         schedule_absence_service,
         doctor_1,
@@ -691,11 +692,10 @@ class TestScheduleAbsence:
         )
         schedule_absence_service.policy.can_view = MagicMock()
 
-        with pytest.raises(AbsenceNotFoundException):
-            await schedule_absence_service.get_past_by_doctor_id(
-                doctor_id=doctor_1.id,
-                current_user=admin_1,
-            )
+        result = await schedule_absence_service.get_past_by_doctor_id(
+            doctor_id=doctor_1.id,
+            current_user=admin_1,
+        )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
             doctor_id=doctor_1.id
@@ -704,6 +704,8 @@ class TestScheduleAbsence:
             doctor_id=doctor_1.id
         )
         schedule_absence_service.policy.can_view.assert_not_called()
+
+        assert result == []
 
     @pytest.mark.asyncio
     async def test_get_past_by_doctor_id_forbidden(

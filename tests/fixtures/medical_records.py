@@ -10,6 +10,7 @@ from app.medical_records.models.prescription_item import PrescriptionItem
 from app.medical_records.schemas.diagnosis import (
     DiagnosisCreateSchema,
     DiagnosisUpdateSchema,
+    DiagnosisCreateFullPrescriptionSchema,
 )
 from app.medical_records.schemas.disease import DiseaseUpdateSchema, DiseaseCreateSchema
 from app.medical_records.schemas.drug import DrugCreateSchema, DrugUpdateSchema
@@ -20,6 +21,7 @@ from app.medical_records.schemas.prescription import (
 from app.medical_records.schemas.prescription_item import (
     PrescriptionItemCreateSchema,
     PrescriptionItemUpdateSchema,
+    PrescriptionItemCreateFullPrescriptionSchema,
 )
 from app.medical_records.services.diagnosis import DiagnosisService
 from app.medical_records.services.disease import DiseaseService
@@ -82,14 +84,12 @@ def full_prescription_create_schema():
         appointment_id=1,
         recommendations="test recommendations",
         diagnoses=[
-            DiagnosisCreateSchema(
-                prescription_id=1,
+            DiagnosisCreateFullPrescriptionSchema(
                 disease_id=1,
             ),
         ],
         prescription_items=[
-            PrescriptionItemCreateSchema(
-                prescription_id=1,
+            PrescriptionItemCreateFullPrescriptionSchema(
                 drug_id=1,
                 dosage="test dosage",
                 frequency="test frequency",

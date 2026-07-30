@@ -1,5 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
+from datetime import UTC
+from app.scheduling.schemas.schedule_slot import ScheduleSlotBulkCreateSchema
 from common.enums.weekday import Weekday
 from app.scheduling.exceptions.schedule import ScheduleNotFoundException
 from app.scheduling.models.schedule_slot import ScheduleSlot
@@ -10,6 +12,7 @@ from app.scheduling.exceptions.schedule_slot import (
     SlotStatusCanNotBeChangedException,
     SlotCanNotBeChangedException,
 )
+from app.users.exceptions.user import UserNotFoundException
 from common.enums.slot_status import SlotStatus
 
 
@@ -116,26 +119,40 @@ class TestScheduleSlotService:
     async def test_get_future_slots_by_doctor_id_status_success(
         self,
         schedule_slot_service,
+        doctor_1,
         schedule_slot_1,
         schedule_slot_2,
     ):
+        schedule_slot_service.uow.users.get_doctor_by_id = AsyncMock(
+            return_value=doctor_1,
+        )
+
         schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = AsyncMock(
             return_value=[schedule_slot_1, schedule_slot_2],
         )
+
         result = await schedule_slot_service.get_future_slots_by_doctor_id_status(
-            doctor_id=1,
+            doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
         )
+
+        schedule_slot_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
+            doctor_id=doctor_1.id,
+        )
+
         schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_awaited_once_with(
-            doctor_id=1,
+            doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
         )
+
         assert len(result) == 2
+
         assert result[0].id == schedule_slot_1.id
         assert result[0].doctor_id == schedule_slot_1.doctor_id
         assert result[0].slot_start == schedule_slot_1.slot_start
         assert result[0].slot_end == schedule_slot_1.slot_end
         assert result[0].status == schedule_slot_1.status
+
         assert result[1].id == schedule_slot_2.id
         assert result[1].doctor_id == schedule_slot_2.doctor_id
         assert result[1].slot_start == schedule_slot_2.slot_start
@@ -143,49 +160,100 @@ class TestScheduleSlotService:
         assert result[1].status == schedule_slot_2.status
 
     @pytest.mark.asyncio
-    async def test_get_future_slots_by_doctor_id_status_not_found(
+    async def test_get_future_slots_by_doctor_id_status_no_slots(
         self,
         schedule_slot_service,
+        doctor_1,
     ):
+        schedule_slot_service.uow.users.get_doctor_by_id = AsyncMock(
+            return_value=doctor_1,
+        )
+
         schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = AsyncMock(
             return_value=[],
         )
-        with pytest.raises(SlotNotFoundException):
+
+        result = await schedule_slot_service.get_future_slots_by_doctor_id_status(
+            doctor_id=doctor_1.id,
+            status=SlotStatus.FREE,
+        )
+
+        schedule_slot_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
+            doctor_id=doctor_1.id,
+        )
+
+        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_awaited_once_with(
+            doctor_id=doctor_1.id,
+            status=SlotStatus.FREE,
+        )
+
+        assert result == []
+
+    @pytest.mark.asyncio
+    async def test_get_future_slots_by_doctor_id_status_doctor_not_found(
+        self,
+        schedule_slot_service,
+    ):
+        schedule_slot_service.uow.users.get_doctor_by_id = AsyncMock(
+            return_value=None,
+        )
+
+        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = (
+            AsyncMock()
+        )
+
+        with pytest.raises(UserNotFoundException):
             await schedule_slot_service.get_future_slots_by_doctor_id_status(
                 doctor_id=1,
                 status=SlotStatus.FREE,
             )
-        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_awaited_once_with(
+
+        schedule_slot_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
             doctor_id=1,
-            status=SlotStatus.FREE,
         )
+
+        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_not_awaited()
 
     @pytest.mark.asyncio
     async def test_get_past_slots_by_doctor_id_status_success(
         self,
         schedule_slot_service,
+        doctor_1,
         schedule_slot_1,
         schedule_slot_2,
     ):
+        schedule_slot_service.uow.users.get_doctor_by_id = AsyncMock(
+            return_value=doctor_1,
+        )
+
         schedule_slot_service.uow.schedule_slots.get_past_slots_by_doctor_id_status = (
             AsyncMock(
                 return_value=[schedule_slot_1, schedule_slot_2],
             )
         )
+
         result = await schedule_slot_service.get_past_slots_by_doctor_id_status(
-            doctor_id=1,
+            doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
         )
+
+        schedule_slot_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
+            doctor_id=doctor_1.id,
+        )
+
         schedule_slot_service.uow.schedule_slots.get_past_slots_by_doctor_id_status.assert_awaited_once_with(
-            doctor_id=1,
+            doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
         )
+
         assert len(result) == 2
+
         assert result[0].id == schedule_slot_1.id
         assert result[0].doctor_id == schedule_slot_1.doctor_id
         assert result[0].slot_start == schedule_slot_1.slot_start
         assert result[0].slot_end == schedule_slot_1.slot_end
         assert result[0].status == schedule_slot_1.status
+
         assert result[1].id == schedule_slot_2.id
         assert result[1].doctor_id == schedule_slot_2.doctor_id
         assert result[1].slot_start == schedule_slot_2.slot_start
@@ -193,24 +261,36 @@ class TestScheduleSlotService:
         assert result[1].status == schedule_slot_2.status
 
     @pytest.mark.asyncio
-    async def test_get_past_slots_by_doctor_id_status_not_found(
+    async def test_get_past_slots_by_doctor_id_status_no_slots(
         self,
         schedule_slot_service,
+        doctor_1,
     ):
+        schedule_slot_service.uow.users.get_doctor_by_id = AsyncMock(
+            return_value=doctor_1,
+        )
+
         schedule_slot_service.uow.schedule_slots.get_past_slots_by_doctor_id_status = (
             AsyncMock(
                 return_value=[],
             )
         )
-        with pytest.raises(SlotNotFoundException):
-            await schedule_slot_service.get_past_slots_by_doctor_id_status(
-                doctor_id=1,
-                status=SlotStatus.FREE,
-            )
-        schedule_slot_service.uow.schedule_slots.get_past_slots_by_doctor_id_status.assert_awaited_once_with(
-            doctor_id=1,
+
+        result = await schedule_slot_service.get_past_slots_by_doctor_id_status(
+            doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
         )
+
+        schedule_slot_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
+            doctor_id=doctor_1.id,
+        )
+
+        schedule_slot_service.uow.schedule_slots.get_past_slots_by_doctor_id_status.assert_awaited_once_with(
+            doctor_id=doctor_1.id,
+            status=SlotStatus.FREE,
+        )
+
+        assert result == []
 
     @pytest.mark.asyncio
     async def test_update_success(
@@ -371,9 +451,19 @@ class TestScheduleSlotService:
         schedule_slot_service,
         schedule_1,
     ):
-        slot_start = datetime.combine(date(2030, 1, 7), schedule_1.start_time)
-        workday_end = datetime.combine(date(2030, 1, 7), schedule_1.end_time)
-
+        slot_start = datetime.combine(
+            date(2030, 1, 7),
+            schedule_1.start_time,
+            tzinfo=UTC,
+        )
+        workday_end = datetime.combine(
+            date(2030, 1, 7),
+            schedule_1.end_time,
+            tzinfo=UTC,
+        )
+        schedule_slot_service.uow.schedule_slots.slot_exists = AsyncMock(
+            return_value=False,
+        )
         schedule_slot_service.uow.schedule_slots.create_slot_instance = MagicMock(
             side_effect=lambda schedule_slot: ScheduleSlot(
                 doctor_id=schedule_slot.doctor_id,
@@ -393,12 +483,12 @@ class TestScheduleSlotService:
         assert len(result) == 16
 
         assert result[0].status == SlotStatus.FREE
-        assert result[0].slot_start == datetime(2030, 1, 7, 9, 0)
-        assert result[0].slot_end == datetime(2030, 1, 7, 9, 30)
+        assert result[0].slot_start == datetime(2030, 1, 7, 9, 0, tzinfo=UTC)
+        assert result[0].slot_end == datetime(2030, 1, 7, 9, 30, tzinfo=UTC)
 
         assert result[-1].status == SlotStatus.FREE
-        assert result[-1].slot_start == datetime(2030, 1, 7, 17, 30)
-        assert result[-1].slot_end == datetime(2030, 1, 7, 18, 0)
+        assert result[-1].slot_start == datetime(2030, 1, 7, 17, 30, tzinfo=UTC)
+        assert result[-1].slot_end == datetime(2030, 1, 7, 18, 0, tzinfo=UTC)
 
     @pytest.mark.asyncio
     async def test_create_slots_skip_lunch(
@@ -406,9 +496,19 @@ class TestScheduleSlotService:
         schedule_slot_service,
         schedule_1,
     ):
-        slot_start = datetime.combine(date(2030, 1, 7), schedule_1.start_time)
-        workday_end = datetime.combine(date(2030, 1, 7), schedule_1.end_time)
-
+        slot_start = datetime.combine(
+            date(2030, 1, 7),
+            schedule_1.start_time,
+            tzinfo=UTC,
+        )
+        workday_end = datetime.combine(
+            date(2030, 1, 7),
+            schedule_1.end_time,
+            tzinfo=UTC,
+        )
+        schedule_slot_service.uow.schedule_slots.slot_exists = AsyncMock(
+            return_value=False,
+        )
         schedule_slot_service.uow.schedule_slots.create_slot_instance = MagicMock(
             side_effect=lambda schedule_slot: ScheduleSlot(
                 doctor_id=schedule_slot.doctor_id,
@@ -441,9 +541,19 @@ class TestScheduleSlotService:
     ):
         schedule_1.slot_duration_minutes = 40
 
-        slot_start = datetime.combine(date(2030, 1, 7), schedule_1.start_time)
-        workday_end = datetime.combine(date(2030, 1, 7), schedule_1.end_time)
-
+        slot_start = datetime.combine(
+            date(2030, 1, 7),
+            schedule_1.start_time,
+            tzinfo=UTC,
+        )
+        workday_end = datetime.combine(
+            date(2030, 1, 7),
+            schedule_1.end_time,
+            tzinfo=UTC,
+        )
+        schedule_slot_service.uow.schedule_slots.slot_exists = AsyncMock(
+            return_value=False,
+        )
         schedule_slot_service.uow.schedule_slots.create_slot_instance = MagicMock(
             side_effect=lambda schedule_slot: ScheduleSlot(
                 doctor_id=schedule_slot.doctor_id,
@@ -461,7 +571,6 @@ class TestScheduleSlotService:
         )
 
         assert result[-1].slot_end <= workday_end
-
         assert all(slot.slot_end <= workday_end for slot in result)
 
     @pytest.mark.asyncio
@@ -491,9 +600,11 @@ class TestScheduleSlotService:
         schedule_slot_service.uow.schedule_slots.bulk_create_slots = AsyncMock()
 
         result = await schedule_slot_service.create_slots(
-            start_date=date(2030, 1, 7),
-            end_date=date(2030, 1, 7),
-            doctor_id=1,
+            ScheduleSlotBulkCreateSchema(
+                start_date=date(2030, 1, 7),
+                end_date=date(2030, 1, 7),
+                doctor_id=1,
+            )
         )
 
         schedule_slot_service.uow.schedules.get_all_by_doctor_id.assert_awaited_once_with(
@@ -507,13 +618,21 @@ class TestScheduleSlotService:
 
         schedule_slot_service.uow.absences.get_overlapping_absence.assert_awaited_once_with(
             doctor_id=1,
-            start_date=datetime.combine(date(2030, 1, 7), time.min),
-            end_date=datetime.combine(date(2030, 1, 7), time.max),
+            start_date=datetime.combine(date(2030, 1, 7), time.min, tzinfo=UTC),
+            end_date=datetime.combine(date(2030, 1, 7), time.max, tzinfo=UTC),
         )
 
         schedule_slot_service._create_slots.assert_awaited_once_with(
-            slot_start=datetime.combine(date(2030, 1, 7), schedule_1.start_time),
-            workday_end=datetime.combine(date(2030, 1, 7), schedule_1.end_time),
+            slot_start=datetime.combine(
+                date(2030, 1, 7),
+                schedule_1.start_time,
+                tzinfo=UTC,
+            ),
+            workday_end=datetime.combine(
+                date(2030, 1, 7),
+                schedule_1.end_time,
+                tzinfo=UTC,
+            ),
             schedule=schedule_1,
             absences=[],
         )
@@ -564,14 +683,24 @@ class TestScheduleSlotService:
         schedule_slot_service.uow.schedule_slots.bulk_create_slots = AsyncMock()
 
         await schedule_slot_service.create_slots(
-            start_date=date(2030, 1, 7),
-            end_date=date(2030, 1, 7),
-            doctor_id=1,
+            ScheduleSlotBulkCreateSchema(
+                start_date=date(2030, 1, 7),
+                end_date=date(2030, 1, 7),
+                doctor_id=1,
+            )
         )
 
         schedule_slot_service._create_slots.assert_awaited_once_with(
-            slot_start=datetime.combine(date(2030, 1, 7), schedule_1.start_time),
-            workday_end=datetime.combine(date(2030, 1, 7), schedule_1.end_time),
+            slot_start=datetime.combine(
+                date(2030, 1, 7),
+                schedule_1.start_time,
+                tzinfo=UTC,
+            ),
+            workday_end=datetime.combine(
+                date(2030, 1, 7),
+                schedule_1.end_time,
+                tzinfo=UTC,
+            ),
             schedule=schedule_1,
             absences=[schedule_absence_1],
         )
@@ -599,9 +728,11 @@ class TestScheduleSlotService:
         schedule_slot_service.uow.schedule_slots.bulk_create_slots = AsyncMock()
 
         result = await schedule_slot_service.create_slots(
-            start_date=date(2030, 1, 7),
-            end_date=date(2030, 1, 7),
-            doctor_id=1,
+            ScheduleSlotBulkCreateSchema(
+                start_date=date(2030, 1, 7),
+                end_date=date(2030, 1, 7),
+                doctor_id=1,
+            )
         )
 
         assert result == []
@@ -626,9 +757,11 @@ class TestScheduleSlotService:
 
         with pytest.raises(ScheduleNotFoundException):
             await schedule_slot_service.create_slots(
-                start_date=date(2030, 1, 7),
-                end_date=date(2030, 1, 7),
-                doctor_id=1,
+                ScheduleSlotBulkCreateSchema(
+                    start_date=date(2030, 1, 7),
+                    end_date=date(2030, 1, 7),
+                    doctor_id=1,
+                )
             )
 
         schedule_slot_service.uow.schedules.get_all_by_doctor_id.assert_awaited_once_with(
@@ -665,9 +798,11 @@ class TestScheduleSlotService:
         schedule_slot_service.uow.schedule_slots.bulk_create_slots = AsyncMock()
 
         result = await schedule_slot_service.create_slots(
-            start_date=date(2030, 1, 7),
-            end_date=date(2030, 1, 7),
-            doctor_id=1,
+            ScheduleSlotBulkCreateSchema(
+                start_date=date(2030, 1, 7),
+                end_date=date(2030, 1, 7),
+                doctor_id=1,
+            )
         )
 
         assert result == []

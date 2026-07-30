@@ -66,12 +66,16 @@ class TestScheduleService:
         schedule_1,
     ):
         schedule_service.uow.schedules.get_by_id = AsyncMock(return_value=schedule_1)
+
         result = await schedule_service.get_schedule_by_id(
             schedule_id=schedule_1.id,
         )
+
         schedule_service.uow.schedules.get_by_id.assert_awaited_once_with(
             schedule_id=schedule_1.id,
+            admin=None,
         )
+
         assert result.id == schedule_1.id
         assert result.doctor_id == schedule_1.doctor_id
         assert result.weekday == schedule_1.weekday
@@ -88,12 +92,15 @@ class TestScheduleService:
         schedule_service,
     ):
         schedule_service.uow.schedules.get_by_id = AsyncMock(return_value=None)
+
         with pytest.raises(ScheduleNotFoundException):
             await schedule_service.get_schedule_by_id(
                 schedule_id=1,
             )
+
         schedule_service.uow.schedules.get_by_id.assert_awaited_once_with(
             schedule_id=1,
+            admin=None,
         )
 
     @pytest.mark.asyncio
@@ -105,12 +112,16 @@ class TestScheduleService:
         schedule_service.uow.schedules.get_all_by_doctor_id = AsyncMock(
             return_value=[schedule_1]
         )
+
         result = await schedule_service.get_all_schedule_by_doctor_id(
             doctor_id=schedule_1.doctor_id,
         )
+
         schedule_service.uow.schedules.get_all_by_doctor_id.assert_awaited_once_with(
-            schedule_1.doctor_id,
+            doctor_id=schedule_1.doctor_id,
+            admin=None,
         )
+
         assert len(result) == 1
         assert result[0].id == schedule_1.id
         assert result[0].doctor_id == schedule_1.doctor_id
@@ -128,12 +139,15 @@ class TestScheduleService:
         schedule_service,
     ):
         schedule_service.uow.schedules.get_all_by_doctor_id = AsyncMock(return_value=[])
+
         with pytest.raises(ScheduleNotFoundException):
             await schedule_service.get_all_schedule_by_doctor_id(
                 doctor_id=1,
             )
+
         schedule_service.uow.schedules.get_all_by_doctor_id.assert_awaited_once_with(
-            1,
+            doctor_id=1,
+            admin=None,
         )
 
     @pytest.mark.asyncio
@@ -356,7 +370,7 @@ class TestScheduleService:
         schedule_service.uow.schedules.update_schedule.assert_not_awaited()
 
     @pytest.mark.asyncio
-    async def test_delete_success(
+    async def test_deactivate_schedule_success(
         self,
         schedule_service,
         schedule_1,
@@ -371,35 +385,43 @@ class TestScheduleService:
             return_value=[schedule_slot_1, schedule_slot_2]
         )
         schedule_service.uow.schedule_slots.delete_slot = AsyncMock()
-        schedule_service.uow.schedules.delete_schedule = AsyncMock()
-        result = await schedule_service.delete(
+        schedule_service.uow.schedules.make_schedule_unactive = AsyncMock()
+
+        result = await schedule_service.deactivate_schedule(
             schedule_id=schedule_1.id,
         )
+
         schedule_service.uow.schedules.get_by_id.assert_awaited_once_with(
             schedule_id=schedule_1.id,
         )
+
         schedule_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_awaited_once_with(
             doctor_id=schedule_1.doctor_id,
             status=SlotStatus.BOOKED,
+            weekday=schedule_1.weekday,
         )
+
         schedule_service.uow.schedule_slots.get_slots_after_date.assert_awaited_once_with(
             doctor_id=schedule_1.doctor_id,
             day=date.today(),
             schedule_id=schedule_1.id,
         )
+
         schedule_service.uow.schedule_slots.delete_slot.assert_has_awaits(
             [
                 call(slot=schedule_slot_1),
                 call(slot=schedule_slot_2),
             ]
         )
-        schedule_service.uow.schedules.delete_schedule.assert_awaited_once_with(
+
+        schedule_service.uow.schedules.make_schedule_unactive.assert_awaited_once_with(
             schedule=schedule_1,
         )
+
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_delete_schedule_not_found(
+    async def test_deactivate_schedule_schedule_not_found(
         self,
         schedule_service,
     ):
@@ -409,21 +431,24 @@ class TestScheduleService:
         )
         schedule_service.uow.schedule_slots.get_slots_after_date = AsyncMock()
         schedule_service.uow.schedule_slots.delete_slot = AsyncMock()
-        schedule_service.uow.schedules.delete_schedule = AsyncMock()
+        schedule_service.uow.schedules.make_schedule_unactive = AsyncMock()
+
         with pytest.raises(ScheduleNotFoundException):
-            await schedule_service.delete(
+            await schedule_service.deactivate_schedule(
                 schedule_id=1,
             )
+
         schedule_service.uow.schedules.get_by_id.assert_awaited_once_with(
             schedule_id=1,
         )
+
         schedule_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_not_awaited()
         schedule_service.uow.schedule_slots.get_slots_after_date.assert_not_awaited()
         schedule_service.uow.schedule_slots.delete_slot.assert_not_awaited()
-        schedule_service.uow.schedules.delete_schedule.assert_not_awaited()
+        schedule_service.uow.schedules.make_schedule_unactive.assert_not_awaited()
 
     @pytest.mark.asyncio
-    async def test_delete_schedule_can_not_be_deleted(
+    async def test_deactivate_schedule_can_not_be_deleted(
         self,
         schedule_service,
         schedule_1,
@@ -435,18 +460,23 @@ class TestScheduleService:
         )
         schedule_service.uow.schedule_slots.get_slots_after_date = AsyncMock()
         schedule_service.uow.schedule_slots.delete_slot = AsyncMock()
-        schedule_service.uow.schedules.delete_schedule = AsyncMock()
+        schedule_service.uow.schedules.make_schedule_unactive = AsyncMock()
+
         with pytest.raises(ScheduleCanNotBeDeletedException):
-            await schedule_service.delete(
+            await schedule_service.deactivate_schedule(
                 schedule_id=schedule_1.id,
             )
+
         schedule_service.uow.schedules.get_by_id.assert_awaited_once_with(
             schedule_id=schedule_1.id,
         )
+
         schedule_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_awaited_once_with(
             doctor_id=schedule_1.doctor_id,
             status=SlotStatus.BOOKED,
+            weekday=schedule_1.weekday,
         )
+
         schedule_service.uow.schedule_slots.get_slots_after_date.assert_not_awaited()
         schedule_service.uow.schedule_slots.delete_slot.assert_not_awaited()
-        schedule_service.uow.schedules.delete_schedule.assert_not_awaited()
+        schedule_service.uow.schedules.make_schedule_unactive.assert_not_awaited()

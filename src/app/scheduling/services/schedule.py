@@ -32,16 +32,36 @@ class ScheduleService:
             raise ScheduleNotFoundException()
         return ScheduleResponseSchema.model_validate(schedule)
 
-    async def get_schedule_by_id(self, schedule_id: int) -> ScheduleResponseSchema:
-        schedule = await self.uow.schedules.get_by_id(schedule_id=schedule_id)
+    async def get_schedule_by_doctor_id_and_weekday_for_admin(
+        self,
+        doctor_id: int,
+        weekday: Weekday,
+    ) -> list[ScheduleResponseSchema]:
+        schedules = await self.uow.schedules.get_by_doctor_id_and_weekday_for_admin(
+            doctor_id=doctor_id, weekday=weekday
+        )
+        if not schedules:
+            raise ScheduleNotFoundException()
+        return [
+            ScheduleResponseSchema.model_validate(schedule) for schedule in schedules
+        ]
+
+    async def get_schedule_by_id(
+        self, schedule_id: int, admin: bool | None = None
+    ) -> ScheduleResponseSchema:
+        schedule = await self.uow.schedules.get_by_id(
+            schedule_id=schedule_id, admin=admin
+        )
         if not schedule:
             raise ScheduleNotFoundException()
         return ScheduleResponseSchema.model_validate(schedule)
 
     async def get_all_schedule_by_doctor_id(
-        self, doctor_id: int
+        self, doctor_id: int, admin: bool | None = None
     ) -> list[ScheduleResponseSchema]:
-        schedules = await self.uow.schedules.get_all_by_doctor_id(doctor_id)
+        schedules = await self.uow.schedules.get_all_by_doctor_id(
+            doctor_id=doctor_id, admin=admin
+        )
         if not schedules:
             raise ScheduleNotFoundException()
         return [

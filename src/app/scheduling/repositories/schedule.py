@@ -29,11 +29,14 @@ class ScheduleRepository:
         await self.session.refresh(schedule)
         return schedule
 
-    async def get_by_id(self, schedule_id: int) -> Schedule | None:
+    async def get_by_id(
+        self, schedule_id: int, admin: bool | None = None
+    ) -> Schedule | None:
         stmt = select(Schedule).where(
             Schedule.id == schedule_id,
-            Schedule.is_active.is_(True),
         )
+        if not admin:
+            stmt = stmt.where(Schedule.is_active.is_(True))
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -48,6 +51,16 @@ class ScheduleRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_by_doctor_id_and_weekday_for_admin(
+        self, doctor_id: int, weekday: Weekday
+    ) -> list[Schedule]:
+        stmt = select(Schedule).where(
+            Schedule.doctor_id == doctor_id,
+            Schedule.weekday == weekday,
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def get_inactive_expired_schedules(self) -> list[Schedule]:
         threshold = datetime.now(UTC) - timedelta(days=settings.SLOT_RETENTION_DAYS)
         stmt = select(Schedule).where(
@@ -57,11 +70,14 @@ class ScheduleRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_all_by_doctor_id(self, doctor_id: int) -> list[Schedule] | None:
+    async def get_all_by_doctor_id(
+        self, doctor_id: int, admin: bool | None = None
+    ) -> list[Schedule] | None:
         stmt = select(Schedule).where(
             Schedule.doctor_id == doctor_id,
-            Schedule.is_active.is_(True),
         )
+        if not admin:
+            stmt = stmt.where(Schedule.is_active.is_(True))
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 

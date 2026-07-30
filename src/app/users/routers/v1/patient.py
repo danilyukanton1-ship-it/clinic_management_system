@@ -48,6 +48,27 @@ async def get_patient_by_id(
 
 
 @router.get(
+    path="/admin/id/{patient_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=PatientResponseSchema,
+)
+async def get_patient_by_id_for_admin(
+    patient_id: ID,
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
+) -> PatientResponseSchema:
+    check_role(
+        current_user,
+        UserRole.ADMIN,
+    )
+    return await user_service.get_patient_by_id(
+        patient_id=patient_id,
+        current_user=current_user,
+        admin=True,
+    )
+
+
+@router.get(
     path="/email/{patient_email}",
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,

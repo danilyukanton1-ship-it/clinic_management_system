@@ -63,11 +63,20 @@ class UserRepository:
         self,
         user_id: int,
         role: UserRole | None = None,
+        admin: bool | None = None,
     ) -> User | None:
-        stmt = select(User).where(User.id == user_id)
+        stmt = select(User).where(
+            User.id == user_id,
+        )
 
         if role is not None:
             stmt = stmt.where(User.role == role)
+
+        if not admin:
+            stmt = stmt.where(
+                User.is_verified.is_(True),
+                User.is_active.is_(True),
+            )
 
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
@@ -81,7 +90,6 @@ class UserRepository:
 
         if role is not None:
             stmt = stmt.where(User.role == role)
-
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -94,16 +102,21 @@ class UserRepository:
 
         if role is not None:
             stmt = stmt.where(User.role == role)
-
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def _get_all(self, role: UserRole) -> list[User]:
+    async def _get_all(self, role: UserRole, admin: bool | None = False) -> list[User]:
         stmt = select(User).where(
-            User.role == role, User.is_active.is_(True), User.is_verified.is_(True)
+            User.role == role,
         )
         if role == UserRole.DOCTOR:
             stmt = stmt.where(exists().where(Schedule.doctor_id == User.id))
+        if not admin:
+            stmt = stmt.where(
+                User.is_verified.is_(True),
+                User.is_active.is_(True),
+            )
+
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
@@ -156,11 +169,20 @@ class UserRepository:
     async def get_doctor_by_id(self, doctor_id: int) -> User | None:
         return await self._get_by_id(user_id=doctor_id, role=UserRole.DOCTOR)
 
-    async def get_patient_by_id(self, patient_id: int) -> User | None:
-        return await self._get_by_id(user_id=patient_id, role=UserRole.PATIENT)
+    async def get_doctor_by_id_for_admin(self, doctor_id: int) -> User | None:
+        return await self._get_by_id(
+            user_id=doctor_id, role=UserRole.DOCTOR, admin=True
+        )
+
+    async def get_patient_by_id(
+        self, patient_id: int, admin: bool | None = None
+    ) -> User | None:
+        return await self._get_by_id(
+            user_id=patient_id, role=UserRole.PATIENT, admin=admin
+        )
 
     async def get_admin_by_id(self, admin_id: int) -> User | None:
-        return await self._get_by_id(user_id=admin_id, role=UserRole.ADMIN)
+        return await self._get_by_id(user_id=admin_id, role=UserRole.ADMIN, admin=True)
 
     async def get_user_by_id(self, user_id: int) -> User | None:
         return await self._get_by_id(user_id=user_id)
@@ -180,28 +202,35 @@ class UserRepository:
     async def get_patient_by_phone(self, phone: str) -> User | None:
         return await self._get_by_phone(phone=phone, role=UserRole.PATIENT)
 
-    async def get_doctor_by_phone(self, phone: str) -> User | None:
-        return await self._get_by_phone(phone=phone, role=UserRole.DOCTOR)
-
     async def get_all_doctors(self) -> list[User]:
         return await self._get_all(role=UserRole.DOCTOR)
 
+    async def get_all_doctors_for_admin(self) -> list[User]:
+        return await self._get_all(role=UserRole.DOCTOR, admin=True)
+
     async def get_all_patients(self) -> list[User]:
-        return await self._get_all(role=UserRole.PATIENT)
+        return await self._get_all(role=UserRole.PATIENT, admin=True)
 
     async def get_all_admins(self) -> list[User]:
-        return await self._get_all(role=UserRole.ADMIN)
+        return await self._get_all(
+            role=UserRole.ADMIN,
+            admin=True,
+        )
 
     async def get_doctors_by_specialization_id(
-        self, specialization_id: int
+        self, specialization_id: int, admin: bool | None = None
     ) -> list[User]:
         stmt = select(User).where(
             User.specialization_id == specialization_id,
             User.role == UserRole.DOCTOR,
-            User.is_verified.is_(True),
-            User.is_active.is_(True),
             exists().where(Schedule.doctor_id == User.id),
         )
+        if not admin:
+            stmt = stmt.where(
+                User.is_verified.is_(True),
+                User.is_active.is_(True),
+            )
+
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 

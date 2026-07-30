@@ -85,8 +85,10 @@ class UserService:
             raise UserNotFoundException()
         return doctor
 
-    async def _get_patient(self, patient_id: int) -> User:
-        patient = await self.uow.users.get_patient_by_id(patient_id=patient_id)
+    async def _get_patient(self, patient_id: int, admin: bool | None = None) -> User:
+        patient = await self.uow.users.get_patient_by_id(
+            patient_id=patient_id, admin=admin
+        )
         if not patient:
             raise UserNotFoundException()
         return patient
@@ -144,8 +146,12 @@ class UserService:
         doctors = await self.uow.users.get_all_doctors()
         return [DoctorResponseSchema.model_validate(doctor) for doctor in doctors]
 
+    async def get_all_doctors_for_admin(self) -> list[DoctorResponseSchema]:
+        doctors = await self.uow.users.get_all_doctors_for_admin()
+        return [DoctorResponseSchema.model_validate(doctor) for doctor in doctors]
+
     async def get_doctors_by_specialization_id(
-        self, specialization_id: int
+        self, specialization_id: int, admin: bool | None = None
     ) -> list[DoctorResponseSchema]:
         specialization = await self.uow.specializations.get_specialization_by_id(
             specialization_id=specialization_id
@@ -153,7 +159,7 @@ class UserService:
         if not specialization:
             raise SpecializationNotFoundException()
         doctors = await self.uow.users.get_doctors_by_specialization_id(
-            specialization_id=specialization_id
+            specialization_id=specialization_id, admin=admin
         )
         return [DoctorResponseSchema.model_validate(doctor) for doctor in doctors]
 
@@ -161,12 +167,20 @@ class UserService:
         patients = await self.uow.users.get_all_patients()
         return [PatientResponseSchema.model_validate(patient) for patient in patients]
 
+    async def get_all_admins(self) -> list[User]:
+        admins = await self.uow.users.get_all_admins()
+        return [AdminResponseSchema.model_validate(admin) for admin in admins]
+
     async def get_doctor_by_id(self, doctor_id: int) -> DoctorResponseSchema:
         doctor = await self._get_doctor(doctor_id=doctor_id)
-        if not doctor.is_verified or not doctor.is_active:
-            raise UserNotFoundException()
         schedule = await self.uow.schedules.get_all_by_doctor_id(doctor_id=doctor_id)
         if not schedule:
+            raise UserNotFoundException()
+        return DoctorResponseSchema.model_validate(doctor)
+
+    async def get_doctor_by_id_for_admin(self, doctor_id: int) -> DoctorResponseSchema:
+        doctor = await self.uow.users.get_doctor_by_id_for_admin(doctor_id=doctor_id)
+        if not doctor:
             raise UserNotFoundException()
         return DoctorResponseSchema.model_validate(doctor)
 
@@ -175,9 +189,9 @@ class UserService:
         return AdminResponseSchema.model_validate(admin)
 
     async def get_patient_by_id(
-        self, patient_id: int, current_user: User
+        self, patient_id: int, current_user: User, admin: bool | None = None
     ) -> PatientResponseSchema:
-        patient = await self._get_patient(patient_id=patient_id)
+        patient = await self._get_patient(patient_id=patient_id, admin=admin)
         self.policy.can_view(
             current_user=current_user,
             target_user=patient,

@@ -53,6 +53,22 @@ async def get_admin(
     return await user_service.get_admin_by_id(admin_id=admin_id)
 
 
+@router.get(
+    path="/all",
+    status_code=status.HTTP_200_OK,
+    response_model=list[AdminResponseSchema],
+)
+async def get_all(
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
+):
+    check_role(
+        current_user,
+        UserRole.ADMIN,
+    )
+    return await user_service.get_all_admins()
+
+
 @router.put(
     path="/{admin_id}",
     status_code=status.HTTP_202_ACCEPTED,

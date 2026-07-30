@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, status
+
+from app.users.schemas.specialization import SpecializationResponseSchema
 from common.types import Email, ID
 from app.users.dependencies import get_user_service
 
@@ -31,6 +33,19 @@ async def get_doctors(
     return doctors
 
 
+@router.get(
+    path="/admin/all",
+    status_code=status.HTTP_200_OK,
+    response_model=list[DoctorResponseSchema],
+)
+async def get_doctors_for_admin(
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
+):
+    check_role(current_user, UserRole.ADMIN)
+    return await user_service.get_all_doctors_for_admin()
+
+
 @router.post(
     path="",
     status_code=status.HTTP_201_CREATED,
@@ -43,6 +58,25 @@ async def create_doctor(
 ) -> DoctorResponseSchema:
     check_role(current_user, UserRole.ADMIN)
     return await user_service.create_doctor(data=data)
+
+
+@router.get(
+    path="/admin/id/{doctor_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=DoctorResponseSchema,
+)
+async def get_doctor_by_id_for_admin(
+    doctor_id: ID,
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
+) -> DoctorResponseSchema:
+    check_role(
+        current_user,
+        UserRole.ADMIN,
+    )
+    return await user_service.get_doctor_by_id_for_admin(
+        doctor_id=doctor_id,
+    )
 
 
 @router.get(
@@ -86,6 +120,22 @@ async def get_by_specialization_id(
 ):
     return await user_service.get_doctors_by_specialization_id(
         specialization_id=specialization_id
+    )
+
+
+@router.get(
+    path="/admin/specialization/{specialization_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=list[DoctorResponseSchema],
+)
+async def get_by_specialization_id_for_admin(
+    specialization_id: ID,
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
+):
+    check_role(current_user, UserRole.ADMIN)
+    return await user_service.get_doctors_by_specialization_id(
+        specialization_id=specialization_id, admin=True
     )
 
 

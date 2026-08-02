@@ -6,7 +6,7 @@ from app.medical_records.exceptions.drug import (
     DrugNotFoundException,
 )
 from app.medical_records.schemas.drug import DrugResponseSchema
-
+from common.pagination.schemas import PaginationResult
 
 class TestDrugService:
 
@@ -101,26 +101,62 @@ class TestDrugService:
 
     @pytest.mark.asyncio
     async def test_get_all_success(
-        self,
-        drug_service,
-        drug_1,
+            self,
+            drug_service,
+            drug_1,
+            pagination,
     ):
-        drug_service.uow.drugs.get_all_drugs = AsyncMock(return_value=[drug_1])
-        result = await drug_service.get_all()
-        drug_service.uow.drugs.get_all_drugs.assert_awaited_once()
-        assert len(result) == 1
-        assert isinstance(result[0], DrugResponseSchema)
-        assert result[0].id == drug_1.id
-        assert result[0].name == drug_1.name
+        drug_service.uow.drugs.get_all_drugs = AsyncMock(
+            return_value=PaginationResult(
+                items=[drug_1],
+                total=1,
+            )
+        )
+
+        result = await drug_service.get_all(
+            pagination=pagination,
+        )
+
+        drug_service.uow.drugs.get_all_drugs.assert_awaited_once_with(
+            pagination=pagination,
+        )
+
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert isinstance(result.items[0], DrugResponseSchema)
+        assert result.items[0].id == drug_1.id
+        assert result.items[0].name == drug_1.name
 
     @pytest.mark.asyncio
     async def test_get_all_not_found(
-        self,
-        drug_service,
+            self,
+            drug_service,
+            pagination,
     ):
-        drug_service.uow.drugs.get_all_drugs = AsyncMock(return_value=[])
-        with pytest.raises(DrugNotFoundException):
-            await drug_service.get_all()
+        drug_service.uow.drugs.get_all_drugs = AsyncMock(
+            return_value=PaginationResult(
+                items=[],
+                total=0,
+            )
+        )
+
+        result = await drug_service.get_all(
+            pagination=pagination,
+        )
+
+        drug_service.uow.drugs.get_all_drugs.assert_awaited_once_with(
+            pagination=pagination,
+        )
+
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0
+        assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_by_name_success(

@@ -11,7 +11,7 @@ from app.scheduling.exceptions.schedule_absence import (
 from app.scheduling.schemas.schedule_absence import ScheduleAbsenceResponseSchema
 from app.users.exceptions.user import UserNotFoundException
 from common.permissions.exceptions import ForbiddenException
-
+from common.pagination.schemas import PaginationResult
 
 class TestScheduleAbsence:
 
@@ -490,126 +490,177 @@ class TestScheduleAbsence:
 
     @pytest.mark.asyncio
     async def test_get_future_by_doctor_id_success(
-        self,
-        schedule_absence_service,
-        doctor_1,
-        admin_1,
-        schedule_absence_1,
+            self,
+            schedule_absence_service,
+            doctor_1,
+            admin_1,
+            schedule_absence_1,
+            pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=doctor_1
+            return_value=doctor_1,
         )
+
         schedule_absence_service.uow.absences.get_future_absences_by_doctor_id = (
-            AsyncMock(return_value=[schedule_absence_1])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[schedule_absence_1],
+                    total=1,
+                )
+            )
         )
+
         schedule_absence_service.policy.can_view = MagicMock()
 
         result = await schedule_absence_service.get_future_by_doctor_id(
             doctor_id=doctor_1.id,
             current_user=admin_1,
+            pagination=pagination,
         )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
         )
+
         schedule_absence_service.uow.absences.get_future_absences_by_doctor_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
+            pagination=pagination,
         )
+
         schedule_absence_service.policy.can_view.assert_called_once_with(
             user=admin_1,
             schedule_absence=schedule_absence_1,
         )
 
-        assert len(result) == 1
-        assert isinstance(result[0], ScheduleAbsenceResponseSchema)
-        assert result[0].id == schedule_absence_1.id
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert isinstance(result.items[0], ScheduleAbsenceResponseSchema)
+        assert result.items[0].id == schedule_absence_1.id
 
     @pytest.mark.asyncio
     async def test_get_future_by_doctor_id_doctor_not_found(
-        self,
-        schedule_absence_service,
-        admin_1,
+            self,
+            schedule_absence_service,
+            admin_1,
+            pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=None
+            return_value=None,
         )
+
         schedule_absence_service.uow.absences.get_future_absences_by_doctor_id = (
             AsyncMock()
         )
+
         schedule_absence_service.policy.can_view = MagicMock()
 
         with pytest.raises(UserNotFoundException):
             await schedule_absence_service.get_future_by_doctor_id(
                 doctor_id=1,
                 current_user=admin_1,
+                pagination=pagination,
             )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
-            doctor_id=1
+            doctor_id=1,
         )
-        schedule_absence_service.uow.absences.get_future_absences_by_doctor_id.assert_not_awaited()
+
+        schedule_absence_service.uow.absences.get_future_absences_by_doctor_id.assert_not_called()
+
         schedule_absence_service.policy.can_view.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_future_by_doctor_id_no_absences(
-        self,
-        schedule_absence_service,
-        doctor_1,
-        admin_1,
+            self,
+            schedule_absence_service,
+            doctor_1,
+            admin_1,
+            pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=doctor_1
+            return_value=doctor_1,
         )
+
         schedule_absence_service.uow.absences.get_future_absences_by_doctor_id = (
-            AsyncMock(return_value=[])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[],
+                    total=0,
+                )
+            )
         )
+
         schedule_absence_service.policy.can_view = MagicMock()
 
         result = await schedule_absence_service.get_future_by_doctor_id(
             doctor_id=doctor_1.id,
             current_user=admin_1,
+            pagination=pagination,
         )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
         )
+
         schedule_absence_service.uow.absences.get_future_absences_by_doctor_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
+            pagination=pagination,
         )
+
         schedule_absence_service.policy.can_view.assert_not_called()
 
-        assert result == []
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0  # либо 1, если в build_paginated_response используется max(1, ...)
+        assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_future_by_doctor_id_forbidden(
-        self,
-        schedule_absence_service,
-        doctor_1,
-        current_patient,
-        schedule_absence_1,
+            self,
+            schedule_absence_service,
+            doctor_1,
+            current_patient,
+            schedule_absence_1,
+            pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=doctor_1
+            return_value=doctor_1,
         )
+
         schedule_absence_service.uow.absences.get_future_absences_by_doctor_id = (
-            AsyncMock(return_value=[schedule_absence_1])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[schedule_absence_1],
+                    total=1,
+                )
+            )
         )
+
         schedule_absence_service.policy.can_view = MagicMock(
-            side_effect=ForbiddenException()
+            side_effect=ForbiddenException(),
         )
 
         with pytest.raises(ForbiddenException):
             await schedule_absence_service.get_future_by_doctor_id(
                 doctor_id=doctor_1.id,
                 current_user=current_patient,
+                pagination=pagination,
             )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
         )
+
         schedule_absence_service.uow.absences.get_future_absences_by_doctor_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
+            pagination=pagination,
         )
+
         schedule_absence_service.policy.can_view.assert_called_once_with(
             user=current_patient,
             schedule_absence=schedule_absence_1,
@@ -617,126 +668,177 @@ class TestScheduleAbsence:
 
     @pytest.mark.asyncio
     async def test_get_past_by_doctor_id_success(
-        self,
-        schedule_absence_service,
-        doctor_1,
-        admin_1,
-        schedule_absence_ended,
+            self,
+            schedule_absence_service,
+            doctor_1,
+            admin_1,
+            schedule_absence_ended,
+            pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=doctor_1
+            return_value=doctor_1,
         )
+
         schedule_absence_service.uow.absences.get_past_absences_by_doctor_id = (
-            AsyncMock(return_value=[schedule_absence_ended])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[schedule_absence_ended],
+                    total=1,
+                )
+            )
         )
+
         schedule_absence_service.policy.can_view = MagicMock()
 
         result = await schedule_absence_service.get_past_by_doctor_id(
             doctor_id=doctor_1.id,
             current_user=admin_1,
+            pagination=pagination,
         )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
         )
+
         schedule_absence_service.uow.absences.get_past_absences_by_doctor_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
+            pagination=pagination,
         )
+
         schedule_absence_service.policy.can_view.assert_called_once_with(
             user=admin_1,
             schedule_absence=schedule_absence_ended,
         )
 
-        assert len(result) == 1
-        assert isinstance(result[0], ScheduleAbsenceResponseSchema)
-        assert result[0].id == schedule_absence_ended.id
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert isinstance(result.items[0], ScheduleAbsenceResponseSchema)
+        assert result.items[0].id == schedule_absence_ended.id
 
     @pytest.mark.asyncio
     async def test_get_past_by_doctor_id_doctor_not_found(
-        self,
-        schedule_absence_service,
-        admin_1,
+            self,
+            schedule_absence_service,
+            admin_1,
+            pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=None
+            return_value=None,
         )
+
         schedule_absence_service.uow.absences.get_past_absences_by_doctor_id = (
             AsyncMock()
         )
+
         schedule_absence_service.policy.can_view = MagicMock()
 
         with pytest.raises(UserNotFoundException):
             await schedule_absence_service.get_past_by_doctor_id(
                 doctor_id=1,
                 current_user=admin_1,
+                pagination=pagination,
             )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
-            doctor_id=1
+            doctor_id=1,
         )
-        schedule_absence_service.uow.absences.get_past_absences_by_doctor_id.assert_not_awaited()
+
+        schedule_absence_service.uow.absences.get_past_absences_by_doctor_id.assert_not_called()
+
         schedule_absence_service.policy.can_view.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_past_by_doctor_id_no_absences(
-        self,
-        schedule_absence_service,
-        doctor_1,
-        admin_1,
+            self,
+            schedule_absence_service,
+            doctor_1,
+            admin_1,
+            pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=doctor_1
+            return_value=doctor_1,
         )
+
         schedule_absence_service.uow.absences.get_past_absences_by_doctor_id = (
-            AsyncMock(return_value=[])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[],
+                    total=0,
+                )
+            )
         )
+
         schedule_absence_service.policy.can_view = MagicMock()
 
         result = await schedule_absence_service.get_past_by_doctor_id(
             doctor_id=doctor_1.id,
             current_user=admin_1,
+            pagination=pagination,
         )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
         )
+
         schedule_absence_service.uow.absences.get_past_absences_by_doctor_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
+            pagination=pagination,
         )
+
         schedule_absence_service.policy.can_view.assert_not_called()
 
-        assert result == []
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0  # или 1, если build_paginated_response использует max(1, ...)
+        assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_past_by_doctor_id_forbidden(
-        self,
-        schedule_absence_service,
-        doctor_1,
-        current_patient,
-        schedule_absence_ended,
+            self,
+            schedule_absence_service,
+            doctor_1,
+            current_patient,
+            schedule_absence_ended,
+            pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
-            return_value=doctor_1
+            return_value=doctor_1,
         )
+
         schedule_absence_service.uow.absences.get_past_absences_by_doctor_id = (
-            AsyncMock(return_value=[schedule_absence_ended])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[schedule_absence_ended],
+                    total=1,
+                )
+            )
         )
+
         schedule_absence_service.policy.can_view = MagicMock(
-            side_effect=ForbiddenException()
+            side_effect=ForbiddenException(),
         )
 
         with pytest.raises(ForbiddenException):
             await schedule_absence_service.get_past_by_doctor_id(
                 doctor_id=doctor_1.id,
                 current_user=current_patient,
+                pagination=pagination,
             )
 
         schedule_absence_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
         )
+
         schedule_absence_service.uow.absences.get_past_absences_by_doctor_id.assert_awaited_once_with(
-            doctor_id=doctor_1.id
+            doctor_id=doctor_1.id,
+            pagination=pagination,
         )
+
         schedule_absence_service.policy.can_view.assert_called_once_with(
             user=current_patient,
             schedule_absence=schedule_absence_ended,

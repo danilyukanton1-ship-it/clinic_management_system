@@ -13,7 +13,7 @@ from app.users.schemas.user import (
     PatientResponseSchema,
 )
 from common.permissions.exceptions import ForbiddenException
-
+from common.pagination.schemas import PaginationResult
 
 class TestUserService:
 
@@ -465,23 +465,36 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_all_doctors_success(
-        self,
-        user_service,
-        doctor_1,
-        doctor_2,
+            self,
+            user_service,
+            doctor_1,
+            doctor_2,
+            pagination,
     ):
         user_service.uow.users.get_all_doctors = AsyncMock(
-            return_value=[doctor_1, doctor_2],
+            return_value=PaginationResult(
+                items=[doctor_1, doctor_2],
+                total=2,
+            )
         )
 
-        result = await user_service.get_all_doctors()
+        result = await user_service.get_all_doctors(
+            pagination=pagination,
+        )
 
-        assert result == [
+        user_service.uow.users.get_all_doctors.assert_awaited_once_with(
+            pagination=pagination,
+        )
+
+        assert result.total == 2
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert result.items == [
             DoctorResponseSchema.model_validate(doctor_1),
             DoctorResponseSchema.model_validate(doctor_2),
         ]
-
-        user_service.uow.users.get_all_doctors.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_get_doctors_by_specialization_id_success(
@@ -519,23 +532,36 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_all_patients_success(
-        self,
-        user_service,
-        patient_1,
-        patient_2,
+            self,
+            user_service,
+            patient_1,
+            patient_2,
+            pagination,
     ):
         user_service.uow.users.get_all_patients = AsyncMock(
-            return_value=[patient_1, patient_2],
+            return_value=PaginationResult(
+                items=[patient_1, patient_2],
+                total=2,
+            )
         )
 
-        result = await user_service.get_all_patients()
+        result = await user_service.get_all_patients(
+            pagination=pagination,
+        )
 
-        assert result == [
+        user_service.uow.users.get_all_patients.assert_awaited_once_with(
+            pagination=pagination,
+        )
+
+        assert result.total == 2
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert result.items == [
             PatientResponseSchema.model_validate(patient_1),
             PatientResponseSchema.model_validate(patient_2),
         ]
-
-        user_service.uow.users.get_all_patients.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_get_doctor_by_id_success(
@@ -1586,43 +1612,69 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_all_doctors_for_admin_success(
-        self,
-        user_service,
-        doctor_1,
-        doctor_2,
+            self,
+            user_service,
+            doctor_1,
+            doctor_2,
+            pagination,
     ):
         user_service.uow.users.get_all_doctors_for_admin = AsyncMock(
-            return_value=[doctor_1, doctor_2],
+            return_value=PaginationResult(
+                items=[doctor_1, doctor_2],
+                total=2,
+            )
         )
 
-        result = await user_service.get_all_doctors_for_admin()
+        result = await user_service.get_all_doctors_for_admin(
+            pagination=pagination,
+        )
 
-        assert result == [
+        user_service.uow.users.get_all_doctors_for_admin.assert_awaited_once_with(
+            pagination=pagination,
+        )
+
+        assert result.total == 2
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert result.items == [
             DoctorResponseSchema.model_validate(doctor_1),
             DoctorResponseSchema.model_validate(doctor_2),
         ]
 
-        user_service.uow.users.get_all_doctors_for_admin.assert_awaited_once()
-
     @pytest.mark.asyncio
     async def test_get_all_admins_success(
-        self,
-        user_service,
-        admin_1,
-        admin_2,
+            self,
+            user_service,
+            admin_1,
+            admin_2,
+            pagination,
     ):
         user_service.uow.users.get_all_admins = AsyncMock(
-            return_value=[admin_1, admin_2],
+            return_value=PaginationResult(
+                items=[admin_1, admin_2],
+                total=2,
+            )
         )
 
-        result = await user_service.get_all_admins()
+        result = await user_service.get_all_admins(
+            pagination=pagination,
+        )
 
-        assert result == [
+        user_service.uow.users.get_all_admins.assert_awaited_once_with(
+            pagination=pagination,
+        )
+
+        assert result.total == 2
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert result.items == [
             AdminResponseSchema.model_validate(admin_1),
             AdminResponseSchema.model_validate(admin_2),
         ]
-
-        user_service.uow.users.get_all_admins.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_get_doctor_by_id_for_admin_success(

@@ -33,14 +33,15 @@ class PrescriptionItemService:
                 pagination=pagination
             )
         )
-        appointment = (
-            await self.uow.appointments.get_appointment_by_prescription_item_id(
-                prescription_item_id=prescription_items.items[0].id
+        if prescription_items.items:
+            appointment = (
+                await self.uow.appointments.get_appointment_by_prescription_item_id(
+                    prescription_item_id=prescription_items.items[0].id
+                )
             )
-        )
-        if not appointment:
-            raise AppointmentNotFoundException()
-        self.policy.can_view(user=current_user, appointment=appointment)
+            if not appointment:
+                raise AppointmentNotFoundException()
+            self.policy.can_view(user=current_user, appointment=appointment)
         return build_paginated_response(
             items=prescription_items.items,
             total=prescription_items.total,

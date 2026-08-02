@@ -12,6 +12,7 @@ from app.appointments.schemas.attachment import (
     AttachmentResponseSchema,
     AttachmentSchema,
 )
+from common.pagination.schemas import PaginationResult
 
 
 class TestAttachmentService:
@@ -322,86 +323,128 @@ class TestAttachmentService:
 
     @pytest.mark.asyncio
     async def test_get_by_appointment_id_success(
-        self,
-        attachment_service,
-        attachment_1,
+            self,
+            attachment_service,
+            attachment_1,
+            pagination,
     ):
         attachment_service.uow.attachments.get_attachments_by_appointment_id = (
-            AsyncMock(return_value=[attachment_1])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[attachment_1],
+                    total=1,
+                )
+            )
         )
 
         result = await attachment_service.get_by_appointment_id(
             appointment_id=1,
+            pagination=pagination,
         )
 
         attachment_service.uow.attachments.get_attachments_by_appointment_id.assert_awaited_once_with(
             appointment_id=1,
+            pagination=pagination,
         )
 
-        assert isinstance(result, list)
-        assert len(result) == 1
-        assert isinstance(result[0], AttachmentResponseSchema)
-        assert result[0].id == attachment_1.id
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert isinstance(result.items[0], AttachmentResponseSchema)
+        assert result.items[0].id == attachment_1.id
 
     @pytest.mark.asyncio
     async def test_get_by_appointment_id_not_found(
-        self,
-        attachment_service,
+            self,
+            attachment_service,
+            pagination,
     ):
         attachment_service.uow.attachments.get_attachments_by_appointment_id = (
-            AsyncMock(return_value=[])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[],
+                    total=0,
+                )
+            )
         )
 
         result = await attachment_service.get_by_appointment_id(
             appointment_id=1,
+            pagination=pagination,
         )
 
         attachment_service.uow.attachments.get_attachments_by_appointment_id.assert_awaited_once_with(
             appointment_id=1,
+            pagination=pagination,
         )
 
-        assert isinstance(result, list)
-        assert result == []
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0
+        assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_by_patient_id_success(
-        self,
-        attachment_service,
-        attachment_1,
+            self,
+            attachment_service,
+            attachment_1,
+            pagination,
     ):
         attachment_service.uow.attachments.get_attachments_by_patient_id = AsyncMock(
-            return_value=[attachment_1]
+            return_value=PaginationResult(
+                items=[attachment_1],
+                total=1,
+            )
         )
 
         result = await attachment_service.get_by_patient_id(
             patient_id=1,
+            pagination=pagination,
         )
 
         attachment_service.uow.attachments.get_attachments_by_patient_id.assert_awaited_once_with(
             patient_id=1,
+            pagination=pagination,
         )
 
-        assert isinstance(result, list)
-        assert len(result) == 1
-        assert isinstance(result[0], AttachmentResponseSchema)
-        assert result[0].id == attachment_1.id
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert isinstance(result.items[0], AttachmentResponseSchema)
+        assert result.items[0].id == attachment_1.id
 
     @pytest.mark.asyncio
     async def test_get_by_patient_id_not_found(
-        self,
-        attachment_service,
+            self,
+            attachment_service,
+            pagination,
     ):
         attachment_service.uow.attachments.get_attachments_by_patient_id = AsyncMock(
-            return_value=[]
+            return_value=PaginationResult(
+                items=[],
+                total=0,
+            )
         )
 
         result = await attachment_service.get_by_patient_id(
             patient_id=1,
+            pagination=pagination,
         )
 
         attachment_service.uow.attachments.get_attachments_by_patient_id.assert_awaited_once_with(
             patient_id=1,
+            pagination=pagination,
         )
 
-        assert isinstance(result, list)
-        assert result == []
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0  # или 1, если так реализован build_paginated_response
+        assert result.items == []

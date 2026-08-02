@@ -6,7 +6,7 @@ from app.users.exceptions.specialization import (
     SpecializationAlreadyExistsException,
 )
 from app.users.schemas.specialization import SpecializationResponseSchema
-
+from common.pagination.schemas import PaginationResult
 
 class TestSpecializationService:
 
@@ -102,23 +102,34 @@ class TestSpecializationService:
 
     @pytest.mark.asyncio
     async def test_get_all_success(
-        self,
-        specialization_service,
-        specialization,
-        specialization_updated,
+            self,
+            specialization_service,
+            specialization,
+            specialization_updated,
+            pagination,
     ):
-        specialization_service.uow.specializations.get_all_specializations = AsyncMock(
-            return_value=[
-                specialization,
-                specialization_updated,
-            ],
+        specialization_service.uow.specializations.get_all_specializations = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[
+                        specialization,
+                        specialization_updated,
+                    ],
+                    total=2,
+                )
+            )
         )
-
-        result = await specialization_service.get_all()
-
-        specialization_service.uow.specializations.get_all_specializations.assert_awaited_once()
-
-        assert result == [
+        result = await specialization_service.get_all(
+            pagination=pagination,
+        )
+        specialization_service.uow.specializations.get_all_specializations.assert_awaited_once_with(
+            pagination=pagination,
+        )
+        assert result.total == 2
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+        assert result.items == [
             SpecializationResponseSchema.model_validate(
                 specialization,
             ),
@@ -129,18 +140,29 @@ class TestSpecializationService:
 
     @pytest.mark.asyncio
     async def test_get_all_empty(
-        self,
-        specialization_service,
+            self,
+            specialization_service,
+            pagination,
     ):
-        specialization_service.uow.specializations.get_all_specializations = AsyncMock(
-            return_value=[],
+        specialization_service.uow.specializations.get_all_specializations = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[],
+                    total=0,
+                )
+            )
         )
-
-        result = await specialization_service.get_all()
-
-        specialization_service.uow.specializations.get_all_specializations.assert_awaited_once()
-
-        assert result == []
+        result = await specialization_service.get_all(
+            pagination=pagination,
+        )
+        specialization_service.uow.specializations.get_all_specializations.assert_awaited_once_with(
+            pagination=pagination,
+        )
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0  # либо 1, если build_paginated_response использует max(1, ...)
+        assert result.items == []
 
     @pytest.mark.asyncio
     async def test_create_success(

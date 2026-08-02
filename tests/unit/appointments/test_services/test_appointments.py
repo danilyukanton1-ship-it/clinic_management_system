@@ -10,7 +10,10 @@ from app.scheduling.exceptions.schedule_slot import (
 from app.users.exceptions.user import UserNotFoundException
 from common.enums.slot_status import SlotStatus
 from common.permissions.exceptions import ForbiddenException
-
+from common.pagination.schemas import (
+    PaginatedResponse,
+    PaginationResult,
+)
 
 class TestAppointmentService:
 
@@ -128,81 +131,154 @@ class TestAppointmentService:
 
     @pytest.mark.asyncio
     async def test_get_future_apps_by_user_id_success(
-        self, patient_1, appointment_service, appointment_patient_1
+            self,
+            patient_1,
+            appointment_service,
+            appointment_patient_1,
+            pagination,
     ):
-        appointment_service.uow.users.get_user_by_id = AsyncMock(return_value=patient_1)
+        appointment_service.uow.users.get_user_by_id = AsyncMock(
+            return_value=patient_1,
+        )
         appointment_service.uow.appointments.get_future_appointments_by_user_id = (
             AsyncMock(
-                return_value=[
-                    appointment_patient_1,
-                ]
+                return_value=PaginationResult(
+                    items=[appointment_patient_1],
+                    total=1,
+                )
             )
         )
         appointment_service.policy.can_view = MagicMock(return_value=True)
-        result = await appointment_service.get_future_apps_by_user_id(user_id=1)
-        appointment_service.uow.users.get_user_by_id.assert_called_once_with(user_id=1)
-        appointment_service.uow.appointments.get_future_appointments_by_user_id.assert_called_once_with(
-            user_id=1
+
+        result = await appointment_service.get_future_apps_by_user_id(
+            user_id=1,
+            pagination=pagination,
         )
+
+        appointment_service.uow.users.get_user_by_id.assert_awaited_once_with(
+            user_id=1,
+        )
+
+        appointment_service.uow.appointments.get_future_appointments_by_user_id.assert_awaited_once_with(
+            user_id=1,
+            pagination=pagination,
+        )
+
         appointment_service.policy.can_view.assert_called_once_with(
             user=patient_1,
             appointment=appointment_patient_1,
         )
-        assert isinstance(result, list)
-        assert isinstance(result[0], AppointmentResponseSchema)
+
+        assert isinstance(result, PaginatedResponse)
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert isinstance(result.items[0], AppointmentResponseSchema)
 
     @pytest.mark.asyncio
     async def test_get_future_apps_by_user_id_not_found(
-        self,
-        patient_1,
-        appointment_service,
+            self,
+            patient_1,
+            appointment_service,
+            pagination,
     ):
-        appointment_service.uow.users.get_user_by_id = AsyncMock(return_value=None)
+        appointment_service.uow.users.get_user_by_id = AsyncMock(
+            return_value=None,
+        )
+        appointment_service.uow.appointments.get_future_appointments_by_user_id = AsyncMock()
         with pytest.raises(UserNotFoundException):
-            await appointment_service.get_future_apps_by_user_id(user_id=1)
-        appointment_service.uow.users.get_user_by_id.assert_awaited_once_with(user_id=1)
-        appointment_service.uow.appointments.get_future_appointments_by_user_id.assert_not_called()
+            await appointment_service.get_future_apps_by_user_id(
+                user_id=1,
+                pagination=pagination,
+            )
+
+        appointment_service.uow.users.get_user_by_id.assert_awaited_once_with(
+            user_id=1,
+        )
+
+        appointment_service.uow.appointments.get_future_appointments_by_user_id.assert_not_awaited()
+
         appointment_service.policy.can_view.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_future_apps_by_user_id_apps_not_found(
-        self,
-        patient_1,
-        appointment_service,
+            self,
+            patient_1,
+            appointment_service,
+            pagination,
     ):
-        appointment_service.uow.users.get_user_by_id = AsyncMock(return_value=patient_1)
+        appointment_service.uow.users.get_user_by_id = AsyncMock(
+            return_value=patient_1,
+        )
+
         appointment_service.uow.appointments.get_future_appointments_by_user_id = (
-            AsyncMock(return_value=[])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[],
+                    total=0,
+                )
+            )
         )
-        result = await appointment_service.get_future_apps_by_user_id(1)
-        appointment_service.uow.users.get_user_by_id.assert_awaited_once_with(user_id=1)
+
+        result = await appointment_service.get_future_apps_by_user_id(
+            user_id=1,
+            pagination=pagination,
+        )
+
+        appointment_service.uow.users.get_user_by_id.assert_awaited_once_with(
+            user_id=1,
+        )
+
         appointment_service.uow.appointments.get_future_appointments_by_user_id.assert_awaited_once_with(
-            user_id=1
+            user_id=1,
+            pagination=pagination,
         )
+
         appointment_service.policy.can_view.assert_not_called()
-        assert isinstance(result, list)
-        assert len(result) == 0
+
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0
+        assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_future_apps_by_user_id_forbidden(
-        self,
-        patient_1,
-        appointment_service,
-        appointment_patient_1,
+            self,
+            patient_1,
+            appointment_service,
+            appointment_patient_1,
+            pagination,
     ):
-        appointment_service.uow.users.get_user_by_id = AsyncMock(return_value=patient_1)
+        appointment_service.uow.users.get_user_by_id = AsyncMock(
+            return_value=patient_1,
+        )
         appointment_service.uow.appointments.get_future_appointments_by_user_id = (
             AsyncMock(
-                return_value=[
-                    appointment_patient_1,
-                ]
+                return_value=PaginationResult(
+                    items=[appointment_patient_1],
+                    total=1,
+                )
             )
         )
         appointment_service.policy.can_view = MagicMock(
-            side_effect=ForbiddenException()
+            side_effect=ForbiddenException(),
         )
         with pytest.raises(ForbiddenException):
-            await appointment_service.get_future_apps_by_user_id(1)
+            await appointment_service.get_future_apps_by_user_id(
+                user_id=1,
+                pagination=pagination,
+            )
+        appointment_service.uow.users.get_user_by_id.assert_awaited_once_with(
+            user_id=1,
+        )
+        appointment_service.uow.appointments.get_future_appointments_by_user_id.assert_awaited_once_with(
+            user_id=1,
+            pagination=pagination,
+        )
         appointment_service.policy.can_view.assert_called_once_with(
             user=patient_1,
             appointment=appointment_patient_1,
@@ -210,51 +286,119 @@ class TestAppointmentService:
 
     @pytest.mark.asyncio
     async def test_get_past_apps_by_user_id_success(
-        self, patient_1, appointment_service, appointment_patient_1
+            self,
+            patient_1,
+            appointment_service,
+            appointment_patient_1,
+            pagination,
     ):
-        appointment_service.uow.users.get_user_by_id = AsyncMock(return_value=patient_1)
+        appointment_service.uow.users.get_user_by_id = AsyncMock(
+            return_value=patient_1,
+        )
+
         appointment_service.uow.appointments.get_past_appointments_by_user_id = (
-            AsyncMock(return_value=[appointment_patient_1])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[appointment_patient_1],
+                    total=1,
+                )
+            )
         )
+
         appointment_service.policy.can_view = MagicMock()
-        result = await appointment_service.get_past_apps_by_user_id(user_id=1)
-        appointment_service.uow.users.get_user_by_id.assert_awaited_once_with(user_id=1)
-        appointment_service.uow.appointments.get_past_appointments_by_user_id.assert_awaited_once_with(
-            user_id=1
+
+        result = await appointment_service.get_past_apps_by_user_id(
+            user_id=1,
+            pagination=pagination,
         )
+
+        appointment_service.uow.users.get_user_by_id.assert_awaited_once_with(
+            user_id=1,
+        )
+
+        appointment_service.uow.appointments.get_past_appointments_by_user_id.assert_awaited_once_with(
+            user_id=1,
+            pagination=pagination,
+        )
+
         appointment_service.policy.can_view.assert_called_once_with(
             user=patient_1,
             appointment=appointment_patient_1,
         )
-        assert len(result) == 1
-        assert isinstance(result[0], AppointmentResponseSchema)
+
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert isinstance(result.items[0], AppointmentResponseSchema)
 
     @pytest.mark.asyncio
     async def test_get_past_apps_by_user_id_not_found(
-        self,
-        patient_1,
-        appointment_service,
+            self,
+            patient_1,
+            appointment_service,
+            pagination,
     ):
-        appointment_service.uow.users.get_user_by_id = AsyncMock(return_value=None)
+        appointment_service.uow.users.get_user_by_id = AsyncMock(
+            return_value=None,
+        )
+        appointment_service.uow.appointments.get_past_appointments_by_user_id = AsyncMock()
         with pytest.raises(UserNotFoundException):
-            await appointment_service.get_past_apps_by_user_id(1)
+            await appointment_service.get_past_apps_by_user_id(
+                user_id=1,
+                pagination=pagination,
+            )
 
-        appointment_service.uow.appointments.get_past_appointments_by_user_id.assert_not_called()
+        appointment_service.uow.users.get_user_by_id.assert_awaited_once_with(
+            user_id=1,
+        )
+
+        appointment_service.uow.appointments.get_past_appointments_by_user_id.assert_not_awaited()
+
         appointment_service.policy.can_view.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_past_apps_by_user_id_forbidden(
-        self, patient_1, appointment_service, appointment_patient_1
+            self,
+            patient_1,
+            appointment_service,
+            appointment_patient_1,
+            pagination,
     ):
-        appointment_service.uow.users.get_user_by_id = AsyncMock(return_value=patient_1)
+        appointment_service.uow.users.get_user_by_id = AsyncMock(
+            return_value=patient_1,
+        )
+
         appointment_service.uow.appointments.get_past_appointments_by_user_id = (
-            AsyncMock(return_value=[appointment_patient_1])
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[appointment_patient_1],
+                    total=1,
+                )
+            )
         )
+
         appointment_service.policy.can_view = MagicMock(
-            side_effect=ForbiddenException()
+            side_effect=ForbiddenException(),
         )
+
         with pytest.raises(ForbiddenException):
-            await appointment_service.get_past_apps_by_user_id(1)
+            await appointment_service.get_past_apps_by_user_id(
+                user_id=1,
+                pagination=pagination,
+            )
+
+        appointment_service.uow.users.get_user_by_id.assert_awaited_once_with(
+            user_id=1,
+        )
+
+        appointment_service.uow.appointments.get_past_appointments_by_user_id.assert_awaited_once_with(
+            user_id=1,
+            pagination=pagination,
+        )
+
         appointment_service.policy.can_view.assert_called_once_with(
             user=patient_1,
             appointment=appointment_patient_1,

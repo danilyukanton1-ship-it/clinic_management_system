@@ -6,7 +6,7 @@ from app.medical_records.exceptions.disease import (
     DiseaseNotFoundException,
 )
 from app.medical_records.schemas.disease import DiseaseResponseSchema
-
+from common.pagination.schemas import PaginationResult
 
 class TestDiseaseService:
 
@@ -156,28 +156,62 @@ class TestDiseaseService:
 
     @pytest.mark.asyncio
     async def test_get_all_success(
-        self,
-        disease_service,
-        disease_1,
+            self,
+            disease_service,
+            disease_1,
+            pagination,
     ):
         disease_service.uow.diseases.get_all_diseases = AsyncMock(
-            return_value=[disease_1]
+            return_value=PaginationResult(
+                items=[disease_1],
+                total=1,
+            )
         )
-        result = await disease_service.get_all()
-        disease_service.uow.diseases.get_all_diseases.assert_awaited_once()
-        assert len(result) == 1
-        assert isinstance(result[0], DiseaseResponseSchema)
-        assert result[0].id == disease_1.id
-        assert result[0].code == disease_1.code
+
+        result = await disease_service.get_all(
+            pagination=pagination,
+        )
+
+        disease_service.uow.diseases.get_all_diseases.assert_awaited_once_with(
+            pagination=pagination,
+        )
+
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert isinstance(result.items[0], DiseaseResponseSchema)
+        assert result.items[0].id == disease_1.id
+        assert result.items[0].code == disease_1.code
 
     @pytest.mark.asyncio
     async def test_get_all_not_found(
-        self,
-        disease_service,
+            self,
+            disease_service,
+            pagination,
     ):
-        disease_service.uow.diseases.get_all_diseases = AsyncMock(return_value=[])
-        with pytest.raises(DiseaseNotFoundException):
-            await disease_service.get_all()
+        disease_service.uow.diseases.get_all_diseases = AsyncMock(
+            return_value=PaginationResult(
+                items=[],
+                total=0,
+            )
+        )
+
+        result = await disease_service.get_all(
+            pagination=pagination,
+        )
+
+        disease_service.uow.diseases.get_all_diseases.assert_awaited_once_with(
+            pagination=pagination,
+        )
+
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0
+        assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_by_code_success(

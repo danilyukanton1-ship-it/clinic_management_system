@@ -10,7 +10,7 @@ from app.medical_records.exceptions.disease import DiseaseNotFoundException
 from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
 from app.medical_records.schemas.diagnosis import DiagnosisResponseSchema
 from common.permissions.exceptions import ForbiddenException
-
+from common.pagination.schemas import PaginationResult
 
 class TestDiagnosisService:
 
@@ -131,7 +131,7 @@ class TestDiagnosisService:
             data=diagnosis_update_schema,
         )
 
-        assert result == diagnosis
+        assert result == DiagnosisResponseSchema.model_validate(diagnosis)
 
     @pytest.mark.asyncio
     async def test_update_diagnosis_not_found(
@@ -417,7 +417,7 @@ class TestDiagnosisService:
             user=patient_1,
             appointment=appointment_patient_1,
         )
-        assert result == diagnosis
+        assert result == DiagnosisResponseSchema.model_validate(diagnosis)
 
     @pytest.mark.asyncio
     async def test_get_by_id_not_found(
@@ -481,124 +481,175 @@ class TestDiagnosisService:
         )
 
     @pytest.mark.asyncio
-    async def test_get_all_success(
-        self,
-        diagnosis_service,
-        diagnosis,
-    ):
-        diagnosis_service.uow.diagnoses.get_all_diagnoses = AsyncMock(
-            return_value=[diagnosis]
-        )
-        result = await diagnosis_service.get_all()
-        assert result == [diagnosis]
-
-    @pytest.mark.asyncio
-    async def test_get_all_not_found(
-        self,
-        diagnosis_service,
-    ):
-        diagnosis_service.uow.diagnoses.get_all_diagnoses = AsyncMock(return_value=[])
-        with pytest.raises(DiagnosisNotFoundException):
-            await diagnosis_service.get_all()
-
-    @pytest.mark.asyncio
     async def test_get_by_prescription_id_success(
-        self,
-        diagnosis_service,
-        diagnosis,
-        patient_1,
-        appointment_patient_1,
-    ):
-        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id = AsyncMock(
-            return_value=[diagnosis]
-        )
-        diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id = AsyncMock(
-            return_value=appointment_patient_1
-        )
-        diagnosis_service.policy.can_view = MagicMock()
-        result = await diagnosis_service.get_by_prescription_id(
-            1,
+            self,
+            diagnosis_service,
+            diagnosis,
             patient_1,
-        )
-        assert result == [diagnosis]
-
-    @pytest.mark.asyncio
-    async def test_get_by_prescription_id_not_found(
-        self,
-        diagnosis_service,
-        patient_1,
+            appointment_patient_1,
+            pagination,
     ):
-        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id = AsyncMock(
-            return_value=[]
+        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[diagnosis],
+                    total=1,
+                )
+            )
         )
 
-        with pytest.raises(DiagnosisNotFoundException):
-            await diagnosis_service.get_by_prescription_id(
-                1,
-                patient_1,
-            )
+        diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id = AsyncMock(
+            return_value=appointment_patient_1,
+        )
+
+        diagnosis_service.policy.can_view = MagicMock()
+
+        result = await diagnosis_service.get_by_prescription_id(
+            prescription_id=1,
+            pagination=pagination,
+            current_user=patient_1,
+        )
+
+        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination.assert_awaited_once_with(
+            prescription_id=1,
+            pagination=pagination,
+        )
+
+        diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id.assert_awaited_once_with(
+            diagnosis_id=diagnosis.id,
+        )
+
+        diagnosis_service.policy.can_view.assert_called_once_with(
+            user=patient_1,
+            appointment=appointment_patient_1,
+        )
+
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert result.items[0] == DiagnosisResponseSchema.model_validate(
+            diagnosis,
+        )
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_appointment_not_found(
-        self,
-        diagnosis_service,
-        diagnosis,
-        patient_1,
+            self,
+            diagnosis_service,
+            diagnosis,
+            patient_1,
+            pagination,
     ):
-        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id = AsyncMock(
-            return_value=[diagnosis]
+        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[diagnosis],
+                    total=1,
+                )
+            )
         )
 
         diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id = AsyncMock(
-            return_value=None
+            return_value=None,
         )
 
         with pytest.raises(AppointmentNotFoundException):
             await diagnosis_service.get_by_prescription_id(
-                1,
-                patient_1,
+                prescription_id=1,
+                current_user=patient_1,
+                pagination=pagination,
             )
+
+        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination.assert_awaited_once_with(
+            prescription_id=1,
+            pagination=pagination,
+        )
+
+        diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id.assert_awaited_once_with(
+            diagnosis_id=diagnosis.id,
+        )
+
+        diagnosis_service.policy.can_view.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_forbidden(
-        self,
-        diagnosis_service,
-        diagnosis,
-        patient_1,
-        appointment_patient_1,
+            self,
+            diagnosis_service,
+            diagnosis,
+            patient_1,
+            appointment_patient_1,
+            pagination,
     ):
-        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id = AsyncMock(
-            return_value=[diagnosis]
+        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[diagnosis],
+                    total=1,
+                )
+            )
         )
+
         diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id = AsyncMock(
-            return_value=appointment_patient_1
+            return_value=appointment_patient_1,
         )
-        diagnosis_service.policy.can_view = MagicMock(side_effect=ForbiddenException())
+
+        diagnosis_service.policy.can_view = MagicMock(
+            side_effect=ForbiddenException(),
+        )
+
         with pytest.raises(ForbiddenException):
             await diagnosis_service.get_by_prescription_id(
-                1,
-                patient_1,
+                prescription_id=1,
+                current_user=patient_1,
+                pagination=pagination,
             )
+
+        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination.assert_awaited_once_with(
+            prescription_id=1,
+            pagination=pagination,
+        )
+
+        diagnosis_service.uow.appointments.get_appointment_by_diagnosis_id.assert_awaited_once_with(
+            diagnosis_id=diagnosis.id,
+        )
+
+        diagnosis_service.policy.can_view.assert_called_once_with(
+            user=patient_1,
+            appointment=appointment_patient_1,
+        )
 
     @pytest.mark.asyncio
     async def test_get_by_disease_id_success(
-        self,
-        diagnosis_service,
-        diagnosis,
+            self,
+            diagnosis_service,
+            diagnosis,
+            pagination,
     ):
         diagnosis_service.uow.diagnoses.get_diagnoses_by_disease_id = AsyncMock(
-            return_value=[diagnosis]
+            return_value=PaginationResult(
+                items=[diagnosis],
+                total=1,
+            )
         )
-        result = await diagnosis_service.get_by_disease_id(1)
-        assert result == [diagnosis]
 
-    @pytest.mark.asyncio
-    async def test_get_by_disease_id_not_found(
-        self,
-        diagnosis_service,
-    ):
-        diagnosis_service.uow.diagnoses.get_diagnoses_by_disease_id = AsyncMock(
-            return_value=[]
+        result = await diagnosis_service.get_by_disease_id(
+            disease_id=1,
+            pagination=pagination,
         )
-        with pytest.raises(DiagnosisNotFoundException):
-            await diagnosis_service.get_by_disease_id(1)
+
+        diagnosis_service.uow.diagnoses.get_diagnoses_by_disease_id.assert_awaited_once_with(
+            disease_id=1,
+            pagination=pagination,
+        )
+
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert result.items[0] == DiagnosisResponseSchema.model_validate(
+            diagnosis,
+        )

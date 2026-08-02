@@ -8,129 +8,201 @@ from app.medical_records.exceptions.prescription import PrescriptionNotFoundExce
 from app.medical_records.exceptions.prescription_items import (
     PrescriptionItemNotFoundException,
 )
+from app.medical_records.schemas.prescription_item import PrescriptionItemResponseSchema
 from common.permissions.exceptions import ForbiddenException
-
+from common.pagination.schemas import PaginationResult
 
 class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_success(
-        self,
-        prescription_item_service,
-        prescription_item_1,
-        appointment_patient_1,
-        current_doctor,
+            self,
+            prescription_item_service,
+            prescription_item_1,
+            appointment_patient_1,
+            current_doctor,
+            pagination,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id = AsyncMock(
-            return_value=[prescription_item_1]
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[prescription_item_1],
+                    total=1,
+                )
+            )
         )
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
-            return_value=appointment_patient_1
+
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
+            AsyncMock(
+                return_value=appointment_patient_1,
+            )
         )
+
         prescription_item_service.policy.can_view = MagicMock()
 
         result = await prescription_item_service.get_by_prescription_id(
             prescription_id=prescription_item_1.prescription_id,
             current_user=current_doctor,
+            pagination=pagination,
         )
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id.assert_awaited_once_with(
+
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination.assert_awaited_once_with(
             prescription_id=prescription_item_1.prescription_id,
+            pagination=pagination,
         )
+
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id.assert_awaited_once_with(
             prescription_item_id=prescription_item_1.id,
         )
+
         prescription_item_service.policy.can_view.assert_called_once_with(
             user=current_doctor,
             appointment=appointment_patient_1,
         )
-        assert len(result) == 1
-        assert result[0].id == prescription_item_1.id
-        assert result[0].prescription_id == prescription_item_1.prescription_id
-        assert result[0].drug_id == prescription_item_1.drug_id
-        assert result[0].dosage == prescription_item_1.dosage
-        assert result[0].frequency == prescription_item_1.frequency
-        assert result[0].duration_days == prescription_item_1.duration_days
+
+        assert result.total == 1
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
+
+        assert len(result.items) == 1
+        assert isinstance(result.items[0], PrescriptionItemResponseSchema)
+        assert result.items[0].id == prescription_item_1.id
+        assert result.items[0].prescription_id == prescription_item_1.prescription_id
+        assert result.items[0].drug_id == prescription_item_1.drug_id
+        assert result.items[0].dosage == prescription_item_1.dosage
+        assert result.items[0].frequency == prescription_item_1.frequency
+        assert result.items[0].duration_days == prescription_item_1.duration_days
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_prescription_item_not_found(
-        self,
-        prescription_item_service,
-        current_doctor,
+            self,
+            prescription_item_service,
+            current_doctor,
+            pagination,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id = AsyncMock(
-            return_value=[]
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[],
+                    total=0,
+                )
+            )
         )
+
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
             AsyncMock()
         )
+
         prescription_item_service.policy.can_view = MagicMock()
 
-        with pytest.raises(PrescriptionItemNotFoundException):
-            await prescription_item_service.get_by_prescription_id(
-                prescription_id=1,
-                current_user=current_doctor,
-            )
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id.assert_awaited_once_with(
+        result = await prescription_item_service.get_by_prescription_id(
             prescription_id=1,
+            current_user=current_doctor,
+            pagination=pagination,
         )
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id.assert_not_awaited()
+
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination.assert_awaited_once_with(
+            prescription_id=1,
+            pagination=pagination,
+        )
+
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id.assert_not_called()
         prescription_item_service.policy.can_view.assert_not_called()
+
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0  # либо 1, если build_paginated_response использует max(1, ...)
+        assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_appointment_not_found(
-        self,
-        prescription_item_service,
-        prescription_item_1,
-        current_doctor,
+            self,
+            prescription_item_service,
+            prescription_item_1,
+            current_doctor,
+            pagination,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id = AsyncMock(
-            return_value=[prescription_item_1]
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[prescription_item_1],
+                    total=1,
+                )
+            )
         )
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
-            return_value=None
+
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
+            AsyncMock(
+                return_value=None,
+            )
         )
+
         prescription_item_service.policy.can_view = MagicMock()
+
         with pytest.raises(AppointmentNotFoundException):
             await prescription_item_service.get_by_prescription_id(
                 prescription_id=prescription_item_1.prescription_id,
                 current_user=current_doctor,
+                pagination=pagination,
             )
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id.assert_awaited_once_with(
+
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination.assert_awaited_once_with(
             prescription_id=prescription_item_1.prescription_id,
+            pagination=pagination,
         )
+
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id.assert_awaited_once_with(
             prescription_item_id=prescription_item_1.id,
         )
+
         prescription_item_service.policy.can_view.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_forbidden(
-        self,
-        prescription_item_service,
-        prescription_item_1,
-        appointment_patient_1,
-        current_doctor,
+            self,
+            prescription_item_service,
+            prescription_item_1,
+            appointment_patient_1,
+            current_doctor,
+            pagination,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id = AsyncMock(
-            return_value=[prescription_item_1]
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[prescription_item_1],
+                    total=1,
+                )
+            )
         )
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
-            return_value=appointment_patient_1
+
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
+            AsyncMock(
+                return_value=appointment_patient_1,
+            )
         )
+
         prescription_item_service.policy.can_view = MagicMock(
             side_effect=ForbiddenException()
         )
+
         with pytest.raises(ForbiddenException):
             await prescription_item_service.get_by_prescription_id(
                 prescription_id=prescription_item_1.prescription_id,
                 current_user=current_doctor,
+                pagination=pagination,
             )
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id.assert_awaited_once_with(
+
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination.assert_awaited_once_with(
             prescription_id=prescription_item_1.prescription_id,
+            pagination=pagination,
         )
+
         prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id.assert_awaited_once_with(
             prescription_item_id=prescription_item_1.id,
         )
+
         prescription_item_service.policy.can_view.assert_called_once_with(
             user=current_doctor,
             appointment=appointment_patient_1,

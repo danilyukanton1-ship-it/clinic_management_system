@@ -8,7 +8,7 @@ from app.medical_records.exceptions.disease import (
     DiseaseNotFoundException,
     DiseaseAlreadyExistsException,
 )
-from common.pagination.schemas import PaginationParams
+from common.pagination.schemas import PaginationParams, PaginatedResponse
 from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
@@ -53,7 +53,7 @@ class DiseaseService:
             )
         return DiseaseResponseSchema.model_validate(updated_disease)
 
-    async def get_all(self, pagination: PaginationParams) -> list[DiseaseResponseSchema]:
+    async def get_all(self, pagination: PaginationParams) -> PaginatedResponse[DiseaseResponseSchema]:
         diseases = await self.uow.diseases.get_all_diseases(
             pagination=pagination
         )

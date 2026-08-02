@@ -14,6 +14,7 @@ from app.scheduling.exceptions.schedule_slot import (
 )
 from app.users.exceptions.user import UserNotFoundException
 from common.enums.slot_status import SlotStatus
+from common.pagination.schemas import PaginationResult
 
 
 class TestScheduleSlotService:
@@ -117,23 +118,30 @@ class TestScheduleSlotService:
 
     @pytest.mark.asyncio
     async def test_get_future_slots_by_doctor_id_status_success(
-        self,
-        schedule_slot_service,
-        doctor_1,
-        schedule_slot_1,
-        schedule_slot_2,
+            self,
+            schedule_slot_service,
+            doctor_1,
+            schedule_slot_1,
+            schedule_slot_2,
+            pagination,
     ):
         schedule_slot_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,
         )
 
-        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = AsyncMock(
-            return_value=[schedule_slot_1, schedule_slot_2],
+        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[schedule_slot_1, schedule_slot_2],
+                    total=2,
+                )
+            )
         )
 
         result = await schedule_slot_service.get_future_slots_by_doctor_id_status(
             doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
+            pagination=pagination,
         )
 
         schedule_slot_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
@@ -143,39 +151,52 @@ class TestScheduleSlotService:
         schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_awaited_once_with(
             doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
+            pagination=pagination,
         )
 
-        assert len(result) == 2
+        assert result.total == 2
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
 
-        assert result[0].id == schedule_slot_1.id
-        assert result[0].doctor_id == schedule_slot_1.doctor_id
-        assert result[0].slot_start == schedule_slot_1.slot_start
-        assert result[0].slot_end == schedule_slot_1.slot_end
-        assert result[0].status == schedule_slot_1.status
+        assert len(result.items) == 2
 
-        assert result[1].id == schedule_slot_2.id
-        assert result[1].doctor_id == schedule_slot_2.doctor_id
-        assert result[1].slot_start == schedule_slot_2.slot_start
-        assert result[1].slot_end == schedule_slot_2.slot_end
-        assert result[1].status == schedule_slot_2.status
+        assert result.items[0].id == schedule_slot_1.id
+        assert result.items[0].doctor_id == schedule_slot_1.doctor_id
+        assert result.items[0].slot_start == schedule_slot_1.slot_start
+        assert result.items[0].slot_end == schedule_slot_1.slot_end
+        assert result.items[0].status == schedule_slot_1.status
+
+        assert result.items[1].id == schedule_slot_2.id
+        assert result.items[1].doctor_id == schedule_slot_2.doctor_id
+        assert result.items[1].slot_start == schedule_slot_2.slot_start
+        assert result.items[1].slot_end == schedule_slot_2.slot_end
+        assert result.items[1].status == schedule_slot_2.status
 
     @pytest.mark.asyncio
     async def test_get_future_slots_by_doctor_id_status_no_slots(
-        self,
-        schedule_slot_service,
-        doctor_1,
+            self,
+            schedule_slot_service,
+            doctor_1,
+            pagination,
     ):
         schedule_slot_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,
         )
 
-        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = AsyncMock(
-            return_value=[],
+        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = (
+            AsyncMock(
+                return_value=PaginationResult(
+                    items=[],
+                    total=0,
+                )
+            )
         )
 
         result = await schedule_slot_service.get_future_slots_by_doctor_id_status(
             doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
+            pagination=pagination,
         )
 
         schedule_slot_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
@@ -185,14 +206,20 @@ class TestScheduleSlotService:
         schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_awaited_once_with(
             doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
+            pagination=pagination,
         )
 
-        assert result == []
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0  # либо 1, если build_paginated_response использует max(1, ...)
+        assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_future_slots_by_doctor_id_status_doctor_not_found(
-        self,
-        schedule_slot_service,
+            self,
+            schedule_slot_service,
+            pagination,
     ):
         schedule_slot_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=None,
@@ -206,21 +233,23 @@ class TestScheduleSlotService:
             await schedule_slot_service.get_future_slots_by_doctor_id_status(
                 doctor_id=1,
                 status=SlotStatus.FREE,
+                pagination=pagination,
             )
 
         schedule_slot_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
             doctor_id=1,
         )
 
-        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_not_awaited()
+        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_past_slots_by_doctor_id_status_success(
-        self,
-        schedule_slot_service,
-        doctor_1,
-        schedule_slot_1,
-        schedule_slot_2,
+            self,
+            schedule_slot_service,
+            doctor_1,
+            schedule_slot_1,
+            schedule_slot_2,
+            pagination,
     ):
         schedule_slot_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,
@@ -228,13 +257,17 @@ class TestScheduleSlotService:
 
         schedule_slot_service.uow.schedule_slots.get_past_slots_by_doctor_id_status = (
             AsyncMock(
-                return_value=[schedule_slot_1, schedule_slot_2],
+                return_value=PaginationResult(
+                    items=[schedule_slot_1, schedule_slot_2],
+                    total=2,
+                )
             )
         )
 
         result = await schedule_slot_service.get_past_slots_by_doctor_id_status(
             doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
+            pagination=pagination,
         )
 
         schedule_slot_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
@@ -244,27 +277,34 @@ class TestScheduleSlotService:
         schedule_slot_service.uow.schedule_slots.get_past_slots_by_doctor_id_status.assert_awaited_once_with(
             doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
+            pagination=pagination,
         )
 
-        assert len(result) == 2
+        assert result.total == 2
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 1
 
-        assert result[0].id == schedule_slot_1.id
-        assert result[0].doctor_id == schedule_slot_1.doctor_id
-        assert result[0].slot_start == schedule_slot_1.slot_start
-        assert result[0].slot_end == schedule_slot_1.slot_end
-        assert result[0].status == schedule_slot_1.status
+        assert len(result.items) == 2
 
-        assert result[1].id == schedule_slot_2.id
-        assert result[1].doctor_id == schedule_slot_2.doctor_id
-        assert result[1].slot_start == schedule_slot_2.slot_start
-        assert result[1].slot_end == schedule_slot_2.slot_end
-        assert result[1].status == schedule_slot_2.status
+        assert result.items[0].id == schedule_slot_1.id
+        assert result.items[0].doctor_id == schedule_slot_1.doctor_id
+        assert result.items[0].slot_start == schedule_slot_1.slot_start
+        assert result.items[0].slot_end == schedule_slot_1.slot_end
+        assert result.items[0].status == schedule_slot_1.status
+
+        assert result.items[1].id == schedule_slot_2.id
+        assert result.items[1].doctor_id == schedule_slot_2.doctor_id
+        assert result.items[1].slot_start == schedule_slot_2.slot_start
+        assert result.items[1].slot_end == schedule_slot_2.slot_end
+        assert result.items[1].status == schedule_slot_2.status
 
     @pytest.mark.asyncio
     async def test_get_past_slots_by_doctor_id_status_no_slots(
-        self,
-        schedule_slot_service,
-        doctor_1,
+            self,
+            schedule_slot_service,
+            doctor_1,
+            pagination,
     ):
         schedule_slot_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,
@@ -272,13 +312,17 @@ class TestScheduleSlotService:
 
         schedule_slot_service.uow.schedule_slots.get_past_slots_by_doctor_id_status = (
             AsyncMock(
-                return_value=[],
+                return_value=PaginationResult(
+                    items=[],
+                    total=0,
+                )
             )
         )
 
         result = await schedule_slot_service.get_past_slots_by_doctor_id_status(
             doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
+            pagination=pagination,
         )
 
         schedule_slot_service.uow.users.get_doctor_by_id.assert_awaited_once_with(
@@ -288,9 +332,14 @@ class TestScheduleSlotService:
         schedule_slot_service.uow.schedule_slots.get_past_slots_by_doctor_id_status.assert_awaited_once_with(
             doctor_id=doctor_1.id,
             status=SlotStatus.FREE,
+            pagination=pagination,
         )
 
-        assert result == []
+        assert result.total == 0
+        assert result.page == 1
+        assert result.page_size == 20
+        assert result.pages == 0  # либо 1, если build_paginated_response использует max(1, ...)
+        assert result.items == []
 
     @pytest.mark.asyncio
     async def test_update_success(

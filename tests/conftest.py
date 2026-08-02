@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.users.models.user import User
 from common.enums.user_role import UserRole
+from common.pagination.schemas import PaginationParams
 from db.unit_of_work import UnitOfWork
 
 pytest_plugins = [
@@ -16,6 +17,12 @@ pytest_plugins = [
     "tests.fixtures.auth",
 ]
 
+@pytest.fixture
+def pagination():
+    return PaginationParams(
+        page=1,
+        page_size=20,
+    )
 
 @pytest.fixture
 def mock_async_session() -> AsyncSession:

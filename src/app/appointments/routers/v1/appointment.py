@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, status
+
+from common.pagination.schemas import PaginationParams, PaginatedResponse
 from common.types import ID
 from app.appointments.dependencies import get_appointment_service
 from app.appointments.services.appointment import AppointmentService
@@ -58,10 +60,10 @@ async def create_appointment(
 @router.get(
     path="/me/past",
     status_code=status.HTTP_200_OK,
-    response_model=list[AppointmentResponseSchema],
+    response_model=PaginatedResponse[AppointmentResponseSchema],
 )
 async def get_past_appointments_by_current_user(
-    user: User = Depends(get_current_user),
+    pagination: PaginationParams = Depends(),
     appointment_service: AppointmentService = Depends(get_appointment_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -71,17 +73,19 @@ async def get_past_appointments_by_current_user(
         UserRole.DOCTOR,
         UserRole.ADMIN,
     )
-    past_apps = await appointment_service.get_past_apps_by_user_id(user_id=user.id)
-    return past_apps
+    return await appointment_service.get_past_apps_by_user_id(
+        user_id=current_user.id,
+        pagination=pagination,
+    )
 
 
 @router.get(
     path="/me/future",
     status_code=status.HTTP_200_OK,
-    response_model=list[AppointmentResponseSchema],
+    response_model=PaginatedResponse[AppointmentResponseSchema],
 )
 async def get_future_appointments_by_current_user(
-    user: User = Depends(get_current_user),
+    pagination: PaginationParams = Depends(),
     appointment_service: AppointmentService = Depends(get_appointment_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -91,8 +95,10 @@ async def get_future_appointments_by_current_user(
         UserRole.DOCTOR,
         UserRole.ADMIN,
     )
-    future_apps = await appointment_service.get_future_apps_by_user_id(user_id=user.id)
-    return future_apps
+    return await appointment_service.get_future_apps_by_user_id(
+        user_id=current_user.id,
+        pagination=pagination,
+    )
 
 
 @router.delete(

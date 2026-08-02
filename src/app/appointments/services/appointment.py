@@ -15,6 +15,8 @@ from app.scheduling.exceptions.schedule_slot import (
 from app.users.exceptions.user import UserNotFoundException
 from app.appointments.policy.appointment import AppointmentPolicy
 from common.enums.slot_status import SlotStatus
+from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 from app.appointments.tasks import send_appointment_created_notification
 
@@ -65,40 +67,46 @@ class AppointmentService:
             return AppointmentResponseSchema.model_validate(appointment)
 
     async def get_future_apps_by_user_id(
-        self, user_id: int
-    ) -> list[AppointmentResponseSchema]:
+        self, user_id: int, pagination: PaginationParams
+    ) -> PaginatedResponse[AppointmentResponseSchema]:
         async with self.uow:
             user = await self.uow.users.get_user_by_id(user_id=user_id)
             if user is None:
                 raise UserNotFoundException()
             appointments = (
                 await self.uow.appointments.get_future_appointments_by_user_id(
-                    user_id=user_id
+                    user_id=user_id,
+                    pagination=pagination
                 )
             )
-            for appointment in appointments:
+            for appointment in appointments.items:
                 self.policy.can_view(user=user, appointment=appointment)
-            return [
-                AppointmentResponseSchema.model_validate(appointment)
-                for appointment in appointments
-            ]
+            return build_paginated_response(
+                items=appointments.items,
+                total=appointments.total,
+                pagination=pagination,
+                schema=AppointmentResponseSchema,
+            )
 
     async def get_past_apps_by_user_id(
-        self, user_id: int
-    ) -> list[AppointmentResponseSchema]:
+        self, user_id: int, pagination: PaginationParams
+    ) -> PaginatedResponse[AppointmentResponseSchema]:
         async with self.uow:
             user = await self.uow.users.get_user_by_id(user_id=user_id)
             if user is None:
                 raise UserNotFoundException()
             appointments = await self.uow.appointments.get_past_appointments_by_user_id(
-                user_id=user_id
+                user_id=user_id,
+                pagination=pagination
             )
-            for appointment in appointments:
+            for appointment in appointments.items:
                 self.policy.can_view(user=user, appointment=appointment)
-            return [
-                AppointmentResponseSchema.model_validate(appointment)
-                for appointment in appointments
-            ]
+            return build_paginated_response(
+                items=appointments.items,
+                total=appointments.total,
+                pagination=pagination,
+                schema=AppointmentResponseSchema,
+            )
 
     async def get_appointment_by_id(
         self, appointment_id: int, current_user: User

@@ -21,7 +21,7 @@ celery_app.conf.imports = (
     "app.appointments.tasks",
     "app.auth.tasks",
     "app.users.tasks",
-    "app.schedules.tasks",
+    "app.scheduling.tasks",
 )
 
 celery_app.conf.beat_schedule = {
@@ -41,7 +41,7 @@ celery_app.conf.beat_schedule = {
         "args": (),
     },
     "cleanup_schedules": {
-        "task": "app.schedules.tasks.cleanup_schedules",
+        "task": "app.scheduling.tasks.cleanup_schedules",
         "schedule": crontab(hour=3, minute=0),
         "args": (),
     },

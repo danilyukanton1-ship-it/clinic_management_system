@@ -28,6 +28,6 @@ async def _cleanup_inactive_old_schedules():
                 await uow.schedules.delete_schedule(schedule=schedule)
 
 
-@celery_app.task(name="app.schedules.tasks.cleanup_schedules")
+@celery_app.task(name="app.scheduling.tasks.cleanup_schedules")
 def cleanup_schedules() -> None:
     asyncio.run(_cleanup_inactive_old_schedules())

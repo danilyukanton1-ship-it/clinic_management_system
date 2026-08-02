@@ -2,21 +2,19 @@ from datetime import datetime
 
 from sqlalchemy import select, or_
 from sqlalchemy.orm import joinedload
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.appointments.models.appointment import Appointment
 from app.appointments.schemas.appointment import AppointmentCreateSchema
-from app.scheduling.models.schedule import Schedule
 from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.medical_records.models.diagnosis import Diagnosis
 from app.medical_records.models.prescription import Prescription
 from app.medical_records.models.prescription_item import PrescriptionItem
 from app.users.models.user import User
 
+from common.pagination.schemas import PaginationParams, PaginationResult
+from core.repository import BaseRepository
 
-class AppointmentRepository:
 
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class AppointmentRepository(BaseRepository):
 
     async def create(self, data: AppointmentCreateSchema) -> Appointment:
         appointment = Appointment(
@@ -75,36 +73,48 @@ class AppointmentRepository:
         return list(result.scalars().all())
 
     async def get_future_appointments_by_user_id(
-        self, user_id: int
-    ) -> list[Appointment]:
+            self,
+            user_id: int,
+            pagination: PaginationParams,
+    ) -> PaginationResult[Appointment]:
+        filters = (
+            or_(
+                Appointment.patient_id == user_id,
+                Appointment.doctor_id == user_id,
+            ),
+            ScheduleSlot.slot_start >= datetime.now(),
+        )
         stmt = (
             select(Appointment)
             .join(Appointment.slot)
-            .where(
-                or_(
-                    Appointment.patient_id == user_id,
-                    Appointment.doctor_id == user_id,
-                ),
-                ScheduleSlot.slot_start >= datetime.now(),
-            )
+            .where(*filters)
         )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
-    async def get_past_appointments_by_user_id(self, user_id: int) -> list[Appointment]:
+    async def get_past_appointments_by_user_id(
+            self,
+            user_id: int,
+            pagination: PaginationParams
+    ) -> PaginationResult[Appointment]:
+        filters = (
+            or_(
+                Appointment.patient_id == user_id,
+                Appointment.doctor_id == user_id,
+            ),
+            ScheduleSlot.slot_start <= datetime.now(),
+        )
         stmt = (
             select(Appointment)
             .join(Appointment.slot)
-            .where(
-                or_(
-                    Appointment.patient_id == user_id,
-                    Appointment.doctor_id == user_id,
-                ),
-                ScheduleSlot.slot_start <= datetime.now(),
-            )
+            .where(*filters)
         )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
     async def get_appointment_by_diagnosis_id(
         self,

@@ -10,10 +10,8 @@ class BaseRepository:
         self.session = session
 
     async def paginate(
-            self,
-            stmt: Select,
-            pagination: PaginationParams
-        ) -> PaginationResult[T]:
+        self, stmt: Select, pagination: PaginationParams
+    ) -> PaginationResult[T]:
         count_stmt = select(func.count()).select_from(stmt.subquery())
         total = await self.session.scalar(count_stmt)
         result = await self.session.execute(

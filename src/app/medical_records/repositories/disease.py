@@ -34,7 +34,7 @@ class DiseaseRepository(BaseRepository):
         return result.scalar_one_or_none()
 
     async def get_all_diseases(
-            self, pagination: PaginationParams
+        self, pagination: PaginationParams
     ) -> PaginationResult[Disease]:
         stmt = select(Disease)
         return await self.paginate(

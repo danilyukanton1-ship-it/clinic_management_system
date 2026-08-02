@@ -49,7 +49,7 @@ async def get_by_prescription_id(
     return await diagnosis_service.get_by_prescription_id(
         prescription_id=prescription_id,
         current_user=current_user,
-        pagination=pagination
+        pagination=pagination,
     )
 
 
@@ -70,8 +70,7 @@ async def get_by_disease_id(
         UserRole.ADMIN,
     )
     return await diagnosis_service.get_by_disease_id(
-        disease_id=disease_id,
-        pagination=pagination
+        disease_id=disease_id, pagination=pagination
     )
 
 

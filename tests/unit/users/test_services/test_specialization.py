@@ -8,6 +8,7 @@ from app.users.exceptions.specialization import (
 from app.users.schemas.specialization import SpecializationResponseSchema
 from common.pagination.schemas import PaginationResult
 
+
 class TestSpecializationService:
 
     @pytest.mark.asyncio
@@ -102,21 +103,19 @@ class TestSpecializationService:
 
     @pytest.mark.asyncio
     async def test_get_all_success(
-            self,
-            specialization_service,
-            specialization,
-            specialization_updated,
-            pagination,
+        self,
+        specialization_service,
+        specialization,
+        specialization_updated,
+        pagination,
     ):
-        specialization_service.uow.specializations.get_all_specializations = (
-            AsyncMock(
-                return_value=PaginationResult(
-                    items=[
-                        specialization,
-                        specialization_updated,
-                    ],
-                    total=2,
-                )
+        specialization_service.uow.specializations.get_all_specializations = AsyncMock(
+            return_value=PaginationResult(
+                items=[
+                    specialization,
+                    specialization_updated,
+                ],
+                total=2,
             )
         )
         result = await specialization_service.get_all(
@@ -140,16 +139,14 @@ class TestSpecializationService:
 
     @pytest.mark.asyncio
     async def test_get_all_empty(
-            self,
-            specialization_service,
-            pagination,
+        self,
+        specialization_service,
+        pagination,
     ):
-        specialization_service.uow.specializations.get_all_specializations = (
-            AsyncMock(
-                return_value=PaginationResult(
-                    items=[],
-                    total=0,
-                )
+        specialization_service.uow.specializations.get_all_specializations = AsyncMock(
+            return_value=PaginationResult(
+                items=[],
+                total=0,
             )
         )
         result = await specialization_service.get_all(
@@ -161,7 +158,9 @@ class TestSpecializationService:
         assert result.total == 0
         assert result.page == 1
         assert result.page_size == 20
-        assert result.pages == 0  # либо 1, если build_paginated_response использует max(1, ...)
+        assert (
+            result.pages == 0
+        )  # либо 1, если build_paginated_response использует max(1, ...)
         assert result.items == []
 
     @pytest.mark.asyncio

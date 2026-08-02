@@ -27,11 +27,8 @@ class PrescriptionItemService:
     async def get_by_prescription_id(
         self, prescription_id: int, current_user: User, pagination: PaginationParams
     ) -> PaginatedResponse[PrescriptionItemResponseSchema]:
-        prescription_items = (
-            await self.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination(
-                prescription_id=prescription_id,
-                pagination=pagination
-            )
+        prescription_items = await self.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination(
+            prescription_id=prescription_id, pagination=pagination
         )
         if prescription_items.items:
             appointment = (

@@ -31,9 +31,7 @@ async def get_patients(
         current_user,
         UserRole.ADMIN,
     )
-    return await user_service.get_all_patients(
-        pagination=pagination
-    )
+    return await user_service.get_all_patients(pagination=pagination)
 
 
 @router.get(

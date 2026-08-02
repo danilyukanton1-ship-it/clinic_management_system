@@ -152,11 +152,12 @@ class ScheduleAbsenceService:
             if not doctor:
                 raise UserNotFoundException()
             absences = await self.uow.absences.get_future_absences_by_doctor_id(
-                doctor_id=doctor_id,
-                pagination=pagination
+                doctor_id=doctor_id, pagination=pagination
             )
             if absences.items:
-                self.policy.can_view(user=current_user, schedule_absence=absences.items[0])
+                self.policy.can_view(
+                    user=current_user, schedule_absence=absences.items[0]
+                )
         return build_paginated_response(
             items=absences.items,
             total=absences.total,
@@ -172,11 +173,12 @@ class ScheduleAbsenceService:
             if not doctor:
                 raise UserNotFoundException()
             absences = await self.uow.absences.get_past_absences_by_doctor_id(
-                doctor_id=doctor_id,
-                pagination=pagination
+                doctor_id=doctor_id, pagination=pagination
             )
             if absences.items:
-                self.policy.can_view(user=current_user, schedule_absence=absences.items[0])
+                self.policy.can_view(
+                    user=current_user, schedule_absence=absences.items[0]
+                )
             return build_paginated_response(
                 items=absences.items,
                 total=absences.total,

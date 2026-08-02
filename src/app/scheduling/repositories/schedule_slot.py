@@ -125,10 +125,7 @@ class ScheduleSlotRepository(BaseRepository):
                 == WEEKDAY_MAPPING_REVERSE[weekday]
             )
         if pagination:
-            return await self.paginate(
-                stmt=stmt,
-                pagination=pagination
-            )
+            return await self.paginate(stmt=stmt, pagination=pagination)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
@@ -140,10 +137,7 @@ class ScheduleSlotRepository(BaseRepository):
             ScheduleSlot.status == status,
             ScheduleSlot.slot_start <= datetime.now(),
         )
-        return await self.paginate(
-            stmt=stmt,
-            pagination=pagination
-        )
+        return await self.paginate(stmt=stmt, pagination=pagination)
 
     async def get_slots_by_schedule_ids(
         self, schedule_ids: list[int]

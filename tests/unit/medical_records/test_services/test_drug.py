@@ -8,6 +8,7 @@ from app.medical_records.exceptions.drug import (
 from app.medical_records.schemas.drug import DrugResponseSchema
 from common.pagination.schemas import PaginationResult
 
+
 class TestDrugService:
 
     @pytest.mark.asyncio
@@ -101,10 +102,10 @@ class TestDrugService:
 
     @pytest.mark.asyncio
     async def test_get_all_success(
-            self,
-            drug_service,
-            drug_1,
-            pagination,
+        self,
+        drug_service,
+        drug_1,
+        pagination,
     ):
         drug_service.uow.drugs.get_all_drugs = AsyncMock(
             return_value=PaginationResult(
@@ -133,9 +134,9 @@ class TestDrugService:
 
     @pytest.mark.asyncio
     async def test_get_all_not_found(
-            self,
-            drug_service,
-            pagination,
+        self,
+        drug_service,
+        pagination,
     ):
         drug_service.uow.drugs.get_all_drugs = AsyncMock(
             return_value=PaginationResult(

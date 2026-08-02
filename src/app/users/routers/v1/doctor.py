@@ -47,9 +47,7 @@ async def get_doctors_for_admin(
     current_user: User = Depends(get_current_user),
 ) -> PaginatedResponse[DoctorResponseSchema]:
     check_role(current_user, UserRole.ADMIN)
-    return await user_service.get_all_doctors_for_admin(
-        pagination=pagination
-    )
+    return await user_service.get_all_doctors_for_admin(pagination=pagination)
 
 
 @router.post(

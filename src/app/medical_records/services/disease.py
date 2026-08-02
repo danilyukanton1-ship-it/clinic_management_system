@@ -53,15 +53,15 @@ class DiseaseService:
             )
         return DiseaseResponseSchema.model_validate(updated_disease)
 
-    async def get_all(self, pagination: PaginationParams) -> PaginatedResponse[DiseaseResponseSchema]:
-        diseases = await self.uow.diseases.get_all_diseases(
-            pagination=pagination
-        )
+    async def get_all(
+        self, pagination: PaginationParams
+    ) -> PaginatedResponse[DiseaseResponseSchema]:
+        diseases = await self.uow.diseases.get_all_diseases(pagination=pagination)
         return build_paginated_response(
             items=diseases.items,
             total=diseases.total,
             pagination=pagination,
-            schema=DiseaseResponseSchema
+            schema=DiseaseResponseSchema,
         )
 
     async def get_by_code(self, disease_code: str) -> DiseaseResponseSchema:

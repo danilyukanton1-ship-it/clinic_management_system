@@ -40,7 +40,7 @@ class SpecializationService:
         return SpecializationResponseSchema.model_validate(specialization)
 
     async def get_all(
-            self, pagination: PaginationParams
+        self, pagination: PaginationParams
     ) -> PaginatedResponse[SpecializationResponseSchema]:
         specializations = await self.uow.specializations.get_all_specializations(
             pagination=pagination
@@ -49,7 +49,7 @@ class SpecializationService:
             items=specializations.items,
             total=specializations.total,
             pagination=pagination,
-            schema=SpecializationResponseSchema
+            schema=SpecializationResponseSchema,
         )
 
     async def create(

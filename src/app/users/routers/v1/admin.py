@@ -37,6 +37,7 @@ async def create(
     )
     return await user_service.create_admin(data=data)
 
+
 @router.get(
     path="/all",
     status_code=status.HTTP_200_OK,
@@ -51,9 +52,8 @@ async def get_all(
         current_user,
         UserRole.ADMIN,
     )
-    return await user_service.get_all_admins(
-        pagination=pagination
-    )
+    return await user_service.get_all_admins(pagination=pagination)
+
 
 @router.get(
     path="/{admin_id}",

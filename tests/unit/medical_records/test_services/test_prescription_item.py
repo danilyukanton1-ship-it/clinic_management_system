@@ -12,30 +12,27 @@ from app.medical_records.schemas.prescription_item import PrescriptionItemRespon
 from common.permissions.exceptions import ForbiddenException
 from common.pagination.schemas import PaginationResult
 
+
 class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_success(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            appointment_patient_1,
-            current_doctor,
-            pagination,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        appointment_patient_1,
+        current_doctor,
+        pagination,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = (
-            AsyncMock(
-                return_value=PaginationResult(
-                    items=[prescription_item_1],
-                    total=1,
-                )
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = AsyncMock(
+            return_value=PaginationResult(
+                items=[prescription_item_1],
+                total=1,
             )
         )
 
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
-            AsyncMock(
-                return_value=appointment_patient_1,
-            )
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
+            return_value=appointment_patient_1,
         )
 
         prescription_item_service.policy.can_view = MagicMock()
@@ -76,17 +73,15 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_prescription_item_not_found(
-            self,
-            prescription_item_service,
-            current_doctor,
-            pagination,
+        self,
+        prescription_item_service,
+        current_doctor,
+        pagination,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = (
-            AsyncMock(
-                return_value=PaginationResult(
-                    items=[],
-                    total=0,
-                )
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = AsyncMock(
+            return_value=PaginationResult(
+                items=[],
+                total=0,
             )
         )
 
@@ -113,30 +108,28 @@ class TestPrescriptionItemService:
         assert result.total == 0
         assert result.page == 1
         assert result.page_size == 20
-        assert result.pages == 0  # либо 1, если build_paginated_response использует max(1, ...)
+        assert (
+            result.pages == 0
+        )  # либо 1, если build_paginated_response использует max(1, ...)
         assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_appointment_not_found(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            current_doctor,
-            pagination,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        current_doctor,
+        pagination,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = (
-            AsyncMock(
-                return_value=PaginationResult(
-                    items=[prescription_item_1],
-                    total=1,
-                )
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = AsyncMock(
+            return_value=PaginationResult(
+                items=[prescription_item_1],
+                total=1,
             )
         )
 
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
-            AsyncMock(
-                return_value=None,
-            )
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
+            return_value=None,
         )
 
         prescription_item_service.policy.can_view = MagicMock()
@@ -161,26 +154,22 @@ class TestPrescriptionItemService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_forbidden(
-            self,
-            prescription_item_service,
-            prescription_item_1,
-            appointment_patient_1,
-            current_doctor,
-            pagination,
+        self,
+        prescription_item_service,
+        prescription_item_1,
+        appointment_patient_1,
+        current_doctor,
+        pagination,
     ):
-        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = (
-            AsyncMock(
-                return_value=PaginationResult(
-                    items=[prescription_item_1],
-                    total=1,
-                )
+        prescription_item_service.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination = AsyncMock(
+            return_value=PaginationResult(
+                items=[prescription_item_1],
+                total=1,
             )
         )
 
-        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = (
-            AsyncMock(
-                return_value=appointment_patient_1,
-            )
+        prescription_item_service.uow.appointments.get_appointment_by_prescription_item_id = AsyncMock(
+            return_value=appointment_patient_1,
         )
 
         prescription_item_service.policy.can_view = MagicMock(

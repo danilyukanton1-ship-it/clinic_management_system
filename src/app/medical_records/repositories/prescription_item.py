@@ -9,6 +9,7 @@ from app.medical_records.models.prescription_item import PrescriptionItem
 from common.pagination.schemas import PaginationParams, PaginationResult
 from core.repository import BaseRepository
 
+
 class PrescriptionItemRepository(BaseRepository):
 
     async def create_prescription_item(self, data: PrescriptionItemCreateSchema):

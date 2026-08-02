@@ -15,6 +15,7 @@ from common.pagination.schemas import (
     PaginationResult,
 )
 
+
 class TestAppointmentService:
 
     @pytest.mark.asyncio
@@ -131,11 +132,11 @@ class TestAppointmentService:
 
     @pytest.mark.asyncio
     async def test_get_future_apps_by_user_id_success(
-            self,
-            patient_1,
-            appointment_service,
-            appointment_patient_1,
-            pagination,
+        self,
+        patient_1,
+        appointment_service,
+        appointment_patient_1,
+        pagination,
     ):
         appointment_service.uow.users.get_user_by_id = AsyncMock(
             return_value=patient_1,
@@ -180,15 +181,17 @@ class TestAppointmentService:
 
     @pytest.mark.asyncio
     async def test_get_future_apps_by_user_id_not_found(
-            self,
-            patient_1,
-            appointment_service,
-            pagination,
+        self,
+        patient_1,
+        appointment_service,
+        pagination,
     ):
         appointment_service.uow.users.get_user_by_id = AsyncMock(
             return_value=None,
         )
-        appointment_service.uow.appointments.get_future_appointments_by_user_id = AsyncMock()
+        appointment_service.uow.appointments.get_future_appointments_by_user_id = (
+            AsyncMock()
+        )
         with pytest.raises(UserNotFoundException):
             await appointment_service.get_future_apps_by_user_id(
                 user_id=1,
@@ -205,10 +208,10 @@ class TestAppointmentService:
 
     @pytest.mark.asyncio
     async def test_get_future_apps_by_user_id_apps_not_found(
-            self,
-            patient_1,
-            appointment_service,
-            pagination,
+        self,
+        patient_1,
+        appointment_service,
+        pagination,
     ):
         appointment_service.uow.users.get_user_by_id = AsyncMock(
             return_value=patient_1,
@@ -247,11 +250,11 @@ class TestAppointmentService:
 
     @pytest.mark.asyncio
     async def test_get_future_apps_by_user_id_forbidden(
-            self,
-            patient_1,
-            appointment_service,
-            appointment_patient_1,
-            pagination,
+        self,
+        patient_1,
+        appointment_service,
+        appointment_patient_1,
+        pagination,
     ):
         appointment_service.uow.users.get_user_by_id = AsyncMock(
             return_value=patient_1,
@@ -286,11 +289,11 @@ class TestAppointmentService:
 
     @pytest.mark.asyncio
     async def test_get_past_apps_by_user_id_success(
-            self,
-            patient_1,
-            appointment_service,
-            appointment_patient_1,
-            pagination,
+        self,
+        patient_1,
+        appointment_service,
+        appointment_patient_1,
+        pagination,
     ):
         appointment_service.uow.users.get_user_by_id = AsyncMock(
             return_value=patient_1,
@@ -336,15 +339,17 @@ class TestAppointmentService:
 
     @pytest.mark.asyncio
     async def test_get_past_apps_by_user_id_not_found(
-            self,
-            patient_1,
-            appointment_service,
-            pagination,
+        self,
+        patient_1,
+        appointment_service,
+        pagination,
     ):
         appointment_service.uow.users.get_user_by_id = AsyncMock(
             return_value=None,
         )
-        appointment_service.uow.appointments.get_past_appointments_by_user_id = AsyncMock()
+        appointment_service.uow.appointments.get_past_appointments_by_user_id = (
+            AsyncMock()
+        )
         with pytest.raises(UserNotFoundException):
             await appointment_service.get_past_apps_by_user_id(
                 user_id=1,
@@ -361,11 +366,11 @@ class TestAppointmentService:
 
     @pytest.mark.asyncio
     async def test_get_past_apps_by_user_id_forbidden(
-            self,
-            patient_1,
-            appointment_service,
-            appointment_patient_1,
-            pagination,
+        self,
+        patient_1,
+        appointment_service,
+        appointment_patient_1,
+        pagination,
     ):
         appointment_service.uow.users.get_user_by_id = AsyncMock(
             return_value=patient_1,

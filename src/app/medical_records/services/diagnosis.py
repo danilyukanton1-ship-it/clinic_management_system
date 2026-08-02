@@ -87,7 +87,9 @@ class DiagnosisService:
             await self.uow.diagnoses.delete_diagnosis(diagnosis=diagnosis)
         return None
 
-    async def get_by_id(self, diagnosis_id: int, current_user: User) -> DiagnosisResponseSchema:
+    async def get_by_id(
+        self, diagnosis_id: int, current_user: User
+    ) -> DiagnosisResponseSchema:
         diagnosis = await self.uow.diagnoses.get_diagnosis_by_id(
             diagnosis_id=diagnosis_id
         )
@@ -102,14 +104,12 @@ class DiagnosisService:
         return DiagnosisResponseSchema.model_validate(diagnosis)
 
     async def get_by_prescription_id(
-            self,
-            prescription_id: int,
-            pagination: PaginationParams,
-            current_user: User
+        self, prescription_id: int, pagination: PaginationParams, current_user: User
     ) -> PaginatedResponse[DiagnosisResponseSchema]:
-        diagnoses = await self.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination(
-            prescription_id=prescription_id,
-            pagination=pagination
+        diagnoses = (
+            await self.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination(
+                prescription_id=prescription_id, pagination=pagination
+            )
         )
         appointment = await self.uow.appointments.get_appointment_by_diagnosis_id(
             diagnosis_id=diagnoses.items[0].id
@@ -121,19 +121,18 @@ class DiagnosisService:
             items=diagnoses.items,
             total=diagnoses.total,
             pagination=pagination,
-            schema=DiagnosisResponseSchema
+            schema=DiagnosisResponseSchema,
         )
 
     async def get_by_disease_id(
-            self, disease_id: int, pagination: PaginationParams
+        self, disease_id: int, pagination: PaginationParams
     ) -> PaginatedResponse[DiagnosisResponseSchema]:
         diagnoses = await self.uow.diagnoses.get_diagnoses_by_disease_id(
-            disease_id=disease_id,
-            pagination=pagination
+            disease_id=disease_id, pagination=pagination
         )
         return build_paginated_response(
             items=diagnoses.items,
             total=diagnoses.total,
             pagination=pagination,
-            schema=DiagnosisResponseSchema
+            schema=DiagnosisResponseSchema,
         )

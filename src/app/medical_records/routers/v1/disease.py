@@ -23,7 +23,7 @@ router = APIRouter(
 @router.get(
     path="/all",
     status_code=status.HTTP_200_OK,
-    response_model=PaginatedResponse[DiseaseResponseSchema]
+    response_model=PaginatedResponse[DiseaseResponseSchema],
 )
 async def get_all(
     pagination: PaginationParams = Depends(),

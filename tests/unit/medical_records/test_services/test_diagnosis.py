@@ -12,6 +12,7 @@ from app.medical_records.schemas.diagnosis import DiagnosisResponseSchema
 from common.permissions.exceptions import ForbiddenException
 from common.pagination.schemas import PaginationResult
 
+
 class TestDiagnosisService:
 
     @pytest.mark.asyncio
@@ -482,19 +483,17 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_success(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
-            appointment_patient_1,
-            pagination,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
+        appointment_patient_1,
+        pagination,
     ):
-        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination = (
-            AsyncMock(
-                return_value=PaginationResult(
-                    items=[diagnosis],
-                    total=1,
-                )
+        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination = AsyncMock(
+            return_value=PaginationResult(
+                items=[diagnosis],
+                total=1,
             )
         )
 
@@ -536,18 +535,16 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_appointment_not_found(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
-            pagination,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
+        pagination,
     ):
-        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination = (
-            AsyncMock(
-                return_value=PaginationResult(
-                    items=[diagnosis],
-                    total=1,
-                )
+        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination = AsyncMock(
+            return_value=PaginationResult(
+                items=[diagnosis],
+                total=1,
             )
         )
 
@@ -575,19 +572,17 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_prescription_id_forbidden(
-            self,
-            diagnosis_service,
-            diagnosis,
-            patient_1,
-            appointment_patient_1,
-            pagination,
+        self,
+        diagnosis_service,
+        diagnosis,
+        patient_1,
+        appointment_patient_1,
+        pagination,
     ):
-        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination = (
-            AsyncMock(
-                return_value=PaginationResult(
-                    items=[diagnosis],
-                    total=1,
-                )
+        diagnosis_service.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination = AsyncMock(
+            return_value=PaginationResult(
+                items=[diagnosis],
+                total=1,
             )
         )
 
@@ -622,10 +617,10 @@ class TestDiagnosisService:
 
     @pytest.mark.asyncio
     async def test_get_by_disease_id_success(
-            self,
-            diagnosis_service,
-            diagnosis,
-            pagination,
+        self,
+        diagnosis_service,
+        diagnosis,
+        pagination,
     ):
         diagnosis_service.uow.diagnoses.get_diagnoses_by_disease_id = AsyncMock(
             return_value=PaginationResult(

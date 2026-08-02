@@ -17,12 +17,14 @@ pytest_plugins = [
     "tests.fixtures.auth",
 ]
 
+
 @pytest.fixture
 def pagination():
     return PaginationParams(
         page=1,
         page_size=20,
     )
+
 
 @pytest.fixture
 def mock_async_session() -> AsyncSession:

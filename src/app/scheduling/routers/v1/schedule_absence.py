@@ -82,9 +82,7 @@ async def get_past(
     current_user: User = Depends(get_current_user),
 ):
     return await schedule_absence_service.get_past_by_doctor_id(
-        doctor_id=doctor_id,
-        current_user=current_user,
-        pagination=pagination
+        doctor_id=doctor_id, current_user=current_user, pagination=pagination
     )
 
 
@@ -102,9 +100,7 @@ async def get_future(
     current_user: User = Depends(get_current_user),
 ):
     return await schedule_absence_service.get_future_by_doctor_id(
-        doctor_id=doctor_id,
-        current_user=current_user,
-        pagination=pagination
+        doctor_id=doctor_id, current_user=current_user, pagination=pagination
     )
 
 

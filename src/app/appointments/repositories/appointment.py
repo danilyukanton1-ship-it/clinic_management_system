@@ -73,9 +73,9 @@ class AppointmentRepository(BaseRepository):
         return list(result.scalars().all())
 
     async def get_future_appointments_by_user_id(
-            self,
-            user_id: int,
-            pagination: PaginationParams,
+        self,
+        user_id: int,
+        pagination: PaginationParams,
     ) -> PaginationResult[Appointment]:
         filters = (
             or_(
@@ -84,20 +84,14 @@ class AppointmentRepository(BaseRepository):
             ),
             ScheduleSlot.slot_start >= datetime.now(),
         )
-        stmt = (
-            select(Appointment)
-            .join(Appointment.slot)
-            .where(*filters)
-        )
+        stmt = select(Appointment).join(Appointment.slot).where(*filters)
         return await self.paginate(
             stmt=stmt,
             pagination=pagination,
         )
 
     async def get_past_appointments_by_user_id(
-            self,
-            user_id: int,
-            pagination: PaginationParams
+        self, user_id: int, pagination: PaginationParams
     ) -> PaginationResult[Appointment]:
         filters = (
             or_(
@@ -106,11 +100,7 @@ class AppointmentRepository(BaseRepository):
             ),
             ScheduleSlot.slot_start <= datetime.now(),
         )
-        stmt = (
-            select(Appointment)
-            .join(Appointment.slot)
-            .where(*filters)
-        )
+        stmt = select(Appointment).join(Appointment.slot).where(*filters)
         return await self.paginate(
             stmt=stmt,
             pagination=pagination,

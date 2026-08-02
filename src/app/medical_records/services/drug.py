@@ -46,15 +46,15 @@ class DrugService:
             raise DrugNotFoundException
         return DrugResponseSchema.model_validate(drug)
 
-    async def get_all(self, pagination: PaginationParams) -> PaginatedResponse[DrugResponseSchema]:
-        drugs = await self.uow.drugs.get_all_drugs(
-            pagination=pagination
-        )
+    async def get_all(
+        self, pagination: PaginationParams
+    ) -> PaginatedResponse[DrugResponseSchema]:
+        drugs = await self.uow.drugs.get_all_drugs(pagination=pagination)
         return build_paginated_response(
             items=drugs.items,
             total=drugs.total,
             pagination=pagination,
-            schema=DrugResponseSchema
+            schema=DrugResponseSchema,
         )
 
     async def get_by_name(self, name: str) -> DrugResponseSchema:

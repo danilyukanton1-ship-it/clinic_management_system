@@ -110,8 +110,7 @@ class AttachmentService:
         self, patient_id: int, pagination: PaginationParams
     ) -> PaginatedResponse[AttachmentResponseSchema]:
         attachments = await self.uow.attachments.get_attachments_by_patient_id(
-            patient_id=patient_id,
-            pagination=pagination
+            patient_id=patient_id, pagination=pagination
         )
         return build_paginated_response(
             items=attachments.items,

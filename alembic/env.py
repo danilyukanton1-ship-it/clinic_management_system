@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 from core.config import settings
+
 config = context.config
 
 config.set_main_option("sqlalchemy.url", settings.db.async_db_url)
@@ -33,9 +34,11 @@ from app.medical_records.models.prescription import Prescription
 from app.medical_records.models.prescription_item import PrescriptionItem
 from app.appointments.models.appointment import Appointment
 from app.appointments.models.attachment import Attachment
+
 target_metadata = Base.metadata
 
 print(target_metadata.tables.keys())
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

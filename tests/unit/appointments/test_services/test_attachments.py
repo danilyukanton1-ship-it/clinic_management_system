@@ -323,10 +323,10 @@ class TestAttachmentService:
 
     @pytest.mark.asyncio
     async def test_get_by_appointment_id_success(
-            self,
-            attachment_service,
-            attachment_1,
-            pagination,
+        self,
+        attachment_service,
+        attachment_1,
+        pagination,
     ):
         attachment_service.uow.attachments.get_attachments_by_appointment_id = (
             AsyncMock(
@@ -358,9 +358,9 @@ class TestAttachmentService:
 
     @pytest.mark.asyncio
     async def test_get_by_appointment_id_not_found(
-            self,
-            attachment_service,
-            pagination,
+        self,
+        attachment_service,
+        pagination,
     ):
         attachment_service.uow.attachments.get_attachments_by_appointment_id = (
             AsyncMock(
@@ -389,10 +389,10 @@ class TestAttachmentService:
 
     @pytest.mark.asyncio
     async def test_get_by_patient_id_success(
-            self,
-            attachment_service,
-            attachment_1,
-            pagination,
+        self,
+        attachment_service,
+        attachment_1,
+        pagination,
     ):
         attachment_service.uow.attachments.get_attachments_by_patient_id = AsyncMock(
             return_value=PaginationResult(
@@ -422,9 +422,9 @@ class TestAttachmentService:
 
     @pytest.mark.asyncio
     async def test_get_by_patient_id_not_found(
-            self,
-            attachment_service,
-            pagination,
+        self,
+        attachment_service,
+        pagination,
     ):
         attachment_service.uow.attachments.get_attachments_by_patient_id = AsyncMock(
             return_value=PaginationResult(

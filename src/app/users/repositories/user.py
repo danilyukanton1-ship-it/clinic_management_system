@@ -103,10 +103,10 @@ class UserRepository(BaseRepository):
         return result.scalar_one_or_none()
 
     async def _get_all(
-            self,
-            role: UserRole,
-            pagination: PaginationParams,
-            admin: bool | None = False,
+        self,
+        role: UserRole,
+        pagination: PaginationParams,
+        admin: bool | None = False,
     ) -> PaginationResult[User]:
         stmt = select(User).where(
             User.role == role,
@@ -118,10 +118,7 @@ class UserRepository(BaseRepository):
                 User.is_verified.is_(True),
                 User.is_active.is_(True),
             )
-        return await self.paginate(
-            stmt=stmt,
-            pagination=pagination
-        )
+        return await self.paginate(stmt=stmt, pagination=pagination)
 
     async def create_patient(self, data: RegisterSchema, password_hash: str) -> User:
         return await self._create_user(
@@ -205,20 +202,30 @@ class UserRepository(BaseRepository):
     async def get_patient_by_phone(self, phone: str) -> User | None:
         return await self._get_by_phone(phone=phone, role=UserRole.PATIENT)
 
-    async def get_all_doctors(self, pagination: PaginationParams) -> PaginationResult[User]:
+    async def get_all_doctors(
+        self, pagination: PaginationParams
+    ) -> PaginationResult[User]:
         return await self._get_all(role=UserRole.DOCTOR, pagination=pagination)
 
-    async def get_all_doctors_for_admin(self, pagination: PaginationParams) -> PaginationResult[User]:
-        return await self._get_all(role=UserRole.DOCTOR, admin=True, pagination=pagination)
-
-    async def get_all_patients(self, pagination: PaginationParams) -> PaginationResult[User]:
-        return await self._get_all(role=UserRole.PATIENT, admin=True, pagination=pagination)
-
-    async def get_all_admins(self, pagination: PaginationParams) -> PaginationResult[User]:
+    async def get_all_doctors_for_admin(
+        self, pagination: PaginationParams
+    ) -> PaginationResult[User]:
         return await self._get_all(
-            role=UserRole.ADMIN,
-            admin=True,
-            pagination=pagination
+            role=UserRole.DOCTOR, admin=True, pagination=pagination
+        )
+
+    async def get_all_patients(
+        self, pagination: PaginationParams
+    ) -> PaginationResult[User]:
+        return await self._get_all(
+            role=UserRole.PATIENT, admin=True, pagination=pagination
+        )
+
+    async def get_all_admins(
+        self, pagination: PaginationParams
+    ) -> PaginationResult[User]:
+        return await self._get_all(
+            role=UserRole.ADMIN, admin=True, pagination=pagination
         )
 
     async def get_doctors_by_specialization_id(

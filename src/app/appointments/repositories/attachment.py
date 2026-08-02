@@ -31,8 +31,9 @@ class AttachmentRepository(BaseRepository):
             stmt=stmt,
             pagination=pagination,
         )
+
     async def get_attachments_by_patient_id(
-            self, patient_id: int, pagination: PaginationParams
+        self, patient_id: int, pagination: PaginationParams
     ) -> PaginationResult[Attachment]:
         stmt = select(Attachment).where(Attachment.patient_id == patient_id)
         return await self.paginate(

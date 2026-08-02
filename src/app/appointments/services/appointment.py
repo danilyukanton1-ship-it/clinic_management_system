@@ -75,8 +75,7 @@ class AppointmentService:
                 raise UserNotFoundException()
             appointments = (
                 await self.uow.appointments.get_future_appointments_by_user_id(
-                    user_id=user_id,
-                    pagination=pagination
+                    user_id=user_id, pagination=pagination
                 )
             )
             for appointment in appointments.items:
@@ -96,8 +95,7 @@ class AppointmentService:
             if user is None:
                 raise UserNotFoundException()
             appointments = await self.uow.appointments.get_past_appointments_by_user_id(
-                user_id=user_id,
-                pagination=pagination
+                user_id=user_id, pagination=pagination
             )
             for appointment in appointments.items:
                 self.policy.can_view(user=user, appointment=appointment)

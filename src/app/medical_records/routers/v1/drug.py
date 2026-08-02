@@ -23,7 +23,7 @@ router = APIRouter(
 @router.get(
     path="/all",
     status_code=status.HTTP_200_OK,
-    response_model=PaginatedResponse[DrugResponseSchema]
+    response_model=PaginatedResponse[DrugResponseSchema],
 )
 async def get_drugs(
     pagination: PaginationParams = Depends(),
@@ -35,9 +35,7 @@ async def get_drugs(
         UserRole.ADMIN,
         UserRole.DOCTOR,
     )
-    return await drug_service.get_all(
-        pagination=pagination
-    )
+    return await drug_service.get_all(pagination=pagination)
 
 
 @router.get(

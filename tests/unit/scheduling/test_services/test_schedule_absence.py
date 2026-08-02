@@ -13,6 +13,7 @@ from app.users.exceptions.user import UserNotFoundException
 from common.permissions.exceptions import ForbiddenException
 from common.pagination.schemas import PaginationResult
 
+
 class TestScheduleAbsence:
 
     @pytest.mark.asyncio
@@ -490,12 +491,12 @@ class TestScheduleAbsence:
 
     @pytest.mark.asyncio
     async def test_get_future_by_doctor_id_success(
-            self,
-            schedule_absence_service,
-            doctor_1,
-            admin_1,
-            schedule_absence_1,
-            pagination,
+        self,
+        schedule_absence_service,
+        doctor_1,
+        admin_1,
+        schedule_absence_1,
+        pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,
@@ -543,10 +544,10 @@ class TestScheduleAbsence:
 
     @pytest.mark.asyncio
     async def test_get_future_by_doctor_id_doctor_not_found(
-            self,
-            schedule_absence_service,
-            admin_1,
-            pagination,
+        self,
+        schedule_absence_service,
+        admin_1,
+        pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=None,
@@ -575,11 +576,11 @@ class TestScheduleAbsence:
 
     @pytest.mark.asyncio
     async def test_get_future_by_doctor_id_no_absences(
-            self,
-            schedule_absence_service,
-            doctor_1,
-            admin_1,
-            pagination,
+        self,
+        schedule_absence_service,
+        doctor_1,
+        admin_1,
+        pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,
@@ -616,17 +617,19 @@ class TestScheduleAbsence:
         assert result.total == 0
         assert result.page == 1
         assert result.page_size == 20
-        assert result.pages == 0  # либо 1, если в build_paginated_response используется max(1, ...)
+        assert (
+            result.pages == 0
+        )  # либо 1, если в build_paginated_response используется max(1, ...)
         assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_future_by_doctor_id_forbidden(
-            self,
-            schedule_absence_service,
-            doctor_1,
-            current_patient,
-            schedule_absence_1,
-            pagination,
+        self,
+        schedule_absence_service,
+        doctor_1,
+        current_patient,
+        schedule_absence_1,
+        pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,
@@ -668,12 +671,12 @@ class TestScheduleAbsence:
 
     @pytest.mark.asyncio
     async def test_get_past_by_doctor_id_success(
-            self,
-            schedule_absence_service,
-            doctor_1,
-            admin_1,
-            schedule_absence_ended,
-            pagination,
+        self,
+        schedule_absence_service,
+        doctor_1,
+        admin_1,
+        schedule_absence_ended,
+        pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,
@@ -721,10 +724,10 @@ class TestScheduleAbsence:
 
     @pytest.mark.asyncio
     async def test_get_past_by_doctor_id_doctor_not_found(
-            self,
-            schedule_absence_service,
-            admin_1,
-            pagination,
+        self,
+        schedule_absence_service,
+        admin_1,
+        pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=None,
@@ -753,11 +756,11 @@ class TestScheduleAbsence:
 
     @pytest.mark.asyncio
     async def test_get_past_by_doctor_id_no_absences(
-            self,
-            schedule_absence_service,
-            doctor_1,
-            admin_1,
-            pagination,
+        self,
+        schedule_absence_service,
+        doctor_1,
+        admin_1,
+        pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,
@@ -794,17 +797,19 @@ class TestScheduleAbsence:
         assert result.total == 0
         assert result.page == 1
         assert result.page_size == 20
-        assert result.pages == 0  # или 1, если build_paginated_response использует max(1, ...)
+        assert (
+            result.pages == 0
+        )  # или 1, если build_paginated_response использует max(1, ...)
         assert result.items == []
 
     @pytest.mark.asyncio
     async def test_get_past_by_doctor_id_forbidden(
-            self,
-            schedule_absence_service,
-            doctor_1,
-            current_patient,
-            schedule_absence_ended,
-            pagination,
+        self,
+        schedule_absence_service,
+        doctor_1,
+        current_patient,
+        schedule_absence_ended,
+        pagination,
     ):
         schedule_absence_service.uow.users.get_doctor_by_id = AsyncMock(
             return_value=doctor_1,

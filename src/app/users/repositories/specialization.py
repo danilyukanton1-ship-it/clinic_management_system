@@ -14,7 +14,7 @@ from core.repository import BaseRepository
 class SpecializationRepository(BaseRepository):
 
     async def get_all_specializations(
-            self, pagination: PaginationParams
+        self, pagination: PaginationParams
     ) -> PaginationResult[Specialization]:
         stmt = select(Specialization)
         return await self.paginate(

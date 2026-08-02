@@ -50,9 +50,7 @@ async def get_past_slots_by_doctor_id_status(
     schedule_slot_service: ScheduleSlotService = Depends(get_schedule_slot_service),
 ):
     slots = await schedule_slot_service.get_past_slots_by_doctor_id_status(
-        doctor_id=doctor_id,
-        status=slot_status,
-        pagination=pagination
+        doctor_id=doctor_id, status=slot_status, pagination=pagination
     )
     return slots
 

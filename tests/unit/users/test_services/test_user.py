@@ -15,6 +15,7 @@ from app.users.schemas.user import (
 from common.permissions.exceptions import ForbiddenException
 from common.pagination.schemas import PaginationResult
 
+
 class TestUserService:
 
     @pytest.mark.asyncio
@@ -465,11 +466,11 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_all_doctors_success(
-            self,
-            user_service,
-            doctor_1,
-            doctor_2,
-            pagination,
+        self,
+        user_service,
+        doctor_1,
+        doctor_2,
+        pagination,
     ):
         user_service.uow.users.get_all_doctors = AsyncMock(
             return_value=PaginationResult(
@@ -532,11 +533,11 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_all_patients_success(
-            self,
-            user_service,
-            patient_1,
-            patient_2,
-            pagination,
+        self,
+        user_service,
+        patient_1,
+        patient_2,
+        pagination,
     ):
         user_service.uow.users.get_all_patients = AsyncMock(
             return_value=PaginationResult(
@@ -1612,11 +1613,11 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_all_doctors_for_admin_success(
-            self,
-            user_service,
-            doctor_1,
-            doctor_2,
-            pagination,
+        self,
+        user_service,
+        doctor_1,
+        doctor_2,
+        pagination,
     ):
         user_service.uow.users.get_all_doctors_for_admin = AsyncMock(
             return_value=PaginationResult(
@@ -1645,11 +1646,11 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_get_all_admins_success(
-            self,
-            user_service,
-            admin_1,
-            admin_2,
-            pagination,
+        self,
+        user_service,
+        admin_1,
+        admin_2,
+        pagination,
     ):
         user_service.uow.users.get_all_admins = AsyncMock(
             return_value=PaginationResult(

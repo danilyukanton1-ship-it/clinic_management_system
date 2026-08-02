@@ -144,22 +144,26 @@ class UserService:
             )
         return AdminResponseSchema.model_validate(admin)
 
-    async def get_all_doctors(self, pagination: PaginationParams) -> PaginatedResponse[DoctorResponseSchema]:
+    async def get_all_doctors(
+        self, pagination: PaginationParams
+    ) -> PaginatedResponse[DoctorResponseSchema]:
         doctors = await self.uow.users.get_all_doctors(pagination=pagination)
         return build_paginated_response(
             items=doctors.items,
             total=doctors.total,
             pagination=pagination,
-            schema=DoctorResponseSchema
+            schema=DoctorResponseSchema,
         )
 
-    async def get_all_doctors_for_admin(self, pagination: PaginationParams) -> PaginatedResponse[DoctorResponseSchema]:
+    async def get_all_doctors_for_admin(
+        self, pagination: PaginationParams
+    ) -> PaginatedResponse[DoctorResponseSchema]:
         doctors = await self.uow.users.get_all_doctors_for_admin(pagination=pagination)
         return build_paginated_response(
             items=doctors.items,
             total=doctors.total,
             pagination=pagination,
-            schema=DoctorResponseSchema
+            schema=DoctorResponseSchema,
         )
 
     async def get_doctors_by_specialization_id(
@@ -175,22 +179,26 @@ class UserService:
         )
         return [DoctorResponseSchema.model_validate(doctor) for doctor in doctors]
 
-    async def get_all_patients(self, pagination: PaginationParams) -> PaginatedResponse[PatientResponseSchema]:
+    async def get_all_patients(
+        self, pagination: PaginationParams
+    ) -> PaginatedResponse[PatientResponseSchema]:
         patients = await self.uow.users.get_all_patients(pagination=pagination)
         return build_paginated_response(
             items=patients.items,
             total=patients.total,
             pagination=pagination,
-            schema=PatientResponseSchema
+            schema=PatientResponseSchema,
         )
 
-    async def get_all_admins(self, pagination: PaginationParams) -> PaginatedResponse[AdminResponseSchema]:
+    async def get_all_admins(
+        self, pagination: PaginationParams
+    ) -> PaginatedResponse[AdminResponseSchema]:
         admins = await self.uow.users.get_all_admins(pagination=pagination)
         return build_paginated_response(
             items=admins.items,
             total=admins.total,
             pagination=pagination,
-            schema=AdminResponseSchema
+            schema=AdminResponseSchema,
         )
 
     async def get_doctor_by_id(self, doctor_id: int) -> DoctorResponseSchema:

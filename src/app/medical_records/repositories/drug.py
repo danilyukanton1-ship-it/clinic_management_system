@@ -20,12 +20,11 @@ class DrugRepository(BaseRepository):
         await self.session.refresh(drug)
         return drug
 
-    async def get_all_drugs(self, pagination: PaginationParams) -> PaginationResult[Drug]:
+    async def get_all_drugs(
+        self, pagination: PaginationParams
+    ) -> PaginationResult[Drug]:
         stmt = select(Drug)
-        return await self.paginate(
-            stmt=stmt,
-            pagination=pagination
-        )
+        return await self.paginate(stmt=stmt, pagination=pagination)
 
     async def get_drug_by_id(self, drug_id: int) -> Drug:
         stmt = select(Drug).where(Drug.id == drug_id)

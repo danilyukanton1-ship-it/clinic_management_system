@@ -31,7 +31,7 @@ class DiagnosisRepository(BaseRepository):
         return diagnosis
 
     async def get_all_diagnoses(
-            self, pagination: PaginationParams
+        self, pagination: PaginationParams
     ) -> PaginationResult[Diagnosis]:
         stmt = select(Diagnosis)
         return await self.paginate(
@@ -61,7 +61,7 @@ class DiagnosisRepository(BaseRepository):
         return list(result.scalars().all())
 
     async def get_diagnoses_by_disease_id(
-            self, disease_id: int, pagination: PaginationParams
+        self, disease_id: int, pagination: PaginationParams
     ) -> PaginationResult[Diagnosis]:
         stmt = select(Diagnosis).where(Diagnosis.disease_id == disease_id)
         return await self.paginate(

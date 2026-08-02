@@ -98,8 +98,7 @@ async def get_by_appointment_id(
 ):
     check_role(current_user, UserRole.DOCTOR, UserRole.ADMIN)
     return await attachment_service.get_by_appointment_id(
-        appointment_id=appointment_id,
-        pagination=pagination
+        appointment_id=appointment_id, pagination=pagination
     )
 
 

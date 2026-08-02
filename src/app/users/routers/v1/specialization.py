@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, status
+
+from common.pagination.schemas import PaginationParams, PaginatedResponse
 from common.types import Email, ID
 from app.users.services.specialization import SpecializationService
 
@@ -20,14 +22,17 @@ router = APIRouter(prefix="/specializations", tags=["Specializations"])
 @router.get(
     path="",
     status_code=status.HTTP_200_OK,
-    response_model=list[SpecializationResponseSchema],
+    response_model=PaginatedResponse[SpecializationResponseSchema],
 )
 async def get_all(
+    pagination: PaginationParams = Depends(),
     specializations_service: SpecializationService = Depends(
         get_specialization_service
     ),
-) -> list[SpecializationResponseSchema]:
-    return await specializations_service.get_all()
+) -> PaginatedResponse[SpecializationResponseSchema]:
+    return await specializations_service.get_all(
+        pagination=pagination,
+    )
 
 
 @router.get(

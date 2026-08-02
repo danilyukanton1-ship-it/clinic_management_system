@@ -21,6 +21,8 @@ from app.scheduling.exceptions.schedule_slot import (
 from app.users.exceptions.user import UserNotFoundException
 from common.constants import WEEKDAY_MAPPING
 from common.enums.slot_status import SlotStatus
+from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
 
@@ -146,28 +148,37 @@ class ScheduleSlotService:
             return ScheduleSlotResponseSchema.model_validate(status_changed_slot)
 
     async def get_future_slots_by_doctor_id_status(
-        self, doctor_id: int, status: SlotStatus
-    ) -> list[ScheduleSlotResponseSchema]:
-        async with self.uow:
-            doctor = await self.uow.users.get_doctor_by_id(doctor_id=doctor_id)
-            if not doctor:
-                raise UserNotFoundException()
-            slots = await self.uow.schedule_slots.get_future_slots_by_doctor_id_status(
-                doctor_id=doctor_id, status=status
-            )
-            return [ScheduleSlotResponseSchema.model_validate(slot) for slot in slots]
+        self, doctor_id: int, status: SlotStatus, pagination: PaginationParams
+    ) -> PaginatedResponse[ScheduleSlotResponseSchema]:
+        doctor = await self.uow.users.get_doctor_by_id(doctor_id=doctor_id)
+        if not doctor:
+            raise UserNotFoundException()
+        slots = await self.uow.schedule_slots.get_future_slots_by_doctor_id_status(
+            doctor_id=doctor_id, status=status, pagination=pagination
+        )
+        return build_paginated_response(
+            items=slots.items,
+            total=slots.total,
+            pagination=pagination,
+            schema=ScheduleSlotResponseSchema,
+        )
 
     async def get_past_slots_by_doctor_id_status(
-        self, doctor_id: int, status: SlotStatus
+        self, doctor_id: int, status: SlotStatus, pagination: PaginationParams
     ) -> list[ScheduleSlotResponseSchema]:
         async with self.uow:
             doctor = await self.uow.users.get_doctor_by_id(doctor_id=doctor_id)
             if not doctor:
                 raise UserNotFoundException()
             slots = await self.uow.schedule_slots.get_past_slots_by_doctor_id_status(
-                doctor_id=doctor_id, status=status
+                doctor_id=doctor_id, status=status, pagination=pagination
             )
-            return [ScheduleSlotResponseSchema.model_validate(slot) for slot in slots]
+            return build_paginated_response(
+                items=slots.items,
+                total=slots.total,
+                pagination=pagination,
+                schema=ScheduleSlotResponseSchema,
+            )
 
     async def update(
         self, slot_id: int, data: ScheduleSlotUpdateSchema

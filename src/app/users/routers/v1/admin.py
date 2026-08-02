@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, status
-from common.types import Email, ID
+
+from common.pagination.schemas import PaginatedResponse, PaginationParams
+from common.types import ID
 from app.users.dependencies import get_user_service
 
 from app.users.services.user import UserService
@@ -35,6 +37,23 @@ async def create(
     )
     return await user_service.create_admin(data=data)
 
+@router.get(
+    path="/all",
+    status_code=status.HTTP_200_OK,
+    response_model=PaginatedResponse[AdminResponseSchema],
+)
+async def get_all(
+    pagination: PaginationParams = Depends(),
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
+) -> PaginatedResponse[AdminResponseSchema]:
+    check_role(
+        current_user,
+        UserRole.ADMIN,
+    )
+    return await user_service.get_all_admins(
+        pagination=pagination
+    )
 
 @router.get(
     path="/{admin_id}",
@@ -51,22 +70,6 @@ async def get_admin(
         UserRole.ADMIN,
     )
     return await user_service.get_admin_by_id(admin_id=admin_id)
-
-
-@router.get(
-    path="/all",
-    status_code=status.HTTP_200_OK,
-    response_model=list[AdminResponseSchema],
-)
-async def get_all(
-    user_service: UserService = Depends(get_user_service),
-    current_user: User = Depends(get_current_user),
-):
-    check_role(
-        current_user,
-        UserRole.ADMIN,
-    )
-    return await user_service.get_all_admins()
 
 
 @router.put(

@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, status
+
+from common.pagination.schemas import PaginationParams, PaginatedResponse
 from common.types import ID
 from app.medical_records.dependencies import get_diagnosis_service
 from app.medical_records.schemas.diagnosis import (
@@ -36,25 +38,29 @@ async def get_by_id(
 @router.get(
     path="/prescription/{prescription_id}",
     status_code=status.HTTP_200_OK,
-    response_model=list[DiagnosisResponseSchema],
+    response_model=PaginatedResponse[DiagnosisResponseSchema],
 )
 async def get_by_prescription_id(
     prescription_id: ID,
+    pagination: PaginationParams = Depends(),
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
     current_user: User = Depends(get_current_user),
 ):
     return await diagnosis_service.get_by_prescription_id(
-        prescription_id=prescription_id, current_user=current_user
+        prescription_id=prescription_id,
+        current_user=current_user,
+        pagination=pagination
     )
 
 
 @router.get(
     path="/disease/{disease_id}",
     status_code=status.HTTP_200_OK,
-    response_model=list[DiagnosisResponseSchema],
+    response_model=PaginatedResponse[DiagnosisResponseSchema],
 )
 async def get_by_disease_id(
     disease_id: ID,
+    pagination: PaginationParams = Depends(),
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -63,7 +69,10 @@ async def get_by_disease_id(
         UserRole.DOCTOR,
         UserRole.ADMIN,
     )
-    return await diagnosis_service.get_by_disease_id(disease_id=disease_id)
+    return await diagnosis_service.get_by_disease_id(
+        disease_id=disease_id,
+        pagination=pagination
+    )
 
 
 @router.put(

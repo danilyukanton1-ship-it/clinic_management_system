@@ -7,17 +7,20 @@ from app.users.schemas.specialization import (
     SpecializationCreateSchema,
     SpecializationUpdateSchema,
 )
+from common.pagination.schemas import PaginationParams, PaginationResult
+from core.repository import BaseRepository
 
 
-class SpecializationRepository:
+class SpecializationRepository(BaseRepository):
 
-    def __init__(self, session: AsyncSession):
-        self.session = session
-
-    async def get_all_specializations(self) -> list[Specialization] | None:
+    async def get_all_specializations(
+            self, pagination: PaginationParams
+    ) -> PaginationResult[Specialization]:
         stmt = select(Specialization)
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
     async def get_specialization_by_id(
         self, specialization_id: int

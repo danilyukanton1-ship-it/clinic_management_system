@@ -1,16 +1,14 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.medical_records.schemas.diagnosis import (
     DiagnosisCreateSchema,
     DiagnosisUpdateSchema,
 )
 from app.medical_records.models.diagnosis import Diagnosis
+from common.pagination.schemas import PaginationParams, PaginationResult
+from core.repository import BaseRepository
 
 
-class DiagnosisRepository:
-
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class DiagnosisRepository(BaseRepository):
 
     async def create_diagnosis(self, data: DiagnosisCreateSchema) -> Diagnosis:
         diagnosis = Diagnosis(
@@ -32,15 +30,28 @@ class DiagnosisRepository:
         await self.session.refresh(diagnosis)
         return diagnosis
 
-    async def get_all_diagnoses(self) -> list[Diagnosis]:
+    async def get_all_diagnoses(
+            self, pagination: PaginationParams
+    ) -> PaginationResult[Diagnosis]:
         stmt = select(Diagnosis)
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
     async def get_diagnosis_by_id(self, diagnosis_id: int) -> Diagnosis | None:
         stmt = select(Diagnosis).where(Diagnosis.id == diagnosis_id)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def get_diagnoses_by_prescription_id_with_pagination(
+        self, prescription_id: int, pagination: PaginationParams
+    ) -> PaginationResult[Diagnosis]:
+        stmt = select(Diagnosis).where(Diagnosis.prescription_id == prescription_id)
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
     async def get_diagnoses_by_prescription_id(
         self, prescription_id: int
@@ -49,10 +60,14 @@ class DiagnosisRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_diagnoses_by_disease_id(self, disease_id: int) -> list[Diagnosis]:
+    async def get_diagnoses_by_disease_id(
+            self, disease_id: int, pagination: PaginationParams
+    ) -> PaginationResult[Diagnosis]:
         stmt = select(Diagnosis).where(Diagnosis.disease_id == disease_id)
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
     async def delete_diagnosis(self, diagnosis: Diagnosis) -> None:
         await self.session.delete(diagnosis)

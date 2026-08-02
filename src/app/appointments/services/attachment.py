@@ -15,6 +15,8 @@ from app.appointments.exceptions.attachment import AttachmentDoesNotExistExcepti
 from app.users.exceptions.user import UserNotFoundException
 from app.users.models.user import User
 from app.appointments.policy.attachments import AttachmentPolicy
+from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.utils import build_paginated_response
 
 from infrastructure.storages.interface import StorageInterface
 from db.unit_of_work import UnitOfWork
@@ -91,26 +93,32 @@ class AttachmentService:
         return AttachmentResponseSchema.model_validate(attachment)
 
     async def get_by_appointment_id(
-        self, appointment_id: int
-    ) -> list[AttachmentResponseSchema]:
+        self, appointment_id: int, pagination: PaginationParams
+    ) -> PaginatedResponse[AttachmentResponseSchema]:
         attachments = await self.uow.attachments.get_attachments_by_appointment_id(
-            appointment_id=appointment_id
+            appointment_id=appointment_id,
+            pagination=pagination,
         )
-        return [
-            AttachmentResponseSchema.model_validate(attachment)
-            for attachment in attachments
-        ]
+        return build_paginated_response(
+            items=attachments.items,
+            total=attachments.total,
+            pagination=pagination,
+            schema=AttachmentResponseSchema,
+        )
 
     async def get_by_patient_id(
-        self, patient_id: int
-    ) -> list[AttachmentResponseSchema]:
+        self, patient_id: int, pagination: PaginationParams
+    ) -> PaginatedResponse[AttachmentResponseSchema]:
         attachments = await self.uow.attachments.get_attachments_by_patient_id(
-            patient_id=patient_id
+            patient_id=patient_id,
+            pagination=pagination
         )
-        return [
-            AttachmentResponseSchema.model_validate(attachment)
-            for attachment in attachments
-        ]
+        return build_paginated_response(
+            items=attachments.items,
+            total=attachments.total,
+            pagination=pagination,
+            schema=AttachmentResponseSchema,
+        )
 
     async def get_download_url(self, attachment_id: int) -> DownloadUrl:
         attachment = await self.uow.attachments.get_attachment_by_id(

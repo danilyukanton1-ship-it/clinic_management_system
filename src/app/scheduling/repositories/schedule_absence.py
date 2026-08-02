@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.scheduling.models.schedule_absence import ScheduleAbsence
@@ -8,12 +7,11 @@ from app.scheduling.schemas.schedule_absence import (
     ScheduleAbsenceCreateSchema,
     ScheduleAbsenceUpdateSchema,
 )
+from common.pagination.schemas import PaginationResult, PaginationParams
+from core.repository import BaseRepository
 
 
-class ScheduleAbsenceRepository:
-
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class ScheduleAbsenceRepository(BaseRepository):
 
     async def create_absence(self, data: ScheduleAbsenceCreateSchema):
         absence = ScheduleAbsence(
@@ -43,24 +41,28 @@ class ScheduleAbsenceRepository:
         return result.scalar_one_or_none()
 
     async def get_past_absences_by_doctor_id(
-        self, doctor_id: int
-    ) -> list[ScheduleAbsence]:
+        self, doctor_id: int, pagination: PaginationParams
+    ) -> PaginationResult[ScheduleAbsence]:
         stmt = select(ScheduleAbsence).where(
             ScheduleAbsence.doctor_id == doctor_id,
             ScheduleAbsence.end_date <= datetime.now(),
         )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
     async def get_future_absences_by_doctor_id(
-        self, doctor_id: int
-    ) -> list[ScheduleAbsence]:
+        self, doctor_id: int, pagination: PaginationParams
+    ) -> PaginationResult[ScheduleAbsence]:
         stmt = select(ScheduleAbsence).where(
             ScheduleAbsence.doctor_id == doctor_id,
             ScheduleAbsence.end_date >= datetime.now(),
         )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
     async def get_overlapping_absence(
         self,

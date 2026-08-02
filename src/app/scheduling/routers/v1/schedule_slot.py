@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, status
+
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.types import ID
 from app.scheduling.dependencies import get_schedule_slot_service
 
@@ -20,16 +22,18 @@ router = APIRouter(prefix="/schedule-slots", tags=["Schedule slots"])
 @router.get(
     path="/future/{doctor_id}/{slot_status}",
     status_code=status.HTTP_200_OK,
-    response_model=list[ScheduleSlotResponseSchema],
+    response_model=PaginatedResponse[ScheduleSlotResponseSchema],
 )
 async def get_future_slots_by_doctor_id_status(
     doctor_id: ID,
     slot_status: SlotStatus,
+    pagination: PaginationParams = Depends(),
     schedule_slot_service: ScheduleSlotService = Depends(get_schedule_slot_service),
 ):
     slots = await schedule_slot_service.get_future_slots_by_doctor_id_status(
         doctor_id=doctor_id,
         status=slot_status,
+        pagination=pagination,
     )
     return slots
 
@@ -37,16 +41,18 @@ async def get_future_slots_by_doctor_id_status(
 @router.get(
     path="/past/{doctor_id}/{slot_status}",
     status_code=status.HTTP_200_OK,
-    response_model=list[ScheduleSlotResponseSchema],
+    response_model=PaginatedResponse[ScheduleSlotResponseSchema],
 )
 async def get_past_slots_by_doctor_id_status(
     doctor_id: ID,
     slot_status: SlotStatus,
+    pagination: PaginationParams = Depends(),
     schedule_slot_service: ScheduleSlotService = Depends(get_schedule_slot_service),
 ):
     slots = await schedule_slot_service.get_past_slots_by_doctor_id_status(
         doctor_id=doctor_id,
         status=slot_status,
+        pagination=pagination
     )
     return slots
 

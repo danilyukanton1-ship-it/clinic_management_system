@@ -1,6 +1,8 @@
 from typing import Annotated
 
 from fastapi import APIRouter, File, Depends, status, UploadFile
+
+from common.pagination.schemas import PaginationParams, PaginatedResponse
 from common.types import ID
 from app.appointments.dependencies import get_attachment_service
 from common.permissions.checks import check_role
@@ -85,30 +87,38 @@ async def get_by_id(
 
 @router.get(
     path="/appointments/{appointment_id}",
-    response_model=list[AttachmentResponseSchema],
+    response_model=PaginatedResponse[AttachmentResponseSchema],
     status_code=status.HTTP_200_OK,
 )
 async def get_by_appointment_id(
     appointment_id: ID,
+    pagination: PaginationParams = Depends(),
     current_user: User = Depends(get_current_user),
     attachment_service: AttachmentService = Depends(get_attachment_service),
 ):
     check_role(current_user, UserRole.DOCTOR, UserRole.ADMIN)
-    return await attachment_service.get_by_appointment_id(appointment_id=appointment_id)
+    return await attachment_service.get_by_appointment_id(
+        appointment_id=appointment_id,
+        pagination=pagination
+    )
 
 
 @router.get(
     path="/patients/{patient_id}",
-    response_model=list[AttachmentResponseSchema],
+    response_model=PaginatedResponse[AttachmentResponseSchema],
     status_code=status.HTTP_200_OK,
 )
 async def get_by_patient_id(
     patient_id: ID,
+    pagination: PaginationParams = Depends(),
     current_user: User = Depends(get_current_user),
     attachment_service: AttachmentService = Depends(get_attachment_service),
 ):
     check_role(current_user, UserRole.DOCTOR, UserRole.ADMIN)
-    return await attachment_service.get_by_patient_id(patient_id=patient_id)
+    return await attachment_service.get_by_patient_id(
+        patient_id=patient_id,
+        pagination=pagination,
+    )
 
 
 @router.delete(

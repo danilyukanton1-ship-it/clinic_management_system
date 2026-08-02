@@ -9,6 +9,8 @@ from app.users.exceptions.specialization import (
     SpecializationNotFoundException,
     SpecializationAlreadyExistsException,
 )
+from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
 
@@ -37,12 +39,18 @@ class SpecializationService:
             raise SpecializationNotFoundException()
         return SpecializationResponseSchema.model_validate(specialization)
 
-    async def get_all(self) -> list[SpecializationResponseSchema]:
-        specializations = await self.uow.specializations.get_all_specializations()
-        return [
-            SpecializationResponseSchema.model_validate(specialization)
-            for specialization in specializations
-        ]
+    async def get_all(
+            self, pagination: PaginationParams
+    ) -> PaginatedResponse[SpecializationResponseSchema]:
+        specializations = await self.uow.specializations.get_all_specializations(
+            pagination=pagination
+        )
+        return build_paginated_response(
+            items=specializations.items,
+            total=specializations.total,
+            pagination=pagination,
+            schema=SpecializationResponseSchema
+        )
 
     async def create(
         self, data: SpecializationCreateSchema

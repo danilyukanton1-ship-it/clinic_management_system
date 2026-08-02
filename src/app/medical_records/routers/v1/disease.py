@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, status
+
+from common.pagination.schemas import PaginationParams, PaginatedResponse
 from common.types import ID
 from app.medical_records.dependencies import get_disease_service
 from app.medical_records.services.disease import DiseaseService
@@ -14,19 +16,24 @@ from common.permissions.checks import check_role
 
 router = APIRouter(
     tags=["Diseases"],
-    prefix="/disease",
+    prefix="/diseases",
 )
 
 
 @router.get(
-    path="", status_code=status.HTTP_200_OK, response_model=list[DiseaseResponseSchema]
+    path="/all",
+    status_code=status.HTTP_200_OK,
+    response_model=PaginatedResponse[DiseaseResponseSchema]
 )
 async def get_all(
+    pagination: PaginationParams = Depends(),
     disease_service: DiseaseService = Depends(get_disease_service),
     current_user: User = Depends(get_current_user),
 ):
     check_role(current_user, UserRole.ADMIN, UserRole.DOCTOR)
-    return await disease_service.get_all()
+    return await disease_service.get_all(
+        pagination=pagination,
+    )
 
 
 @router.get(

@@ -1,9 +1,7 @@
 from datetime import datetime, date
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, extract, exists
 
-from app.appointments.models.appointment import Appointment
 from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.scheduling.schemas.schedule_slot import (
     ScheduleSlotCreateSchema,
@@ -12,12 +10,11 @@ from app.scheduling.schemas.schedule_slot import (
 from common.constants import WEEKDAY_MAPPING_REVERSE
 from common.enums.slot_status import SlotStatus
 from common.enums.weekday import Weekday
+from common.pagination.schemas import PaginationParams, PaginationResult
+from core.repository import BaseRepository
 
 
-class ScheduleSlotRepository:
-
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class ScheduleSlotRepository(BaseRepository):
 
     async def get_slot_by_id(self, slot_id: int) -> ScheduleSlot | None:
         stmt = select(ScheduleSlot).where(ScheduleSlot.id == slot_id)
@@ -114,8 +111,9 @@ class ScheduleSlotRepository:
         self,
         doctor_id: int,
         status: SlotStatus,
+        pagination: PaginationParams | None = None,
         weekday: Weekday | None = None,
-    ) -> list[ScheduleSlot]:
+    ) -> list[ScheduleSlot] | PaginationResult[ScheduleSlot]:
         stmt = select(ScheduleSlot).where(
             ScheduleSlot.doctor_id == doctor_id,
             ScheduleSlot.status == status,
@@ -126,19 +124,26 @@ class ScheduleSlotRepository:
                 extract("dow", ScheduleSlot.slot_start)
                 == WEEKDAY_MAPPING_REVERSE[weekday]
             )
+        if pagination:
+            return await self.paginate(
+                stmt=stmt,
+                pagination=pagination
+            )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
     async def get_past_slots_by_doctor_id_status(
-        self, doctor_id: int, status: SlotStatus
-    ) -> list[ScheduleSlot]:
+        self, doctor_id: int, status: SlotStatus, pagination: PaginationParams
+    ) -> PaginationResult[ScheduleSlot]:
         stmt = select(ScheduleSlot).where(
             ScheduleSlot.doctor_id == doctor_id,
             ScheduleSlot.status == status,
             ScheduleSlot.slot_start <= datetime.now(),
         )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination
+        )
 
     async def get_slots_by_schedule_ids(
         self, schedule_ids: list[int]

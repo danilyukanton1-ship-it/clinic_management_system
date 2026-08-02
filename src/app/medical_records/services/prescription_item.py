@@ -13,6 +13,8 @@ from app.medical_records.schemas.prescription_item import (
     PrescriptionItemResponseSchema,
     PrescriptionItemCreateSchema,
 )
+from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
 
@@ -23,27 +25,28 @@ class PrescriptionItemService:
         self.uow = UnitOfWork(session=session)
 
     async def get_by_prescription_id(
-        self, prescription_id: int, current_user: User
-    ) -> list[PrescriptionItemResponseSchema]:
+        self, prescription_id: int, current_user: User, pagination: PaginationParams
+    ) -> PaginatedResponse[PrescriptionItemResponseSchema]:
         prescription_items = (
-            await self.uow.prescription_items.get_prescription_items_by_prescription_id(
-                prescription_id=prescription_id
+            await self.uow.prescription_items.get_prescription_items_by_prescription_id_with_pagination(
+                prescription_id=prescription_id,
+                pagination=pagination
             )
         )
-        if not prescription_items:
-            raise PrescriptionItemNotFoundException()
         appointment = (
             await self.uow.appointments.get_appointment_by_prescription_item_id(
-                prescription_item_id=prescription_items[0].id
+                prescription_item_id=prescription_items.items[0].id
             )
         )
         if not appointment:
             raise AppointmentNotFoundException()
         self.policy.can_view(user=current_user, appointment=appointment)
-        return [
-            PrescriptionItemResponseSchema.model_validate(item)
-            for item in prescription_items
-        ]
+        return build_paginated_response(
+            items=prescription_items.items,
+            total=prescription_items.total,
+            pagination=pagination,
+            schema=PrescriptionItemResponseSchema,
+        )
 
     async def get_by_id(
         self, prescription_item_id: int, current_user: User

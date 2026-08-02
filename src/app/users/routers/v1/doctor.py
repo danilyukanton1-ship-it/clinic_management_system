@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 
-from app.users.schemas.specialization import SpecializationResponseSchema
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.types import Email, ID
 from app.users.dependencies import get_user_service
 
@@ -24,26 +24,32 @@ router = APIRouter(
 @router.get(
     path="/all",
     status_code=status.HTTP_200_OK,
-    response_model=list[DoctorResponseSchema],
+    response_model=PaginatedResponse[DoctorResponseSchema],
 )
 async def get_doctors(
+    pagination: PaginationParams = Depends(),
     user_service: UserService = Depends(get_user_service),
-) -> list[DoctorResponseSchema]:
-    doctors = await user_service.get_all_doctors()
+) -> PaginatedResponse[DoctorResponseSchema]:
+    doctors = await user_service.get_all_doctors(
+        pagination=pagination,
+    )
     return doctors
 
 
 @router.get(
     path="/admin/all",
     status_code=status.HTTP_200_OK,
-    response_model=list[DoctorResponseSchema],
+    response_model=PaginatedResponse[DoctorResponseSchema],
 )
 async def get_doctors_for_admin(
+    pagination: PaginationParams = Depends(),
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
-):
+) -> PaginatedResponse[DoctorResponseSchema]:
     check_role(current_user, UserRole.ADMIN)
-    return await user_service.get_all_doctors_for_admin()
+    return await user_service.get_all_doctors_for_admin(
+        pagination=pagination
+    )
 
 
 @router.post(

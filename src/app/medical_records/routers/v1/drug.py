@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, status
+
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.types import ID
 from app.medical_records.dependencies import get_drug_service
 from app.medical_records.services.drug import DrugService
@@ -19,9 +21,12 @@ router = APIRouter(
 
 
 @router.get(
-    path="", status_code=status.HTTP_200_OK, response_model=list[DrugResponseSchema]
+    path="/all",
+    status_code=status.HTTP_200_OK,
+    response_model=PaginatedResponse[DrugResponseSchema]
 )
 async def get_drugs(
+    pagination: PaginationParams = Depends(),
     drug_service: DrugService = Depends(get_drug_service),
     current_user: User = Depends(get_current_user),
 ):
@@ -30,7 +35,9 @@ async def get_drugs(
         UserRole.ADMIN,
         UserRole.DOCTOR,
     )
-    return await drug_service.get_all()
+    return await drug_service.get_all(
+        pagination=pagination
+    )
 
 
 @router.get(

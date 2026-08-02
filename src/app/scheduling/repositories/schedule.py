@@ -1,18 +1,15 @@
 from datetime import datetime, timedelta, UTC
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.scheduling.models.schedule import Schedule
 from app.scheduling.schemas.schedule import ScheduleCreateSchema, ScheduleUpdateSchema
 from common.enums.weekday import Weekday
 from core.config import settings
+from core.repository import BaseRepository
 
 
-class ScheduleRepository:
-
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class ScheduleRepository(BaseRepository):
 
     async def create_schedule(self, schedule: ScheduleCreateSchema) -> Schedule:
         schedule = Schedule(

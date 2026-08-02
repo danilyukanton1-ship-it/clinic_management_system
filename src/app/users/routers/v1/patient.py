@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, status
+
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.types import Email, ID, Phone
 from app.users.dependencies import get_user_service
 
@@ -16,19 +18,22 @@ router = APIRouter(
 
 
 @router.get(
-    path="",
+    path="/all",
     status_code=status.HTTP_200_OK,
-    response_model=list[PatientResponseSchema],
+    response_model=PaginatedResponse[PatientResponseSchema],
 )
 async def get_patients(
+    pagination: PaginationParams = Depends(),
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
-) -> list[PatientResponseSchema]:
+) -> PaginatedResponse[PatientResponseSchema]:
     check_role(
         current_user,
         UserRole.ADMIN,
     )
-    return await user_service.get_all_patients()
+    return await user_service.get_all_patients(
+        pagination=pagination
+    )
 
 
 @router.get(

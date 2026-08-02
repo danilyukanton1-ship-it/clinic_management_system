@@ -9,6 +9,8 @@ from app.medical_records.exceptions.drug import (
     DrugAlreadyExistsException,
     DrugNotFoundException,
 )
+from common.pagination.schemas import PaginatedResponse, PaginationParams
+from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
 
@@ -44,11 +46,16 @@ class DrugService:
             raise DrugNotFoundException
         return DrugResponseSchema.model_validate(drug)
 
-    async def get_all(self) -> list[DrugResponseSchema]:
-        drugs = await self.uow.drugs.get_all_drugs()
-        if not drugs:
-            raise DrugNotFoundException()
-        return [DrugResponseSchema.model_validate(drug) for drug in drugs]
+    async def get_all(self, pagination: PaginationParams) -> PaginatedResponse[DrugResponseSchema]:
+        drugs = await self.uow.drugs.get_all_drugs(
+            pagination=pagination
+        )
+        return build_paginated_response(
+            items=drugs.items,
+            total=drugs.total,
+            pagination=pagination,
+            schema=DrugResponseSchema
+        )
 
     async def get_by_name(self, name: str) -> DrugResponseSchema:
         drug = await self.uow.drugs.get_drug_by_name(drug_name=name)

@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, status
+
+from common.pagination.schemas import PaginationParams, PaginatedResponse
 from common.types import ID
 from app.scheduling.dependencies import get_schedule_absence_service
 from app.scheduling.schemas.schedule_absence import (
@@ -69,10 +71,11 @@ async def delete(
 @router.get(
     path="/past/{doctor_id}",
     status_code=status.HTTP_200_OK,
-    response_model=list[ScheduleAbsenceResponseSchema],
+    response_model=PaginatedResponse[ScheduleAbsenceResponseSchema],
 )
 async def get_past(
     doctor_id: ID,
+    pagination: PaginationParams = Depends(),
     schedule_absence_service: ScheduleAbsenceService = Depends(
         get_schedule_absence_service
     ),
@@ -81,16 +84,18 @@ async def get_past(
     return await schedule_absence_service.get_past_by_doctor_id(
         doctor_id=doctor_id,
         current_user=current_user,
+        pagination=pagination
     )
 
 
 @router.get(
     path="/future/{doctor_id}",
     status_code=status.HTTP_200_OK,
-    response_model=list[ScheduleAbsenceResponseSchema],
+    response_model=PaginatedResponse[ScheduleAbsenceResponseSchema],
 )
 async def get_future(
     doctor_id: ID,
+    pagination: PaginationParams = Depends(),
     schedule_absence_service: ScheduleAbsenceService = Depends(
         get_schedule_absence_service
     ),
@@ -99,6 +104,7 @@ async def get_future(
     return await schedule_absence_service.get_future_by_doctor_id(
         doctor_id=doctor_id,
         current_user=current_user,
+        pagination=pagination
     )
 
 

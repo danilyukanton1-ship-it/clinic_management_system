@@ -3,12 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.appointments.models.attachment import Attachment
 from app.appointments.schemas.attachment import AttachmentSchema, AttachmentUpdateSchema
+from common.pagination.schemas import PaginationResult, PaginationParams
+from core.repository import BaseRepository
 
 
-class AttachmentRepository:
-
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class AttachmentRepository(BaseRepository):
 
     async def create_attachment(
         self, data: AttachmentSchema, uploaded_by_id: int
@@ -25,16 +24,21 @@ class AttachmentRepository:
         return result.scalar_one_or_none()
 
     async def get_attachments_by_appointment_id(
-        self, appointment_id: int
-    ) -> list[Attachment]:
+        self, appointment_id: int, pagination: PaginationParams
+    ) -> PaginationResult[Attachment]:
         stmt = select(Attachment).where(Attachment.appointment_id == appointment_id)
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def get_attachments_by_patient_id(self, patient_id: int) -> list[Attachment]:
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
+    async def get_attachments_by_patient_id(
+            self, patient_id: int, pagination: PaginationParams
+    ) -> PaginationResult[Attachment]:
         stmt = select(Attachment).where(Attachment.patient_id == patient_id)
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
     async def update_attachment(
         self,

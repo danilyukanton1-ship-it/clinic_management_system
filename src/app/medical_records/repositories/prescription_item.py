@@ -1,4 +1,3 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.medical_records.schemas.prescription_item import (
@@ -7,12 +6,10 @@ from app.medical_records.schemas.prescription_item import (
 )
 
 from app.medical_records.models.prescription_item import PrescriptionItem
+from common.pagination.schemas import PaginationParams, PaginationResult
+from core.repository import BaseRepository
 
-
-class PrescriptionItemRepository:
-
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class PrescriptionItemRepository(BaseRepository):
 
     async def create_prescription_item(self, data: PrescriptionItemCreateSchema):
         prescription_item = PrescriptionItem(
@@ -35,6 +32,17 @@ class PrescriptionItemRepository:
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_prescription_items_by_prescription_id_with_pagination(
+        self, prescription_id: int, pagination: PaginationParams
+    ) -> PaginationResult[PrescriptionItem]:
+        stmt = select(PrescriptionItem).where(
+            PrescriptionItem.prescription_id == prescription_id
+        )
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
     async def get_prescription_item_by_id(
         self, prescription_item_id: int

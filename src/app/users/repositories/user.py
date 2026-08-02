@@ -1,14 +1,12 @@
 from datetime import datetime, timedelta, UTC
 
 from sqlalchemy import select, exists
-from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 
 from app.appointments.models.appointment import Appointment
 from app.auth.schemas.register import RegisterSchema
 from app.scheduling.models.schedule import Schedule
 from app.scheduling.models.schedule_absence import ScheduleAbsence
-from app.scheduling.models.schedule_slot import ScheduleSlot
 from common.enums.user_role import UserRole
 from app.users.models.user import User
 from app.users.schemas.user import (
@@ -18,12 +16,11 @@ from app.users.schemas.user import (
     AdminCreateSchema,
     AdminUpdateSchema,
 )
+from common.pagination.schemas import PaginationResult, PaginationParams
+from core.repository import BaseRepository
 
 
-class UserRepository:
-
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class UserRepository(BaseRepository):
 
     async def _create_user(
         self,
@@ -105,7 +102,12 @@ class UserRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def _get_all(self, role: UserRole, admin: bool | None = False) -> list[User]:
+    async def _get_all(
+            self,
+            role: UserRole,
+            pagination: PaginationParams,
+            admin: bool | None = False,
+    ) -> PaginationResult[User]:
         stmt = select(User).where(
             User.role == role,
         )
@@ -116,9 +118,10 @@ class UserRepository:
                 User.is_verified.is_(True),
                 User.is_active.is_(True),
             )
-
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination
+        )
 
     async def create_patient(self, data: RegisterSchema, password_hash: str) -> User:
         return await self._create_user(
@@ -202,19 +205,20 @@ class UserRepository:
     async def get_patient_by_phone(self, phone: str) -> User | None:
         return await self._get_by_phone(phone=phone, role=UserRole.PATIENT)
 
-    async def get_all_doctors(self) -> list[User]:
-        return await self._get_all(role=UserRole.DOCTOR)
+    async def get_all_doctors(self, pagination: PaginationParams) -> PaginationResult[User]:
+        return await self._get_all(role=UserRole.DOCTOR, pagination=pagination)
 
-    async def get_all_doctors_for_admin(self) -> list[User]:
-        return await self._get_all(role=UserRole.DOCTOR, admin=True)
+    async def get_all_doctors_for_admin(self, pagination: PaginationParams) -> PaginationResult[User]:
+        return await self._get_all(role=UserRole.DOCTOR, admin=True, pagination=pagination)
 
-    async def get_all_patients(self) -> list[User]:
-        return await self._get_all(role=UserRole.PATIENT, admin=True)
+    async def get_all_patients(self, pagination: PaginationParams) -> PaginationResult[User]:
+        return await self._get_all(role=UserRole.PATIENT, admin=True, pagination=pagination)
 
-    async def get_all_admins(self) -> list[User]:
+    async def get_all_admins(self, pagination: PaginationParams) -> PaginationResult[User]:
         return await self._get_all(
             role=UserRole.ADMIN,
             admin=True,
+            pagination=pagination
         )
 
     async def get_doctors_by_specialization_id(

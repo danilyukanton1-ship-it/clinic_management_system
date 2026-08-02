@@ -1,4 +1,3 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.medical_records.schemas.prescription import (
@@ -7,12 +6,10 @@ from app.medical_records.schemas.prescription import (
 )
 
 from app.medical_records.models.prescription import Prescription
+from core.repository import BaseRepository
 
 
-class PrescriptionRepository:
-
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class PrescriptionRepository(BaseRepository):
 
     async def create_prescription(self, data: PrescriptionCreateSchema):
         prescription = Prescription(

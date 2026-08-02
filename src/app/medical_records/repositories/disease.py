@@ -1,13 +1,11 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.medical_records.schemas.disease import DiseaseCreateSchema, DiseaseUpdateSchema
 from app.medical_records.models.disease import Disease
+from common.pagination.schemas import PaginationResult, PaginationParams
+from core.repository import BaseRepository
 
 
-class DiseaseRepository:
-
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class DiseaseRepository(BaseRepository):
 
     async def create_disease(self, data: DiseaseCreateSchema) -> Disease:
         disease = Disease(
@@ -35,10 +33,14 @@ class DiseaseRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_all_diseases(self) -> list[Disease]:
+    async def get_all_diseases(
+            self, pagination: PaginationParams
+    ) -> PaginationResult[Disease]:
         stmt = select(Disease)
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self.paginate(
+            stmt=stmt,
+            pagination=pagination,
+        )
 
     async def get_diseases_by_ids(self, disease_ids: list) -> list[Disease]:
         stmt = select(Disease).where(Disease.id.in_(disease_ids))

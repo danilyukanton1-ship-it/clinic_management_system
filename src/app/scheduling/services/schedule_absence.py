@@ -18,6 +18,8 @@ from app.scheduling.exceptions.schedule_absence import (
 )
 from app.users.exceptions.user import UserNotFoundException
 from common.enums.slot_status import SlotStatus
+from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
 
@@ -143,32 +145,44 @@ class ScheduleAbsenceService:
         return None
 
     async def get_future_by_doctor_id(
-        self, doctor_id: int, current_user: User
-    ) -> list[ScheduleAbsenceResponseSchema]:
+        self, doctor_id: int, current_user: User, pagination: PaginationParams
+    ) -> PaginatedResponse[ScheduleAbsenceResponseSchema]:
         async with self.uow:
             doctor = await self.uow.users.get_doctor_by_id(doctor_id=doctor_id)
             if not doctor:
                 raise UserNotFoundException()
             absences = await self.uow.absences.get_future_absences_by_doctor_id(
-                doctor_id=doctor_id
+                doctor_id=doctor_id,
+                pagination=pagination
             )
-            if absences:
-                self.policy.can_view(user=current_user, schedule_absence=absences[0])
-        return [ScheduleAbsenceResponseSchema.model_validate(s) for s in absences]
+            if absences.items:
+                self.policy.can_view(user=current_user, schedule_absence=absences.items[0])
+        return build_paginated_response(
+            items=absences.items,
+            total=absences.total,
+            pagination=pagination,
+            schema=ScheduleAbsenceResponseSchema,
+        )
 
     async def get_past_by_doctor_id(
-        self, doctor_id: int, current_user: User
+        self, doctor_id: int, current_user: User, pagination: PaginationParams
     ) -> list[ScheduleAbsenceResponseSchema]:
         async with self.uow:
             doctor = await self.uow.users.get_doctor_by_id(doctor_id=doctor_id)
             if not doctor:
                 raise UserNotFoundException()
             absences = await self.uow.absences.get_past_absences_by_doctor_id(
-                doctor_id=doctor_id
+                doctor_id=doctor_id,
+                pagination=pagination
             )
-            if absences:
-                self.policy.can_view(user=current_user, schedule_absence=absences[0])
-            return [ScheduleAbsenceResponseSchema.model_validate(s) for s in absences]
+            if absences.items:
+                self.policy.can_view(user=current_user, schedule_absence=absences.items[0])
+            return build_paginated_response(
+                items=absences.items,
+                total=absences.total,
+                pagination=pagination,
+                schema=ScheduleAbsenceResponseSchema,
+            )
 
     async def get_absence_by_id(
         self, absence_id: int, current_user: User

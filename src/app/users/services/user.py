@@ -26,6 +26,8 @@ from app.users.exceptions.user import (
 )
 from app.auth.tasks import send_verify_email
 from app.users.exceptions.specialization import SpecializationNotFoundException
+from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
 
@@ -142,13 +144,23 @@ class UserService:
             )
         return AdminResponseSchema.model_validate(admin)
 
-    async def get_all_doctors(self) -> list[DoctorResponseSchema]:
-        doctors = await self.uow.users.get_all_doctors()
-        return [DoctorResponseSchema.model_validate(doctor) for doctor in doctors]
+    async def get_all_doctors(self, pagination: PaginationParams) -> PaginatedResponse[DoctorResponseSchema]:
+        doctors = await self.uow.users.get_all_doctors(pagination=pagination)
+        return build_paginated_response(
+            items=doctors.items,
+            total=doctors.total,
+            pagination=pagination,
+            schema=DoctorResponseSchema
+        )
 
-    async def get_all_doctors_for_admin(self) -> list[DoctorResponseSchema]:
-        doctors = await self.uow.users.get_all_doctors_for_admin()
-        return [DoctorResponseSchema.model_validate(doctor) for doctor in doctors]
+    async def get_all_doctors_for_admin(self, pagination: PaginationParams) -> PaginatedResponse[DoctorResponseSchema]:
+        doctors = await self.uow.users.get_all_doctors_for_admin(pagination=pagination)
+        return build_paginated_response(
+            items=doctors.items,
+            total=doctors.total,
+            pagination=pagination,
+            schema=DoctorResponseSchema
+        )
 
     async def get_doctors_by_specialization_id(
         self, specialization_id: int, admin: bool | None = None
@@ -163,13 +175,23 @@ class UserService:
         )
         return [DoctorResponseSchema.model_validate(doctor) for doctor in doctors]
 
-    async def get_all_patients(self) -> list[PatientResponseSchema]:
-        patients = await self.uow.users.get_all_patients()
-        return [PatientResponseSchema.model_validate(patient) for patient in patients]
+    async def get_all_patients(self, pagination: PaginationParams) -> PaginatedResponse[PatientResponseSchema]:
+        patients = await self.uow.users.get_all_patients(pagination=pagination)
+        return build_paginated_response(
+            items=patients.items,
+            total=patients.total,
+            pagination=pagination,
+            schema=PatientResponseSchema
+        )
 
-    async def get_all_admins(self) -> list[User]:
-        admins = await self.uow.users.get_all_admins()
-        return [AdminResponseSchema.model_validate(admin) for admin in admins]
+    async def get_all_admins(self, pagination: PaginationParams) -> PaginatedResponse[AdminResponseSchema]:
+        admins = await self.uow.users.get_all_admins(pagination=pagination)
+        return build_paginated_response(
+            items=admins.items,
+            total=admins.total,
+            pagination=pagination,
+            schema=AdminResponseSchema
+        )
 
     async def get_doctor_by_id(self, doctor_id: int) -> DoctorResponseSchema:
         doctor = await self._get_doctor(doctor_id=doctor_id)

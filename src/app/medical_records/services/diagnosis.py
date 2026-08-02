@@ -12,9 +12,10 @@ from app.medical_records.exceptions.diagnosis import (
     DiagnosisNotFoundException,
     DiagnosisCantBeEmptyInPrescriptionException,
 )
-from app.medical_records.models.diagnosis import Diagnosis
 from app.users.models.user import User
 from app.medical_records.policy.diagnosis import DiagnosisPolicy
+from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
 
@@ -41,7 +42,7 @@ class DiagnosisService:
 
     async def update(
         self, diagnosis_id: int, current_user: User, data: DiagnosisUpdateSchema
-    ) -> Diagnosis:
+    ) -> DiagnosisResponseSchema:
         async with self.uow:
             diagnosis = await self.uow.diagnoses.get_diagnosis_by_id(
                 diagnosis_id=diagnosis_id
@@ -62,7 +63,7 @@ class DiagnosisService:
             updated_diagnosis = await self.uow.diagnoses.update_diagnosis(
                 diagnosis=diagnosis, data=data
             )
-        return updated_diagnosis
+        return DiagnosisResponseSchema.model_validate(updated_diagnosis)
 
     async def delete(self, diagnosis_id: int, current_user: User) -> None:
         async with self.uow:
@@ -86,7 +87,7 @@ class DiagnosisService:
             await self.uow.diagnoses.delete_diagnosis(diagnosis=diagnosis)
         return None
 
-    async def get_by_id(self, diagnosis_id: int, current_user: User) -> Diagnosis:
+    async def get_by_id(self, diagnosis_id: int, current_user: User) -> DiagnosisResponseSchema:
         diagnosis = await self.uow.diagnoses.get_diagnosis_by_id(
             diagnosis_id=diagnosis_id
         )
@@ -98,34 +99,41 @@ class DiagnosisService:
         if not appointment:
             raise AppointmentNotFoundException()
         self.policy.can_view(user=current_user, appointment=appointment)
-        return diagnosis
-
-    async def get_all(self) -> list[Diagnosis]:
-        diagnosis = await self.uow.diagnoses.get_all_diagnoses()
-        if not diagnosis:
-            raise DiagnosisNotFoundException()
-        return diagnosis
+        return DiagnosisResponseSchema.model_validate(diagnosis)
 
     async def get_by_prescription_id(
-        self, prescription_id: int, current_user: User
-    ) -> list[Diagnosis]:
-        diagnoses = await self.uow.diagnoses.get_diagnoses_by_prescription_id(
-            prescription_id=prescription_id
+            self,
+            prescription_id: int,
+            pagination: PaginationParams,
+            current_user: User
+    ) -> PaginatedResponse[DiagnosisResponseSchema]:
+        diagnoses = await self.uow.diagnoses.get_diagnoses_by_prescription_id_with_pagination(
+            prescription_id=prescription_id,
+            pagination=pagination
         )
-        if not diagnoses:
-            raise DiagnosisNotFoundException()
         appointment = await self.uow.appointments.get_appointment_by_diagnosis_id(
-            diagnosis_id=diagnoses[0].id
+            diagnosis_id=diagnoses.items[0].id
         )
         if not appointment:
             raise AppointmentNotFoundException()
         self.policy.can_view(user=current_user, appointment=appointment)
-        return diagnoses
-
-    async def get_by_disease_id(self, disease_id: int) -> list[Diagnosis]:
-        diagnosis = await self.uow.diagnoses.get_diagnoses_by_disease_id(
-            disease_id=disease_id
+        return build_paginated_response(
+            items=diagnoses.items,
+            total=diagnoses.total,
+            pagination=pagination,
+            schema=DiagnosisResponseSchema
         )
-        if not diagnosis:
-            raise DiagnosisNotFoundException()
-        return diagnosis
+
+    async def get_by_disease_id(
+            self, disease_id: int, pagination: PaginationParams
+    ) -> PaginatedResponse[DiagnosisResponseSchema]:
+        diagnoses = await self.uow.diagnoses.get_diagnoses_by_disease_id(
+            disease_id=disease_id,
+            pagination=pagination
+        )
+        return build_paginated_response(
+            items=diagnoses.items,
+            total=diagnoses.total,
+            pagination=pagination,
+            schema=DiagnosisResponseSchema
+        )

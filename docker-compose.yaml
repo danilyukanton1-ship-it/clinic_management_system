@@ -155,7 +155,7 @@ services:
 
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2024-05-28T17-19-04Z
     container_name: minio
     command: server /data --console-address ":9001"
     restart: unless-stopped
@@ -177,7 +177,18 @@ services:
     volumes:
       - minio_data:/data
 
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: clinic_management_redisinsight
+    restart: always
+    depends_on:
+      - redis
+    ports:
+     - "5540:5540"
+    volumes:
+     - redis-insight:/data
 
 volumes:
   postgres_data:
   minio_data:
+  redis-insight:

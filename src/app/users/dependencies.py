@@ -1,9 +1,10 @@
 from fastapi import Depends
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.dependencies import get_session, get_redis
-from app.users.services.user import UserService
+
 from app.users.services.specialization import SpecializationService
+from app.users.services.user import UserService
+from core.dependencies import get_redis, get_session
 
 
 async def get_user_service(

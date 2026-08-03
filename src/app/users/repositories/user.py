@@ -1,22 +1,22 @@
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select, exists
 from pydantic import BaseModel
+from sqlalchemy import exists, select
 
 from app.appointments.models.appointment import Appointment
 from app.auth.schemas.register import RegisterSchema
 from app.scheduling.models.schedule import Schedule
 from app.scheduling.models.schedule_absence import ScheduleAbsence
-from common.enums.user_role import UserRole
 from app.users.models.user import User
 from app.users.schemas.user import (
+    AdminCreateSchema,
+    AdminUpdateSchema,
     DoctorCreateSchema,
     DoctorUpdateSchema,
     PatientUpdateSchema,
-    AdminCreateSchema,
-    AdminUpdateSchema,
 )
-from common.pagination.schemas import PaginationResult, PaginationParams
+from common.enums.user_role import UserRole
+from common.pagination.schemas import PaginationParams, PaginationResult
 from core.repository import BaseRepository
 
 

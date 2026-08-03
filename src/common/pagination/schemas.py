@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TypeVar, Generic
+from typing import TypeVar
 
 from fastapi.params import Query
 from pydantic import BaseModel
@@ -17,7 +17,7 @@ class PaginationParams(BaseModel):
 T = TypeVar("T")
 
 
-class PaginatedResponse(BaseModel, Generic[T]):
+class PaginatedResponse[T](BaseModel):
     items: list[T]
     total: int
     page: int
@@ -26,6 +26,6 @@ class PaginatedResponse(BaseModel, Generic[T]):
 
 
 @dataclass
-class PaginationResult(Generic[T]):
+class PaginationResult[T]:
     items: list[T]
     total: int

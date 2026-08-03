@@ -1,19 +1,20 @@
-import pytest
+from datetime import UTC, date, datetime, time
 from unittest.mock import AsyncMock, MagicMock
-from datetime import UTC
-from app.scheduling.schemas.schedule_slot import ScheduleSlotBulkCreateSchema
-from common.enums.weekday import Weekday
+
+import pytest
+
 from app.scheduling.exceptions.schedule import ScheduleNotFoundException
-from app.scheduling.models.schedule_slot import ScheduleSlot
-from datetime import datetime, date, time
 from app.scheduling.exceptions.schedule_slot import (
-    SlotNotFoundException,
     SlotAlreadyBookedException,
-    SlotStatusCanNotBeChangedException,
     SlotCanNotBeChangedException,
+    SlotNotFoundException,
+    SlotStatusCanNotBeChangedException,
 )
+from app.scheduling.models.schedule_slot import ScheduleSlot
+from app.scheduling.schemas.schedule_slot import ScheduleSlotBulkCreateSchema
 from app.users.exceptions.user import UserNotFoundException
 from common.enums.slot_status import SlotStatus
+from common.enums.weekday import Weekday
 from common.pagination.schemas import PaginationResult
 
 

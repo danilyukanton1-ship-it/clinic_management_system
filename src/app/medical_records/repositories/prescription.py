@@ -1,11 +1,10 @@
 from sqlalchemy import select
 
+from app.medical_records.models.prescription import Prescription
 from app.medical_records.schemas.prescription import (
     PrescriptionCreateSchema,
     PrescriptionUpdateSchema,
 )
-
-from app.medical_records.models.prescription import Prescription
 from core.repository import BaseRepository
 
 

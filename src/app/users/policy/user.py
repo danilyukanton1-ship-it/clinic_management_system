@@ -1,5 +1,4 @@
 from app.users.models.user import User
-
 from common.enums.user_role import UserRole
 from common.permissions.exceptions import ForbiddenException
 

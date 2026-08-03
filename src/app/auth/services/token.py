@@ -1,18 +1,19 @@
-import jwt
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
-from datetime import datetime, timedelta, UTC
 
+import jwt
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from common.enums.token_type import TokenType
+
 from app.auth.exceptions.token import (
-    InvalidTokenTypeException,
     InvalidTokenException,
-    TokenExpiredException,
+    InvalidTokenTypeException,
     TokenBlacklistedException,
+    TokenExpiredException,
 )
 from app.auth.schemas.token import AccessTokenSchema
-from app.users.exceptions.user import UserNotFoundException, UserInactiveException
+from app.users.exceptions.user import UserInactiveException, UserNotFoundException
+from common.enums.token_type import TokenType
 from core.config import settings
 from db.unit_of_work import UnitOfWork
 

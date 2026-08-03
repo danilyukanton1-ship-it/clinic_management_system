@@ -1,5 +1,5 @@
 import asyncio
-from datetime import date, time, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 
 from db.database import AsyncSessionLocal
 from db.unit_of_work import UnitOfWork
@@ -29,7 +29,7 @@ def send_appointment_created_notification(
         doctor_first_name=doctor_first_name,
         doctor_last_name=doctor_last_name,
         doctor_specialization=doctor_specialization,
-        year=datetime.now().year,
+        year=datetime.now(UTC).year,
     )
     asyncio.run(
         email_service.send(
@@ -62,7 +62,7 @@ def send_appointment_reminder(
         doctor_first_name=doctor_first_name,
         doctor_last_name=doctor_last_name,
         doctor_specialization=doctor_specialization,
-        year=datetime.now().year,
+        year=datetime.now(UTC).year,
     )
 
     asyncio.run(
@@ -89,23 +89,22 @@ def appointment_reminder(
 async def _check_appointments_for_reminder(
     hours: int,
 ):
-    async with AsyncSessionLocal() as session:
-        async with UnitOfWork(session) as uow:
-            start = datetime.now() + timedelta(hours=hours)
-            end = start + timedelta(minutes=5)
-            appointments = (
-                await uow.appointments.get_upcoming_appointments_for_reminder(
-                    start=start,
-                    end=end,
-                )
+    async with AsyncSessionLocal() as session, UnitOfWork(session) as uow:
+        start = datetime.now(UTC) + timedelta(hours=hours)
+        end = start + timedelta(minutes=5)
+        appointments = (
+            await uow.appointments.get_upcoming_appointments_for_reminder(
+                start=start,
+                end=end,
             )
-            for appointment in appointments:
-                send_appointment_reminder.delay(
-                    email=appointment.patient.email,
-                    username=appointment.patient.first_name,
-                    appointment_date=appointment.slot.slot_start.date(),
-                    appointment_time=appointment.slot.slot_start.time(),
-                    doctor_first_name=appointment.doctor.first_name,
-                    doctor_last_name=appointment.doctor.last_name,
-                    doctor_specialization=appointment.doctor.specialization.name,
-                )
+        )
+        for appointment in appointments:
+            send_appointment_reminder.delay(
+                email=appointment.patient.email,
+                username=appointment.patient.first_name,
+                appointment_date=appointment.slot.slot_start.date(),
+                appointment_time=appointment.slot.slot_start.time(),
+                doctor_first_name=appointment.doctor.first_name,
+                doctor_last_name=appointment.doctor.last_name,
+                doctor_specialization=appointment.doctor.specialization.name,
+            )

@@ -6,14 +6,14 @@ Create Date: 2026-06-28 23:20:30.691793
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+
+from alembic import op
 from src.common.enums.dosage_form import DosageForm
 
 revision: str = "83d5d8f790dd"
@@ -21,9 +21,9 @@ dosage_form_enum = postgresql.ENUM(
     DosageForm,
     name="dosage_form",
 )
-down_revision: Union[str, Sequence[str], None] = "3567ab5e39e6"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = "3567ab5e39e6"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:

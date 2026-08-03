@@ -1,7 +1,8 @@
 from sqlalchemy import select
-from app.medical_records.schemas.drug import DrugCreateSchema, DrugUpdateSchema
+
 from app.medical_records.models.drug import Drug
-from common.pagination.schemas import PaginationResult, PaginationParams
+from app.medical_records.schemas.drug import DrugCreateSchema, DrugUpdateSchema
+from common.pagination.schemas import PaginationParams, PaginationResult
 from core.repository import BaseRepository
 
 
@@ -53,4 +54,3 @@ class DrugRepository(BaseRepository):
 
     async def delete_drug(self, drug: Drug) -> None:
         await self.session.delete(drug)
-        return None

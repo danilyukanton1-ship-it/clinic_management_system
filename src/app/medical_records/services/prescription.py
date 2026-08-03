@@ -1,13 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.users.models.user import User
+
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
 from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
+from app.medical_records.policy.prescription import PrescriptionPolicy
 from app.medical_records.schemas.prescription import (
     PrescriptionResponseSchema,
     PrescriptionUpdateSchema,
 )
+from app.users.models.user import User
 from db.unit_of_work import UnitOfWork
-from app.medical_records.policy.prescription import PrescriptionPolicy
 
 
 class PrescriptionService:

@@ -1,15 +1,16 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, Enum, Text, UniqueConstraint, CheckConstraint
+
+from sqlalchemy import CheckConstraint, Enum, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from common.enums.appointment_status import AppointmentStatus
 from db.base import BaseModel
 
-from common.enums.appointment_status import AppointmentStatus
-
 if TYPE_CHECKING:
-    from app.users.models.user import User
     from app.scheduling.models.schedule_slot import ScheduleSlot
+    from app.users.models.user import User
 
 
 class Appointment(BaseModel):
@@ -25,7 +26,7 @@ class Appointment(BaseModel):
         nullable=False,
     )
 
-    patient: Mapped["User"] = relationship(
+    patient: Mapped[User] = relationship(
         "User",
         foreign_keys=[patient_id],
     )
@@ -35,7 +36,7 @@ class Appointment(BaseModel):
         nullable=False,
     )
 
-    doctor: Mapped["User"] = relationship(
+    doctor: Mapped[User] = relationship(
         "User",
         foreign_keys=[doctor_id],
     )
@@ -45,7 +46,7 @@ class Appointment(BaseModel):
         nullable=False,
     )
 
-    slot: Mapped["ScheduleSlot"] = relationship(
+    slot: Mapped[ScheduleSlot] = relationship(
         "ScheduleSlot",
         back_populates="appointment",
     )

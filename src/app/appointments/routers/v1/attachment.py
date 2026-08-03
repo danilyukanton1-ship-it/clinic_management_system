@@ -1,21 +1,20 @@
 from typing import Annotated
 
-from fastapi import APIRouter, File, Depends, status, UploadFile
+from fastapi import APIRouter, Depends, File, UploadFile, status
 
-from common.pagination.schemas import PaginationParams, PaginatedResponse
-from common.types import ID
 from app.appointments.dependencies import get_attachment_service
-from common.permissions.checks import check_role
-from common.enums.user_role import UserRole
-
 from app.appointments.schemas.attachment import (
-    AttachmentUpdateSchema,
     AttachmentCreateSchema,
     AttachmentResponseSchema,
+    AttachmentUpdateSchema,
 )
 from app.appointments.services.attachment import AttachmentService
 from app.auth.dependencies import get_current_user
 from app.users.models.user import User
+from common.enums.user_role import UserRole
+from common.pagination.schemas import PaginatedResponse, PaginationParams
+from common.permissions.checks import check_role
+from common.types import ID
 from infrastructure.storages.schemas import DownloadUrl
 
 router = APIRouter(

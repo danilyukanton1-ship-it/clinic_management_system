@@ -1,15 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.users.exceptions.specialization import (
+    SpecializationAlreadyExistsException,
+    SpecializationNotFoundException,
+)
 from app.users.schemas.specialization import (
     SpecializationCreateSchema,
     SpecializationResponseSchema,
     SpecializationUpdateSchema,
 )
-from app.users.exceptions.specialization import (
-    SpecializationNotFoundException,
-    SpecializationAlreadyExistsException,
-)
-from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
@@ -75,7 +75,6 @@ class SpecializationService:
             await self.uow.specializations.delete_specialization(
                 specialization=specialization
             )
-        return None
 
     async def update(
         self, specialization_id: int, data: SpecializationUpdateSchema

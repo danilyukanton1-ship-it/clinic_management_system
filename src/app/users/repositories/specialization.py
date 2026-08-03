@@ -1,8 +1,6 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.users.models.specialization import Specialization
-
 from app.users.schemas.specialization import (
     SpecializationCreateSchema,
     SpecializationUpdateSchema,
@@ -60,4 +58,3 @@ class SpecializationRepository(BaseRepository):
     async def delete_specialization(self, specialization: Specialization) -> None:
         await self.session.delete(specialization)
         await self.session.flush()
-        return None

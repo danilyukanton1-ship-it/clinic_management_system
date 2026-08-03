@@ -1,24 +1,24 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.users.models.user import User
+from app.scheduling.exceptions.schedule_absence import (
+    AbsenceAlreadyFinishedException,
+    AbsenceAlreadyScheduledException,
+    AbsenceAlreadyStartedException,
+    AbsenceCanNotBeChangedException,
+    AbsenceNotFoundException,
+)
 from app.scheduling.policy.schedule_absence import ScheduleAbsencePolicy
 from app.scheduling.schemas.schedule_absence import (
     ScheduleAbsenceCreateSchema,
     ScheduleAbsenceResponseSchema,
     ScheduleAbsenceUpdateSchema,
 )
-from app.scheduling.exceptions.schedule_absence import (
-    AbsenceAlreadyScheduledException,
-    AbsenceNotFoundException,
-    AbsenceAlreadyFinishedException,
-    AbsenceAlreadyStartedException,
-    AbsenceCanNotBeChangedException,
-)
 from app.users.exceptions.user import UserNotFoundException
+from app.users.models.user import User
 from common.enums.slot_status import SlotStatus
-from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
@@ -82,7 +82,7 @@ class ScheduleAbsenceService:
         self, absence_id: int, data: ScheduleAbsenceUpdateSchema
     ) -> ScheduleAbsenceResponseSchema:
         async with self.uow:
-            now = datetime.now()
+            now = datetime.now(UTC)
             absence = await self.uow.absences.get_absence_by_id(absence_id=absence_id)
             if not absence:
                 raise AbsenceNotFoundException()
@@ -134,7 +134,7 @@ class ScheduleAbsenceService:
             absence = await self.uow.absences.get_absence_by_id(absence_id)
             if not absence:
                 raise AbsenceNotFoundException()
-            if absence.start_date <= datetime.now():
+            if absence.start_date <= datetime.now(UTC):
                 raise AbsenceAlreadyStartedException()
             await self._unblock_slots_for_absence(
                 doctor_id=absence.doctor_id,
@@ -142,7 +142,6 @@ class ScheduleAbsenceService:
                 end_date=absence.end_date,
             )
             await self.uow.absences.delete_absence(absence)
-        return None
 
     async def get_future_by_doctor_id(
         self, doctor_id: int, current_user: User, pagination: PaginationParams

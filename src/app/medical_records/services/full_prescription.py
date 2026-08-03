@@ -3,25 +3,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
 from app.medical_records.exceptions.disease import DiseaseNotFoundException
 from app.medical_records.exceptions.drug import DrugNotFoundException
+from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
 from app.medical_records.models.diagnosis import Diagnosis
 from app.medical_records.models.prescription import Prescription
 from app.medical_records.models.prescription_item import PrescriptionItem
+from app.medical_records.policy.prescription import PrescriptionPolicy
 from app.medical_records.schemas.diagnosis import (
     DiagnosisCreateSchema,
     DiagnosisResponseSchema,
 )
-from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
 from app.medical_records.schemas.prescription import (
     FullPrescriptionCreateSchema,
-    PrescriptionCreateSchema,
     FullPrescriptionResponseSchema,
+    PrescriptionCreateSchema,
+    PrescriptionItemCreateSchema,
     PrescriptionSchema,
 )
-from app.medical_records.schemas.prescription import PrescriptionItemCreateSchema
 from app.medical_records.schemas.prescription_item import PrescriptionItemResponseSchema
-from app.medical_records.policy.prescription import PrescriptionPolicy
 from app.users.models.user import User
-
 from db.unit_of_work import UnitOfWork
 
 
@@ -200,4 +199,3 @@ class FullPrescriptionService:
                 raise AppointmentNotFoundException()
             self.policy.can_delete(user=current_user, appointment=appointment)
             await self.uow.prescriptions.delete_prescription(prescription=prescription)
-        return None

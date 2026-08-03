@@ -1,9 +1,8 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.appointments.models.attachment import Attachment
 from app.appointments.schemas.attachment import AttachmentSchema, AttachmentUpdateSchema
-from common.pagination.schemas import PaginationResult, PaginationParams
+from common.pagination.schemas import PaginationParams, PaginationResult
 from core.repository import BaseRepository
 
 
@@ -53,4 +52,3 @@ class AttachmentRepository(BaseRepository):
 
     async def delete_attachment(self, attachment: Attachment) -> None:
         await self.session.delete(attachment)
-        return None

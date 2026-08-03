@@ -1,8 +1,9 @@
 from sqlalchemy import Enum
 from sqlalchemy.orm import Mapped, mapped_column
+
 from common.enums.dosage_form import DosageForm
-from db.base import BaseModel
 from db import orm as orm_fields
+from db.base import BaseModel
 
 
 class Drug(BaseModel):

@@ -1,6 +1,7 @@
 from typing import Annotated
-from pydantic import StringConstraints, EmailStr
+
 from fastapi import Path
+from pydantic import EmailStr, StringConstraints
 
 ID = Annotated[
     int,

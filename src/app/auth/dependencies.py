@@ -5,13 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.exceptions.token import InvalidTokenException
 from app.auth.schemas.me import MeSchema
-from app.auth.services.token import TokenService
-from core.dependencies import get_session
 from app.auth.services.login import LoginService
 from app.auth.services.register import RegisterService
-from core.dependencies import get_uow, get_redis
-from db.unit_of_work import UnitOfWork
+from app.auth.services.token import TokenService
 from app.users.exceptions.user import UserNotFoundException
+from core.dependencies import get_redis, get_session, get_uow
+from db.unit_of_work import UnitOfWork
 
 
 async def get_login_service(

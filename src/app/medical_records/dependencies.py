@@ -1,13 +1,13 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.dependencies import get_session
+from app.medical_records.services.diagnosis import DiagnosisService
 from app.medical_records.services.disease import DiseaseService
 from app.medical_records.services.drug import DrugService
-from app.medical_records.services.diagnosis import DiagnosisService
 from app.medical_records.services.full_prescription import FullPrescriptionService
 from app.medical_records.services.prescription import PrescriptionService
 from app.medical_records.services.prescription_item import PrescriptionItemService
+from core.dependencies import get_session
 
 
 async def get_disease_service(session: AsyncSession = Depends(get_session)):

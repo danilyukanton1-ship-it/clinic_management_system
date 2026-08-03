@@ -1,12 +1,11 @@
 from fastapi import FastAPI
-from core.router import router
-
-from common.exceptions.handlers import register_exception_handlers
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
-from slowapi import _rate_limit_exceeded_handler
 
+from common.exceptions.handlers import register_exception_handlers
 from core.limiter import limiter
+from core.router import router
 
 app = FastAPI(title="Clinic Management System")
 

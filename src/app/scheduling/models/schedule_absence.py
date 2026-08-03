@@ -1,10 +1,9 @@
-from sqlalchemy import Enum, ForeignKey, CheckConstraint
+from sqlalchemy import CheckConstraint, Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
+from common.enums.absence_reason import AbsenceReason
 from db import orm as orm_fields
 from db.base import BaseModel
-
-from common.enums.absence_reason import AbsenceReason
 
 
 class ScheduleAbsence(BaseModel):

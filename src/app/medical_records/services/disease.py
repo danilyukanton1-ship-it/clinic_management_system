@@ -1,14 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.medical_records.exceptions.disease import (
+    DiseaseAlreadyExistsException,
+    DiseaseNotFoundException,
+)
 from app.medical_records.schemas.disease import (
     DiseaseCreateSchema,
-    DiseaseUpdateSchema,
     DiseaseResponseSchema,
+    DiseaseUpdateSchema,
 )
-from app.medical_records.exceptions.disease import (
-    DiseaseNotFoundException,
-    DiseaseAlreadyExistsException,
-)
-from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
@@ -82,4 +83,3 @@ class DiseaseService:
             raise DiseaseNotFoundException()
         async with self.uow:
             await self.uow.diseases.delete_disease(disease=disease)
-        return None

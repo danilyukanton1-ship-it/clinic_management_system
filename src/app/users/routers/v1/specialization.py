@@ -1,20 +1,18 @@
 from fastapi import APIRouter, Depends, status
 
-from common.pagination.schemas import PaginationParams, PaginatedResponse
-from common.types import Email, ID
-from app.users.services.specialization import SpecializationService
-
+from app.auth.dependencies import get_current_user
 from app.users.dependencies import get_specialization_service
-
+from app.users.models.user import User
 from app.users.schemas.specialization import (
-    SpecializationResponseSchema,
     SpecializationCreateSchema,
+    SpecializationResponseSchema,
     SpecializationUpdateSchema,
 )
-from app.auth.dependencies import get_current_user
-from app.users.models.user import User
+from app.users.services.specialization import SpecializationService
 from common.enums.user_role import UserRole
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.permissions.checks import check_role
+from common.types import ID
 
 router = APIRouter(prefix="/specializations", tags=["Specializations"])
 

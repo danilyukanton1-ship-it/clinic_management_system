@@ -1,8 +1,8 @@
+
 import resend
-import asyncio
-from infrastructure.notifications.base import EmailService
 
 from core.config import settings
+from infrastructure.notifications.base import EmailService
 
 
 class SMTPEmailService(EmailService):
@@ -27,7 +27,5 @@ class SMTPEmailService(EmailService):
 
         if html:
             payload["html"] = html
-        try:
-            resend.Emails.send(payload)
-        except Exception as e:
-            raise e
+        resend.Emails.send(payload)
+

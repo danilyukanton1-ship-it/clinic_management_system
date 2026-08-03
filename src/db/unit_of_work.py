@@ -1,19 +1,19 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.appointments.repositories.attachment import AttachmentRepository
-from app.scheduling.repositories.schedule_slot import ScheduleSlotRepository
 from app.appointments.repositories.appointment import AppointmentRepository
-from app.scheduling.repositories.schedule import ScheduleRepository
-from app.users.repositories.user import UserRepository
-from app.users.repositories.specialization import SpecializationRepository
+from app.appointments.repositories.attachment import AttachmentRepository
+from app.medical_records.repositories.diagnosis import DiagnosisRepository
 from app.medical_records.repositories.disease import DiseaseRepository
 from app.medical_records.repositories.drug import DrugRepository
-from app.medical_records.repositories.diagnosis import DiagnosisRepository
 from app.medical_records.repositories.prescription import PrescriptionRepository
 from app.medical_records.repositories.prescription_item import (
     PrescriptionItemRepository,
 )
+from app.scheduling.repositories.schedule import ScheduleRepository
 from app.scheduling.repositories.schedule_absence import ScheduleAbsenceRepository
+from app.scheduling.repositories.schedule_slot import ScheduleSlotRepository
+from app.users.repositories.specialization import SpecializationRepository
+from app.users.repositories.user import UserRepository
 
 
 class UnitOfWork:

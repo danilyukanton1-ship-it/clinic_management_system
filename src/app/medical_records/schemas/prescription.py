@@ -1,12 +1,13 @@
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 
-from app.medical_records.schemas.diagnosis import DiagnosisCreateFullPrescriptionSchema
-from app.medical_records.schemas.prescription_item import (
-    PrescriptionItemCreateSchema,
-    PrescriptionItemResponseSchema,
-    PrescriptionItemCreateFullPrescriptionSchema,
+from app.medical_records.schemas.diagnosis import (
+    DiagnosisCreateFullPrescriptionSchema,
+    DiagnosisResponseSchema,
 )
-from app.medical_records.schemas.diagnosis import DiagnosisResponseSchema
+from app.medical_records.schemas.prescription_item import (
+    PrescriptionItemCreateFullPrescriptionSchema,
+    PrescriptionItemResponseSchema,
+)
 
 
 class PrescriptionSchema(BaseModel):

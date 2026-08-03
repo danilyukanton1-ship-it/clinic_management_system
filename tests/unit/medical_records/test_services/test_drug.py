@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
 
 from app.medical_records.exceptions.drug import (
     DrugAlreadyExistsException,

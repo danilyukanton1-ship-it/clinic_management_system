@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from app.auth.exceptions.login import InvalidCredentialsException
 from app.auth.exceptions.register import TooManyLoginAttemptsException
@@ -155,9 +156,8 @@ class TestLoginService:
         with patch(
             "app.auth.services.login.verify_password",
             return_value=False,
-        ):
-            with pytest.raises(InvalidCredentialsException):
-                await login_service.login(login_schema)
+        ), pytest.raises(InvalidCredentialsException):
+            await login_service.login(login_schema)
 
         key = f"login_attempts:{patient_1.email}"
 
@@ -179,9 +179,8 @@ class TestLoginService:
         with patch(
             "app.auth.services.login.verify_password",
             return_value=False,
-        ):
-            with pytest.raises(InvalidCredentialsException):
-                await login_service.login(login_schema)
+        ), pytest.raises(InvalidCredentialsException):
+            await login_service.login(login_schema)
 
         key = f"login_attempts:{patient_1.email}"
 
@@ -235,10 +234,9 @@ class TestLoginService:
             ),
             patch(
                 "app.auth.services.login.TokenService.create_token",
-            ) as mock_create_token,
+            ) as mock_create_token,pytest.raises(InvalidCredentialsException)
         ):
-            with pytest.raises(InvalidCredentialsException):
-                await login_service.login(login_schema)
+            await login_service.login(login_schema)
 
         mock_create_token.assert_not_called()
 
@@ -255,9 +253,8 @@ class TestLoginService:
 
         with patch(
             "app.auth.services.login.verify_password",
-        ) as mock_verify:
-            with pytest.raises(TooManyLoginAttemptsException):
-                await login_service.login(login_schema)
+        ) as mock_verify, pytest.raises(TooManyLoginAttemptsException):
+            await login_service.login(login_schema)
 
         mock_verify.assert_not_called()
 
@@ -276,9 +273,8 @@ class TestLoginService:
         with patch(
             "app.auth.services.login.verify_password",
             return_value=False,
-        ):
-            with pytest.raises(InvalidCredentialsException):
-                await login_service.login(login_schema)
+        ), pytest.raises(InvalidCredentialsException):
+            await login_service.login(login_schema)
 
         login_service.redis.delete.assert_not_called()
 

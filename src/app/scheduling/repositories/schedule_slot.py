@@ -1,6 +1,6 @@
-from datetime import datetime, date
+from datetime import UTC, date, datetime
 
-from sqlalchemy import select, func, extract, exists
+from sqlalchemy import exists, extract, func, select
 
 from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.scheduling.schemas.schedule_slot import (
@@ -53,7 +53,7 @@ class ScheduleSlotRepository(BaseRepository):
             ScheduleSlot.doctor_id == doctor_id,
             ScheduleSlot.schedule_id == schedule_id,
             ScheduleSlot.status == SlotStatus.BOOKED,
-            ScheduleSlot.slot_start >= datetime.now(),
+            ScheduleSlot.slot_start >= datetime.now(UTC),
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
@@ -100,7 +100,7 @@ class ScheduleSlotRepository(BaseRepository):
         stmt = select(ScheduleSlot).where(
             ScheduleSlot.doctor_id == doctor_id,
             ScheduleSlot.status == SlotStatus.BLOCKED,
-            ScheduleSlot.slot_start >= datetime.now(),
+            ScheduleSlot.slot_start >= datetime.now(UTC),
             ScheduleSlot.slot_start < end_date,
             ScheduleSlot.slot_end > start_date,
         )
@@ -117,7 +117,7 @@ class ScheduleSlotRepository(BaseRepository):
         stmt = select(ScheduleSlot).where(
             ScheduleSlot.doctor_id == doctor_id,
             ScheduleSlot.status == status,
-            ScheduleSlot.slot_start >= datetime.now(),
+            ScheduleSlot.slot_start >= datetime.now(UTC),
         )
         if weekday:
             stmt = stmt.where(
@@ -135,7 +135,7 @@ class ScheduleSlotRepository(BaseRepository):
         stmt = select(ScheduleSlot).where(
             ScheduleSlot.doctor_id == doctor_id,
             ScheduleSlot.status == status,
-            ScheduleSlot.slot_start <= datetime.now(),
+            ScheduleSlot.slot_start <= datetime.now(UTC),
         )
         return await self.paginate(stmt=stmt, pagination=pagination)
 
@@ -150,7 +150,6 @@ class ScheduleSlotRepository(BaseRepository):
 
     async def delete_slot(self, slot: ScheduleSlot) -> None:
         await self.session.delete(slot)
-        return None
 
     async def create_slot(
         self, schedule_slot: ScheduleSlotCreateSchema
@@ -186,7 +185,7 @@ class ScheduleSlotRepository(BaseRepository):
         self, slot: ScheduleSlot, status: SlotStatus
     ) -> ScheduleSlot:
         slot.status = status
-        slot.updated_at = datetime.now()
+        slot.updated_at = datetime.now(UTC)
         await self.session.flush()
         await self.session.refresh(slot)
         return slot
@@ -197,7 +196,7 @@ class ScheduleSlotRepository(BaseRepository):
         slot.slot_start = data.slot_start
         slot.slot_end = data.slot_end
         slot.status = data.status
-        slot.updated_at = datetime.now()
+        slot.updated_at = datetime.now(UTC)
         await self.session.flush()
         await self.session.refresh(slot)
         return slot

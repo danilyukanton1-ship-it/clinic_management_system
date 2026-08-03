@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, Enum, UniqueConstraint, CheckConstraint
-from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from db import orm as orm_fields
-from db.base import BaseModel
+from sqlalchemy import CheckConstraint, Enum, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from common.enums.slot_status import SlotStatus
+from db import orm as orm_fields
+from db.base import BaseModel
 
 if TYPE_CHECKING:
     from app.appointments.models.appointment import Appointment

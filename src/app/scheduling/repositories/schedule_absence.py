@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 
@@ -7,7 +7,7 @@ from app.scheduling.schemas.schedule_absence import (
     ScheduleAbsenceCreateSchema,
     ScheduleAbsenceUpdateSchema,
 )
-from common.pagination.schemas import PaginationResult, PaginationParams
+from common.pagination.schemas import PaginationParams, PaginationResult
 from core.repository import BaseRepository
 
 
@@ -45,7 +45,7 @@ class ScheduleAbsenceRepository(BaseRepository):
     ) -> PaginationResult[ScheduleAbsence]:
         stmt = select(ScheduleAbsence).where(
             ScheduleAbsence.doctor_id == doctor_id,
-            ScheduleAbsence.end_date <= datetime.now(),
+            ScheduleAbsence.end_date <= datetime.now(UTC),
         )
         return await self.paginate(
             stmt=stmt,
@@ -57,7 +57,7 @@ class ScheduleAbsenceRepository(BaseRepository):
     ) -> PaginationResult[ScheduleAbsence]:
         stmt = select(ScheduleAbsence).where(
             ScheduleAbsence.doctor_id == doctor_id,
-            ScheduleAbsence.end_date >= datetime.now(),
+            ScheduleAbsence.end_date >= datetime.now(UTC),
         )
         return await self.paginate(
             stmt=stmt,
@@ -88,4 +88,3 @@ class ScheduleAbsenceRepository(BaseRepository):
     async def delete_absence(self, absence: ScheduleAbsence) -> None:
         await self.session.delete(absence)
         await self.session.flush()
-        return None

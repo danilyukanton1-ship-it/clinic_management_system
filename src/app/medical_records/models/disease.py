@@ -1,7 +1,8 @@
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
-from db.base import BaseModel
+
 from db import orm as orm_fields
+from db.base import BaseModel
 
 
 class Disease(BaseModel):

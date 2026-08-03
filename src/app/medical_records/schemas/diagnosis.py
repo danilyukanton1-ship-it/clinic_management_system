@@ -1,5 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
-from pydantic import PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 
 
 class DiagnosisSchema(BaseModel):

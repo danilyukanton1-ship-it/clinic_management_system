@@ -1,5 +1,6 @@
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
 from app.medical_records.exceptions.prescription import PrescriptionNotFoundException

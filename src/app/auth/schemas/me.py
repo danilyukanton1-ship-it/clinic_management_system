@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, PositiveInt, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr, PositiveInt
 
 from common.enums.user_role import UserRole
 

@@ -5,21 +5,20 @@ from app.appointments.exceptions.appointment import (
     AppointmentNotFoundException,
     AppointmentRelatesToDifferentPatientException,
 )
-from app.appointments.schemas.attachment import (
-    AttachmentSchema,
-    AttachmentCreateSchema,
-    AttachmentUpdateSchema,
-    AttachmentResponseSchema,
-)
 from app.appointments.exceptions.attachment import AttachmentDoesNotExistException
+from app.appointments.policy.attachments import AttachmentPolicy
+from app.appointments.schemas.attachment import (
+    AttachmentCreateSchema,
+    AttachmentResponseSchema,
+    AttachmentSchema,
+    AttachmentUpdateSchema,
+)
 from app.users.exceptions.user import UserNotFoundException
 from app.users.models.user import User
-from app.appointments.policy.attachments import AttachmentPolicy
-from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.pagination.utils import build_paginated_response
-
-from infrastructure.storages.interface import StorageInterface
 from db.unit_of_work import UnitOfWork
+from infrastructure.storages.interface import StorageInterface
 from infrastructure.storages.schemas import DownloadUrl
 
 

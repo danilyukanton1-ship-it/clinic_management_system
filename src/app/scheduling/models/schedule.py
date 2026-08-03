@@ -1,12 +1,11 @@
 import datetime
 
-from sqlalchemy import ForeignKey, Time, Enum, CheckConstraint
+from sqlalchemy import CheckConstraint, Enum, ForeignKey, Time
 from sqlalchemy.orm import Mapped, mapped_column
 
-from db.base import BaseModel
-from db import orm as orm_fields
-
 from common.enums.weekday import Weekday
+from db import orm as orm_fields
+from db.base import BaseModel
 
 
 class Schedule(BaseModel):

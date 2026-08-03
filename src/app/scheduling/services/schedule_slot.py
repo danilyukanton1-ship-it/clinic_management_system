@@ -1,27 +1,28 @@
-from datetime import datetime, timedelta, time, timezone, UTC
+from datetime import UTC, datetime, time, timedelta
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.scheduling.models.schedule_absence import ScheduleAbsence
-from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.scheduling.exceptions.schedule import ScheduleNotFoundException
-from app.scheduling.models.schedule import Schedule
-from app.scheduling.schemas.schedule_slot import (
-    ScheduleSlotCreateSchema,
-    ScheduleSlotResponseSchema,
-    ScheduleSlotUpdateSchema,
-    ScheduleSlotBulkCreateSchema,
-)
 from app.scheduling.exceptions.schedule_slot import (
-    SlotNotFoundException,
-    SlotStatusCanNotBeChangedException,
     SlotAlreadyBookedException,
     SlotCanNotBeChangedException,
     SlotCanNotBeCreatedException,
+    SlotNotFoundException,
+    SlotStatusCanNotBeChangedException,
+)
+from app.scheduling.models.schedule import Schedule
+from app.scheduling.models.schedule_absence import ScheduleAbsence
+from app.scheduling.models.schedule_slot import ScheduleSlot
+from app.scheduling.schemas.schedule_slot import (
+    ScheduleSlotBulkCreateSchema,
+    ScheduleSlotCreateSchema,
+    ScheduleSlotResponseSchema,
+    ScheduleSlotUpdateSchema,
 )
 from app.users.exceptions.user import UserNotFoundException
 from common.constants import WEEKDAY_MAPPING
 from common.enums.slot_status import SlotStatus
-from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
@@ -83,7 +84,7 @@ class ScheduleSlotService:
         self, data: ScheduleSlotBulkCreateSchema
     ) -> list[ScheduleSlotResponseSchema]:
         async with self.uow:
-            if data.start_date <= datetime.now().date():
+            if data.start_date <= datetime.now(UTC).date():
                 raise SlotCanNotBeCreatedException()
             doctor_schedules = await self.uow.schedules.get_all_by_doctor_id(
                 doctor_id=data.doctor_id
@@ -139,7 +140,7 @@ class ScheduleSlotService:
                 raise SlotAlreadyBookedException()
             elif slot.status == status:
                 raise SlotStatusCanNotBeChangedException()
-            if slot.slot_start <= datetime.now(timezone.utc):
+            if slot.slot_start <= datetime.now(UTC):
                 raise SlotCanNotBeChangedException()
             status_changed_slot = await self.uow.schedule_slots.change_slot_status(
                 slot=slot,
@@ -187,7 +188,7 @@ class ScheduleSlotService:
             slot = await self.uow.schedule_slots.get_slot_by_id(slot_id=slot_id)
             if not slot:
                 raise SlotNotFoundException()
-            if slot.slot_start <= datetime.now(timezone.utc):
+            if slot.slot_start <= datetime.now(UTC):
                 raise SlotCanNotBeChangedException()
             if slot.status in (SlotStatus.BOOKED, SlotStatus.BLOCKED):
                 raise SlotCanNotBeChangedException()

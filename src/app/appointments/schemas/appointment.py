@@ -1,7 +1,7 @@
 import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
-from pydantic import PositiveInt, field_validator
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, field_validator
+
 from common.enums.appointment_status import AppointmentStatus
 
 

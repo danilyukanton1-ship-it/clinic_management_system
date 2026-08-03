@@ -1,14 +1,14 @@
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth.exceptions.login import InvalidCredentialsException
 from app.auth.exceptions.register import TooManyLoginAttemptsException
 from app.auth.schemas.login import LoginSchema
 from app.auth.schemas.token import TokenResponseSchema
-from app.auth.exceptions.login import InvalidCredentialsException
-from db.unit_of_work import UnitOfWork
-from common.enums.token_type import TokenType
 from app.auth.security import verify_password
 from app.auth.services.token import TokenService
+from common.enums.token_type import TokenType
+from db.unit_of_work import UnitOfWork
 
 
 class LoginService:

@@ -1,9 +1,9 @@
 from pydantic import (
     BaseModel,
     ConfigDict,
+    EmailStr,
     Field,
     PositiveInt,
-    EmailStr,
     field_validator,
 )
 

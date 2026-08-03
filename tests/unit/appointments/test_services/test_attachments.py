@@ -1,17 +1,17 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.appointments.exceptions.appointment import (
     AppointmentNotFoundException,
     AppointmentRelatesToDifferentPatientException,
 )
 from app.appointments.exceptions.attachment import AttachmentDoesNotExistException
-from app.users.exceptions.user import UserNotFoundException
-from tests.fixtures.appointments import attachment_service, attachment_2
 from app.appointments.schemas.attachment import (
     AttachmentResponseSchema,
     AttachmentSchema,
 )
+from app.users.exceptions.user import UserNotFoundException
 from common.pagination.schemas import PaginationResult
 
 

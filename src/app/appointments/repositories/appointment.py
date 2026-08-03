@@ -1,15 +1,15 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
-from sqlalchemy import select, or_
+from sqlalchemy import or_, select
 from sqlalchemy.orm import joinedload
+
 from app.appointments.models.appointment import Appointment
 from app.appointments.schemas.appointment import AppointmentCreateSchema
-from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.medical_records.models.diagnosis import Diagnosis
 from app.medical_records.models.prescription import Prescription
 from app.medical_records.models.prescription_item import PrescriptionItem
+from app.scheduling.models.schedule_slot import ScheduleSlot
 from app.users.models.user import User
-
 from common.pagination.schemas import PaginationParams, PaginationResult
 from core.repository import BaseRepository
 
@@ -82,7 +82,7 @@ class AppointmentRepository(BaseRepository):
                 Appointment.patient_id == user_id,
                 Appointment.doctor_id == user_id,
             ),
-            ScheduleSlot.slot_start >= datetime.now(),
+            ScheduleSlot.slot_start >= datetime.now(UTC),
         )
         stmt = select(Appointment).join(Appointment.slot).where(*filters)
         return await self.paginate(
@@ -98,7 +98,7 @@ class AppointmentRepository(BaseRepository):
                 Appointment.patient_id == user_id,
                 Appointment.doctor_id == user_id,
             ),
-            ScheduleSlot.slot_start <= datetime.now(),
+            ScheduleSlot.slot_start <= datetime.now(UTC),
         )
         stmt = select(Appointment).join(Appointment.slot).where(*filters)
         return await self.paginate(
@@ -180,4 +180,3 @@ class AppointmentRepository(BaseRepository):
 
     async def delete_appointment(self, appointment: Appointment) -> None:
         await self.session.delete(appointment)
-        return None

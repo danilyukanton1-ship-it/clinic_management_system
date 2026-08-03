@@ -1,5 +1,6 @@
-from datetime import datetime, date
-from pydantic import BaseModel, ConfigDict, model_validator, PositiveInt
+from datetime import date, datetime
+
+from pydantic import BaseModel, ConfigDict, PositiveInt, model_validator
 
 from common.enums.slot_status import SlotStatus
 

@@ -1,8 +1,9 @@
 from minio import Minio
+
+from core.config import settings
 from infrastructure.notifications.smtp import SMTPEmailService
 from infrastructure.notifications.template_renderer import TemplateRenderer
 from infrastructure.storages.services import MinioStorageService
-from core.config import settings
 
 minio_client = Minio(
     endpoint=settings.minio.ENDPOINT,

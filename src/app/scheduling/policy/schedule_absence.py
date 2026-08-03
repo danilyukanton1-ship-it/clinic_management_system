@@ -1,6 +1,5 @@
 from app.scheduling.models.schedule_absence import ScheduleAbsence
 from app.users.models.user import User
-
 from common.enums.user_role import UserRole
 from common.permissions.exceptions import ForbiddenException
 

@@ -1,9 +1,9 @@
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import Annotated
 from uuid import UUID
 
+from sqlalchemy import Date, DateTime, Integer, String, Text
 from sqlalchemy.orm import mapped_column
-from sqlalchemy import String, Text, Date, DateTime, Integer
 
 id_pk = Annotated[int, mapped_column(primary_key=True)]
 

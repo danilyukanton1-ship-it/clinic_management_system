@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, PositiveInt, Field
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 
 
 class SpecializationSchema(BaseModel):

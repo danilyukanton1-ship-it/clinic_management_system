@@ -1,9 +1,10 @@
 from sqlalchemy import select
+
+from app.medical_records.models.diagnosis import Diagnosis
 from app.medical_records.schemas.diagnosis import (
     DiagnosisCreateSchema,
     DiagnosisUpdateSchema,
 )
-from app.medical_records.models.diagnosis import Diagnosis
 from common.pagination.schemas import PaginationParams, PaginationResult
 from core.repository import BaseRepository
 
@@ -71,4 +72,3 @@ class DiagnosisRepository(BaseRepository):
 
     async def delete_diagnosis(self, diagnosis: Diagnosis) -> None:
         await self.session.delete(diagnosis)
-        return None

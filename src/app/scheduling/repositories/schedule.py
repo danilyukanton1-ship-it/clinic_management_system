@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 
@@ -101,7 +101,6 @@ class ScheduleRepository(BaseRepository):
 
     async def delete_schedule(self, schedule: Schedule) -> None:
         await self.session.delete(schedule)
-        return None
 
     async def make_schedule_unactive(self, schedule: Schedule) -> Schedule:
         schedule.is_active = False

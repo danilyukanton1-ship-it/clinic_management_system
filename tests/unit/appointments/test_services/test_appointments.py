@@ -1,19 +1,21 @@
-import pytest
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
-from datetime import datetime, timedelta, timezone
+
+import pytest
+
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
 from app.appointments.schemas.appointment import AppointmentResponseSchema
 from app.scheduling.exceptions.schedule_slot import (
-    SlotNotFoundException,
     SlotNotAvailableException,
+    SlotNotFoundException,
 )
 from app.users.exceptions.user import UserNotFoundException
 from common.enums.slot_status import SlotStatus
-from common.permissions.exceptions import ForbiddenException
 from common.pagination.schemas import (
     PaginatedResponse,
     PaginationResult,
 )
+from common.permissions.exceptions import ForbiddenException
 
 
 class TestAppointmentService:
@@ -617,7 +619,7 @@ class TestAppointmentService:
         schedule_slot_free,
         appointment_create_schema,
     ):
-        schedule_slot_free.slot_start = datetime.now(timezone.utc) - timedelta(hours=1)
+        schedule_slot_free.slot_start = datetime.now(UTC) - timedelta(hours=1)
 
         appointment_service.uow.schedule_slots.get_slot_by_id = AsyncMock(
             return_value=schedule_slot_free

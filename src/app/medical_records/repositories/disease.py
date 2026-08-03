@@ -1,7 +1,8 @@
 from sqlalchemy import select
-from app.medical_records.schemas.disease import DiseaseCreateSchema, DiseaseUpdateSchema
+
 from app.medical_records.models.disease import Disease
-from common.pagination.schemas import PaginationResult, PaginationParams
+from app.medical_records.schemas.disease import DiseaseCreateSchema, DiseaseUpdateSchema
+from common.pagination.schemas import PaginationParams, PaginationResult
 from core.repository import BaseRepository
 
 

@@ -5,14 +5,14 @@ import pytest
 from app.users.models.specialization import Specialization
 from app.users.models.user import User
 from app.users.schemas.specialization import (
-    SpecializationUpdateSchema,
     SpecializationCreateSchema,
+    SpecializationUpdateSchema,
 )
 from app.users.schemas.user import (
-    DoctorCreateSchema,
-    DoctorUpdateSchema,
     AdminCreateSchema,
     AdminUpdateSchema,
+    DoctorCreateSchema,
+    DoctorUpdateSchema,
     PatientUpdateSchema,
 )
 from app.users.services.specialization import SpecializationService

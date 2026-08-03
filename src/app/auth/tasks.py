@@ -1,5 +1,6 @@
 import asyncio
-from datetime import datetime
+from datetime import UTC, datetime
+
 from infrastructure.celery import celery_app
 from infrastructure.notifications.smtp import SMTPEmailService
 from infrastructure.notifications.template_renderer import TemplateRenderer
@@ -19,7 +20,7 @@ def send_verify_email(
         username=username,
         code=verification_code,
         minutes=10,
-        year=datetime.now().year,
+        year=datetime.now(UTC).year,
     )
     asyncio.run(
         email_service.send(
@@ -44,13 +45,13 @@ def send_success_password_reset_email(
         "password_change.html",
         username=username,
         changed_at=changed_at,
-        year=datetime.now().year,
+        year=datetime.now(UTC).year,
     )
     asyncio.run(
         email_service.send(
             email_receiver=email,
             subject="Password Changed",
-            body=f"Your password has been changed!",
+            body="Your password has been changed!",
             html=html,
         )
     )

@@ -1,18 +1,18 @@
 from fastapi import APIRouter, Depends, status
 
-from common.pagination.schemas import PaginationParams, PaginatedResponse
-from common.types import ID
+from app.auth.dependencies import get_current_user
 from app.medical_records.dependencies import get_disease_service
-from app.medical_records.services.disease import DiseaseService
 from app.medical_records.schemas.disease import (
-    DiseaseResponseSchema,
     DiseaseCreateSchema,
+    DiseaseResponseSchema,
     DiseaseUpdateSchema,
 )
-from app.auth.dependencies import get_current_user
+from app.medical_records.services.disease import DiseaseService
 from app.users.models.user import User
 from common.enums.user_role import UserRole
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.permissions.checks import check_role
+from common.types import ID
 
 router = APIRouter(
     tags=["Diseases"],

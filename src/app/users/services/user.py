@@ -2,31 +2,30 @@ from secrets import randbelow
 
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.users.models.user import User
-from app.users.models.specialization import Specialization
+
 from app.auth.security import get_password_hash
-from app.users.policy.user import UserPolicy
-
-from app.users.schemas.user import (
-    DoctorCreateSchema,
-    DoctorResponseSchema,
-    PatientResponseSchema,
-    DoctorUpdateSchema,
-    PatientUpdateSchema,
-    AdminResponseSchema,
-    AdminUpdateSchema,
-    AdminCreateSchema,
-    UserUpdateSchema,
-)
-
-from app.users.exceptions.user import (
-    UserAlreadyExistsException,
-    UserNotFoundException,
-    UserAlreadyInactiveException,
-)
 from app.auth.tasks import send_verify_email
 from app.users.exceptions.specialization import SpecializationNotFoundException
-from common.pagination.schemas import PaginationParams, PaginatedResponse
+from app.users.exceptions.user import (
+    UserAlreadyExistsException,
+    UserAlreadyInactiveException,
+    UserNotFoundException,
+)
+from app.users.models.specialization import Specialization
+from app.users.models.user import User
+from app.users.policy.user import UserPolicy
+from app.users.schemas.user import (
+    AdminCreateSchema,
+    AdminResponseSchema,
+    AdminUpdateSchema,
+    DoctorCreateSchema,
+    DoctorResponseSchema,
+    DoctorUpdateSchema,
+    PatientResponseSchema,
+    PatientUpdateSchema,
+    UserUpdateSchema,
+)
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 

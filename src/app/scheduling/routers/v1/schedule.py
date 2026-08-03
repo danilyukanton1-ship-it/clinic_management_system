@@ -1,19 +1,18 @@
 from fastapi import APIRouter, Depends, status
-from common.types import ID
-from app.scheduling.dependencies import get_schedule_service
 
-from app.scheduling.services.schedule import ScheduleService
+from app.auth.dependencies import get_current_user
+from app.scheduling.dependencies import get_schedule_service
 from app.scheduling.schemas.schedule import (
-    ScheduleResponseSchema,
     ScheduleCreateSchema,
+    ScheduleResponseSchema,
     ScheduleUpdateSchema,
 )
-from app.auth.dependencies import get_current_user
+from app.scheduling.services.schedule import ScheduleService
 from app.users.models.user import User
 from common.enums.user_role import UserRole
-from common.permissions.checks import check_role
-
 from common.enums.weekday import Weekday
+from common.permissions.checks import check_role
+from common.types import ID
 
 router = APIRouter(prefix="/schedule", tags=["Schedules"])
 

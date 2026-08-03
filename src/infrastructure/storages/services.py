@@ -1,12 +1,12 @@
 from datetime import timedelta
-
-from minio import Minio
 from pathlib import Path
 from uuid import uuid4
+
 from fastapi import UploadFile
+from minio import Minio
 
 from infrastructure.storages.interface import StorageInterface
-from infrastructure.storages.schemas import StoredFileSchema, DownloadUrl
+from infrastructure.storages.schemas import DownloadUrl, StoredFileSchema
 
 
 class MinioStorageService(StorageInterface):

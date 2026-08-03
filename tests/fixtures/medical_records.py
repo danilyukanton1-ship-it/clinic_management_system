@@ -8,20 +8,20 @@ from app.medical_records.models.drug import Drug
 from app.medical_records.models.prescription import Prescription
 from app.medical_records.models.prescription_item import PrescriptionItem
 from app.medical_records.schemas.diagnosis import (
+    DiagnosisCreateFullPrescriptionSchema,
     DiagnosisCreateSchema,
     DiagnosisUpdateSchema,
-    DiagnosisCreateFullPrescriptionSchema,
 )
-from app.medical_records.schemas.disease import DiseaseUpdateSchema, DiseaseCreateSchema
+from app.medical_records.schemas.disease import DiseaseCreateSchema, DiseaseUpdateSchema
 from app.medical_records.schemas.drug import DrugCreateSchema, DrugUpdateSchema
 from app.medical_records.schemas.prescription import (
-    PrescriptionUpdateSchema,
     FullPrescriptionCreateSchema,
+    PrescriptionUpdateSchema,
 )
 from app.medical_records.schemas.prescription_item import (
+    PrescriptionItemCreateFullPrescriptionSchema,
     PrescriptionItemCreateSchema,
     PrescriptionItemUpdateSchema,
-    PrescriptionItemCreateFullPrescriptionSchema,
 )
 from app.medical_records.services.diagnosis import DiagnosisService
 from app.medical_records.services.disease import DiseaseService

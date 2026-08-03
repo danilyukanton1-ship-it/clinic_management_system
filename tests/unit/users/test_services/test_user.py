@@ -1,19 +1,20 @@
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
 
 from app.users.exceptions.specialization import SpecializationNotFoundException
 from app.users.exceptions.user import (
     UserAlreadyExistsException,
-    UserNotFoundException,
     UserAlreadyInactiveException,
+    UserNotFoundException,
 )
 from app.users.schemas.user import (
-    DoctorResponseSchema,
     AdminResponseSchema,
+    DoctorResponseSchema,
     PatientResponseSchema,
 )
-from common.permissions.exceptions import ForbiddenException
 from common.pagination.schemas import PaginationResult
+from common.permissions.exceptions import ForbiddenException
 
 
 class TestUserService:
@@ -1573,28 +1574,6 @@ class TestUserService:
         user_service._send_verification_email.assert_not_awaited()
 
     @pytest.mark.asyncio
-    async def test_deactivate_success(
-        self,
-        user_service,
-        doctor_1,
-    ):
-        doctor_1.is_active = True
-
-        user_service.uow.users.make_user_inactive = AsyncMock(
-            return_value=doctor_1,
-        )
-
-        result = await user_service._deactivate(
-            user=doctor_1,
-        )
-
-        assert result == doctor_1
-
-        user_service.uow.users.make_user_inactive.assert_awaited_once_with(
-            user=doctor_1,
-        )
-
-    @pytest.mark.asyncio
     async def test_deactivate_user_already_inactive(
         self,
         user_service,
@@ -1713,77 +1692,4 @@ class TestUserService:
 
         user_service.uow.users.get_doctor_by_id_for_admin.assert_awaited_once_with(
             doctor_id=1,
-        )
-
-    @pytest.mark.asyncio
-    async def test_new_email_verification_email_changed(
-        self,
-        user_service,
-        doctor_1,
-    ):
-        data = MagicMock(
-            email="new@test.com",
-            first_name="Anton",
-        )
-
-        user_service.uow.users.change_user_verification_status = AsyncMock()
-        user_service._send_verification_email = AsyncMock()
-
-        await user_service._new_email_verification(
-            user=doctor_1,
-            data=data,
-        )
-
-        user_service.uow.users.change_user_verification_status.assert_awaited_once_with(
-            user=doctor_1,
-            is_verified=False,
-        )
-
-        user_service._send_verification_email.assert_awaited_once_with(
-            email="new@test.com",
-            username="Anton",
-        )
-
-    @pytest.mark.asyncio
-    async def test_new_email_verification_email_not_changed(
-        self,
-        user_service,
-        doctor_1,
-    ):
-        data = MagicMock(
-            email=doctor_1.email,
-            first_name=doctor_1.first_name,
-        )
-
-        user_service.uow.users.change_user_verification_status = AsyncMock()
-        user_service._send_verification_email = AsyncMock()
-
-        await user_service._new_email_verification(
-            user=doctor_1,
-            data=data,
-        )
-
-        user_service.uow.users.change_user_verification_status.assert_not_awaited()
-        user_service._send_verification_email.assert_not_awaited()
-
-    @pytest.mark.asyncio
-    async def test_deactivate_success(
-        self,
-        user_service,
-        doctor_1,
-    ):
-        doctor_1.is_active = True
-
-        user_service.uow.users.make_user_inactive = AsyncMock(
-            return_value=doctor_1,
-        )
-
-        result = await user_service._deactivate(
-            user=doctor_1,
-        )
-
-        assert result == doctor_1
-
-        user_service.uow.users.make_user_inactive.assert_awaited_once_with(
-            user=doctor_1,
         )

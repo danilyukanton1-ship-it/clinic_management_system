@@ -1,21 +1,21 @@
-from datetime import datetime
-
-import pytest
-from fastapi import UploadFile
+from datetime import UTC, datetime
 from io import BytesIO
 from unittest.mock import MagicMock
 
-from app.appointments.models.attachment import Attachment
+import pytest
+from fastapi import UploadFile
+
 from app.appointments.models.appointment import Appointment
+from app.appointments.models.attachment import Attachment
 from app.appointments.schemas.appointment import AppointmentCreateSchema
-from app.appointments.services.attachment import AttachmentService
-from app.appointments.services.appointment import AppointmentService
-from common.enums.appointment_status import AppointmentStatus
 from app.appointments.schemas.attachment import (
     AttachmentCreateSchema,
     AttachmentResponseSchema,
     AttachmentUpdateSchema,
 )
+from app.appointments.services.appointment import AppointmentService
+from app.appointments.services.attachment import AttachmentService
+from common.enums.appointment_status import AppointmentStatus
 
 
 @pytest.fixture
@@ -85,8 +85,8 @@ def attachment_response_schema_1():
         patient_id=1,
         appointment_id=1,
         uploaded_by_id=10,
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
 
 
@@ -100,8 +100,8 @@ def attachment_response_schema_2():
         patient_id=1,
         appointment_id=1,
         uploaded_by_id=10,
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
 
 
@@ -116,8 +116,8 @@ def attachment_1():
         patient_id=1,
         appointment_id=1,
         uploaded_by_id=10,
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
 
 
@@ -132,8 +132,8 @@ def attachment_2():
         patient_id=1,
         appointment_id=1,
         uploaded_by_id=10,
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
 
 
@@ -147,8 +147,8 @@ def appointment_patient_1(patient_1, doctor_1, schedule_slot_1, specialization):
         doctor_id=doctor_1.id,
         slot_id=schedule_slot_1.id,
         status=AppointmentStatus.SCHEDULED,
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
 
     appointment.patient = patient_1

@@ -1,10 +1,12 @@
 from typing import TYPE_CHECKING
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, ForeignKey
+
 from sqlalchemy import Enum as SQLEnum
-from db.base import BaseModel
-from db import orm as orm_column
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from common.enums.user_role import UserRole
+from db import orm as orm_column
+from db.base import BaseModel
 
 if TYPE_CHECKING:
     from app.users.models.specialization import Specialization

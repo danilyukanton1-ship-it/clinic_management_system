@@ -1,20 +1,20 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
+from app.medical_records.exceptions.diagnosis import (
+    DiagnosisCantBeEmptyInPrescriptionException,
+    DiagnosisNotFoundException,
+)
 from app.medical_records.exceptions.disease import DiseaseNotFoundException
 from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
+from app.medical_records.policy.diagnosis import DiagnosisPolicy
 from app.medical_records.schemas.diagnosis import (
     DiagnosisCreateSchema,
-    DiagnosisUpdateSchema,
     DiagnosisResponseSchema,
-)
-from app.medical_records.exceptions.diagnosis import (
-    DiagnosisNotFoundException,
-    DiagnosisCantBeEmptyInPrescriptionException,
+    DiagnosisUpdateSchema,
 )
 from app.users.models.user import User
-from app.medical_records.policy.diagnosis import DiagnosisPolicy
-from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
 
@@ -85,7 +85,6 @@ class DiagnosisService:
                 raise DiagnosisCantBeEmptyInPrescriptionException()
 
             await self.uow.diagnoses.delete_diagnosis(diagnosis=diagnosis)
-        return None
 
     async def get_by_id(
         self, diagnosis_id: int, current_user: User

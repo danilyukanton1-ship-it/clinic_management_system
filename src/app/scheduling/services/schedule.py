@@ -1,15 +1,16 @@
+from datetime import UTC, datetime, timedelta
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import timedelta, date
+
 from app.scheduling.exceptions.schedule import (
-    ScheduleNotFoundException,
     ScheduleAlreadyExistsException,
     ScheduleCanNotBeDeletedException,
+    ScheduleNotFoundException,
 )
-
 from app.scheduling.schemas.schedule import (
     ScheduleCreateSchema,
-    ScheduleUpdateSchema,
     ScheduleResponseSchema,
+    ScheduleUpdateSchema,
 )
 from app.users.exceptions.user import UserNotFoundException
 from common.enums.slot_status import SlotStatus
@@ -92,7 +93,7 @@ class ScheduleService:
                 doctor_id=doctor_id, schedule_id=db_schedule.id
             )
             start_delete_date = (
-                last_booked.date() + timedelta(days=1) if last_booked else date.today()
+                last_booked.date() + timedelta(days=1) if last_booked else datetime.now(UTC).date()
             )
             slots_to_delete = await self.uow.schedule_slots.get_slots_after_date(
                 doctor_id=doctor_id, day=start_delete_date, schedule_id=db_schedule.id
@@ -119,7 +120,7 @@ class ScheduleService:
             if not booked_slots:
                 slots_to_delete = await self.uow.schedule_slots.get_slots_after_date(
                     doctor_id=schedule.doctor_id,
-                    day=date.today(),
+                    day=datetime.now(UTC).date(),
                     schedule_id=schedule_id,
                 )
                 for slot in slots_to_delete:
@@ -127,4 +128,3 @@ class ScheduleService:
             else:
                 raise ScheduleCanNotBeDeletedException()
             await self.uow.schedules.make_schedule_unactive(schedule=schedule)
-        return None

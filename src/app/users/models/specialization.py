@@ -1,7 +1,9 @@
 from typing import TYPE_CHECKING
+
 from sqlalchemy.orm import Mapped, relationship
-from db.base import BaseModel
+
 from db import orm as orm_column
+from db.base import BaseModel
 
 if TYPE_CHECKING:
     from app.users.models.user import User

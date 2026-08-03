@@ -1,17 +1,19 @@
-import pytest
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
-from datetime import timedelta, datetime
+
+import pytest
+
 from app.scheduling.exceptions.schedule_absence import (
-    AbsenceAlreadyScheduledException,
-    AbsenceNotFoundException,
     AbsenceAlreadyFinishedException,
+    AbsenceAlreadyScheduledException,
     AbsenceAlreadyStartedException,
     AbsenceCanNotBeChangedException,
+    AbsenceNotFoundException,
 )
 from app.scheduling.schemas.schedule_absence import ScheduleAbsenceResponseSchema
 from app.users.exceptions.user import UserNotFoundException
-from common.permissions.exceptions import ForbiddenException
 from common.pagination.schemas import PaginationResult
+from common.permissions.exceptions import ForbiddenException
 
 
 class TestScheduleAbsence:
@@ -271,7 +273,7 @@ class TestScheduleAbsence:
         started_schedule_absence_update_schema.start_date = (
             schedule_absence_started.start_date
         )
-        started_schedule_absence_update_schema.end_date = datetime.now() - timedelta(
+        started_schedule_absence_update_schema.end_date = datetime.now(UTC) - timedelta(
             days=1
         )
 

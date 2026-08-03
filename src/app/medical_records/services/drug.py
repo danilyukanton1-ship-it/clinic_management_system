@@ -1,13 +1,13 @@
-from requests import session
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.medical_records.schemas.drug import (
-    DrugCreateSchema,
-    DrugUpdateSchema,
-    DrugResponseSchema,
-)
+
 from app.medical_records.exceptions.drug import (
     DrugAlreadyExistsException,
     DrugNotFoundException,
+)
+from app.medical_records.schemas.drug import (
+    DrugCreateSchema,
+    DrugResponseSchema,
+    DrugUpdateSchema,
 )
 from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.pagination.utils import build_paginated_response
@@ -69,4 +69,3 @@ class DrugService:
             raise DrugNotFoundException()
         async with self.uow:
             await self.uow.drugs.delete_drug(drug=drug)
-        return None

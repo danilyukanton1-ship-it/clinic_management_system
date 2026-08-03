@@ -1,17 +1,17 @@
 from fastapi import APIRouter, Depends, status
 
-from common.pagination.schemas import PaginationParams, PaginatedResponse
-from common.types import ID
 from app.appointments.dependencies import get_appointment_service
-from app.appointments.services.appointment import AppointmentService
 from app.appointments.schemas.appointment import (
     AppointmentCreateSchema,
     AppointmentResponseSchema,
 )
+from app.appointments.services.appointment import AppointmentService
 from app.auth.dependencies import get_current_user
 from app.users.models.user import User
 from common.enums.user_role import UserRole
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.permissions.checks import check_role
+from common.types import ID
 
 router = APIRouter(tags=["Appointments"], prefix="/appointments")
 

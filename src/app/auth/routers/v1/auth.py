@@ -1,29 +1,30 @@
-from fastapi import APIRouter, Depends, status, Request
-from common.types import Email
+from fastapi import APIRouter, Depends, Request, status
+
+from app.auth.dependencies import (
+    get_current_user,
+    get_login_service,
+    get_register_service,
+    get_token_service,
+)
+from app.auth.schemas.login import LoginSchema
 from app.auth.schemas.me import MeSchema
 from app.auth.schemas.register import (
-    RegisterSchema,
-    VerifyEmailSchema,
     ForgotPasswordSchema,
+    RegisterSchema,
     ResetPasswordSchema,
+    VerifyEmailSchema,
 )
+from app.auth.schemas.token import (
+    AccessTokenSchema,
+    RefreshTokenSchema,
+    TokenResponseSchema,
+)
+from app.auth.services.login import LoginService
 from app.auth.services.register import RegisterService
 from app.auth.services.token import TokenService
 from app.users.models.user import User
-from app.users.schemas.user import UserResponseSchema, PatientResponseSchema
-from app.auth.dependencies import (
-    get_login_service,
-    get_current_user,
-    get_token_service,
-    get_register_service,
-)
-from app.auth.schemas.login import LoginSchema
-from app.auth.schemas.token import (
-    TokenResponseSchema,
-    AccessTokenSchema,
-    RefreshTokenSchema,
-)
-from app.auth.services.login import LoginService
+from app.users.schemas.user import PatientResponseSchema, UserResponseSchema
+from common.types import Email
 from core.limiter import limiter
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

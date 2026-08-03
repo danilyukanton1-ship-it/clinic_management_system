@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from unittest.mock import MagicMock
 
 import pytest
@@ -6,7 +6,7 @@ import pytest
 from app.scheduling.models.schedule import Schedule
 from app.scheduling.models.schedule_absence import ScheduleAbsence
 from app.scheduling.models.schedule_slot import ScheduleSlot
-from app.scheduling.schemas.schedule import ScheduleUpdateSchema, ScheduleCreateSchema
+from app.scheduling.schemas.schedule import ScheduleCreateSchema, ScheduleUpdateSchema
 from app.scheduling.schemas.schedule_absence import (
     ScheduleAbsenceCreateSchema,
     ScheduleAbsenceUpdateSchema,
@@ -22,8 +22,8 @@ from common.enums.absence_reason import AbsenceReason
 from common.enums.slot_status import SlotStatus
 from common.enums.weekday import Weekday
 
-TEST_START_DATETIME = datetime(2030, 1, 7, 10, 0, tzinfo=timezone.utc)
-TEST_END_DATETIME = datetime(2030, 1, 7, 10, 30, tzinfo=timezone.utc)
+TEST_START_DATETIME = datetime(2030, 1, 7, 10, 0, tzinfo=UTC)
+TEST_END_DATETIME = datetime(2030, 1, 7, 10, 30, tzinfo=UTC)
 
 
 @pytest.fixture
@@ -164,7 +164,7 @@ def schedule_slot_blocked():
 
 @pytest.fixture
 def schedule_absence_1(doctor_1):
-    now = datetime.now()
+    now = datetime.now(UTC)
     return ScheduleAbsence(
         id=1,
         doctor_id=doctor_1.id,
@@ -176,7 +176,7 @@ def schedule_absence_1(doctor_1):
 
 @pytest.fixture
 def schedule_absence_started(doctor_1):
-    now = datetime.now()
+    now = datetime.now(UTC)
     return ScheduleAbsence(
         id=1,
         doctor_id=doctor_1.id,
@@ -188,7 +188,7 @@ def schedule_absence_started(doctor_1):
 
 @pytest.fixture
 def schedule_absence_ended(doctor_1):
-    now = datetime.now()
+    now = datetime.now(UTC)
     return ScheduleAbsence(
         id=1,
         doctor_id=doctor_1.id,
@@ -200,7 +200,7 @@ def schedule_absence_ended(doctor_1):
 
 @pytest.fixture
 def schedule_absence_create_schema(doctor_1):
-    now = datetime.now()
+    now = datetime.now(UTC)
     return ScheduleAbsenceCreateSchema(
         doctor_id=doctor_1.id,
         start_date=now + timedelta(days=2),
@@ -211,7 +211,7 @@ def schedule_absence_create_schema(doctor_1):
 
 @pytest.fixture
 def schedule_absence_update_schema(doctor_1):
-    now = datetime.now()
+    now = datetime.now(UTC)
     return ScheduleAbsenceUpdateSchema(
         start_date=now + timedelta(days=3),
         end_date=now + timedelta(days=6),
@@ -221,7 +221,7 @@ def schedule_absence_update_schema(doctor_1):
 
 @pytest.fixture
 def started_schedule_absence_update_schema():
-    now = datetime.now()
+    now = datetime.now(UTC)
     return ScheduleAbsenceUpdateSchema(
         start_date=now - timedelta(days=2),
         end_date=now + timedelta(days=5),

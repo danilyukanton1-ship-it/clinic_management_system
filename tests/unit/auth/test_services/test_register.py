@@ -1,13 +1,14 @@
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
 
 from app.auth.exceptions.register import (
     EmailAlreadyExistsException,
+    IncorrectVerificationCodeException,
     PhoneAlreadyExistsException,
     UserAlreadyVerifiedException,
-    VerificationCodeNotFoundException,
-    IncorrectVerificationCodeException,
     UserNotVerifiedException,
+    VerificationCodeNotFoundException,
 )
 from app.users.exceptions.user import UserNotFoundException
 from app.users.schemas.user import PatientResponseSchema
@@ -38,7 +39,6 @@ class TestRegisterService:
                 new_callable=AsyncMock,
             ) as mock_send_email,
         ):
-            ...
             result = await register_service.register(register_schema)
 
         register_service.uow.users.get_user_by_email.assert_called_once_with(
@@ -568,23 +568,6 @@ class TestRegisterService:
         register_service.redis.delete.assert_called_once_with(
             "patient@test.com",
         )
-
-    @pytest.mark.asyncio
-    async def test_verify_email_code_not_found(
-        self,
-        register_service,
-    ):
-        register_service.redis.get.return_value = None
-
-        register_service.redis.delete = AsyncMock()
-
-        with pytest.raises(VerificationCodeNotFoundException):
-            await register_service._verify_email_code(
-                email="patient@test.com",
-                verification_code="123456",
-            )
-
-        register_service.redis.delete.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_verify_email_code_invalid(

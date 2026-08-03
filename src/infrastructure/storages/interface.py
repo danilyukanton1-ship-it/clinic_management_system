@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from fastapi import UploadFile
 
-from infrastructure.storages.schemas import StoredFileSchema, DownloadUrl
+from infrastructure.storages.schemas import DownloadUrl, StoredFileSchema
 
 
 class StorageInterface(ABC):

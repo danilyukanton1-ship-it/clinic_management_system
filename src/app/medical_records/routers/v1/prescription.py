@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, status
-from common.types import ID
+
+from app.auth.dependencies import get_current_user
 from app.medical_records.dependencies import get_prescription_service
 from app.medical_records.schemas.prescription import (
     PrescriptionResponseSchema,
     PrescriptionUpdateSchema,
 )
 from app.medical_records.services.prescription import PrescriptionService
-from app.auth.dependencies import get_current_user
 from app.users.models.user import User
+from common.types import ID
 
 router = APIRouter(
     prefix="/prescriptions",

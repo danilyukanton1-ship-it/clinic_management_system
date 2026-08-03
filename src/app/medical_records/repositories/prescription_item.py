@@ -1,11 +1,10 @@
 from sqlalchemy import select
 
+from app.medical_records.models.prescription_item import PrescriptionItem
 from app.medical_records.schemas.prescription_item import (
     PrescriptionItemCreateSchema,
     PrescriptionItemUpdateSchema,
 )
-
-from app.medical_records.models.prescription_item import PrescriptionItem
 from common.pagination.schemas import PaginationParams, PaginationResult
 from core.repository import BaseRepository
 
@@ -71,4 +70,3 @@ class PrescriptionItemRepository(BaseRepository):
         await self.session.delete(prescription_item)
         await self.session.flush()
         await self.session.refresh(prescription_item)
-        return None

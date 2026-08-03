@@ -1,7 +1,6 @@
 import asyncio
-from logging.config import fileConfig
-
 import sys
+from logging.config import fileConfig
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
@@ -22,18 +21,6 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 from db.database import Base
-from app.users.models.user import User
-from app.users.models.specialization import Specialization
-from app.scheduling.models.schedule_slot import ScheduleSlot
-from app.scheduling.models.schedule import Schedule
-from app.scheduling.models.schedule_absence import ScheduleAbsence
-from app.medical_records.models.disease import Disease
-from app.medical_records.models.drug import Drug
-from app.medical_records.models.diagnosis import Diagnosis
-from app.medical_records.models.prescription import Prescription
-from app.medical_records.models.prescription_item import PrescriptionItem
-from app.appointments.models.appointment import Appointment
-from app.appointments.models.attachment import Attachment
 
 target_metadata = Base.metadata
 

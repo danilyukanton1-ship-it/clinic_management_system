@@ -1,26 +1,28 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from secrets import randbelow
+
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.auth.tasks import send_verify_email, send_success_password_reset_email
+
+from app.auth.exceptions.register import (
+    EmailAlreadyExistsException,
+    IncorrectVerificationCodeException,
+    PhoneAlreadyExistsException,
+    UserAlreadyVerifiedException,
+    UserNotVerifiedException,
+    VerificationCodeNotFoundException,
+)
+from app.auth.schemas.register import (
+    ForgotPasswordSchema,
+    RegisterSchema,
+    ResetPasswordSchema,
+    VerifyEmailSchema,
+)
+from app.auth.security import get_password_hash
+from app.auth.tasks import send_success_password_reset_email, send_verify_email
 from app.users.exceptions.user import UserNotFoundException
 from app.users.schemas.user import PatientResponseSchema
 from db.unit_of_work import UnitOfWork
-from app.auth.security import get_password_hash
-from app.auth.schemas.register import (
-    RegisterSchema,
-    VerifyEmailSchema,
-    ForgotPasswordSchema,
-    ResetPasswordSchema,
-)
-from app.auth.exceptions.register import (
-    EmailAlreadyExistsException,
-    PhoneAlreadyExistsException,
-    UserAlreadyVerifiedException,
-    VerificationCodeNotFoundException,
-    IncorrectVerificationCodeException,
-    UserNotVerifiedException,
-)
 
 
 class RegisterService:
@@ -102,7 +104,7 @@ class RegisterService:
             send_success_password_reset_email.delay(
                 email=user.email,
                 username=user.first_name,
-                changed_at=datetime.now(),
+                changed_at=datetime.now(UTC),
             )
         return PatientResponseSchema.model_validate(user)
 

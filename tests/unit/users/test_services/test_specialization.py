@@ -1,9 +1,10 @@
-import pytest
 from unittest.mock import AsyncMock
 
+import pytest
+
 from app.users.exceptions.specialization import (
-    SpecializationNotFoundException,
     SpecializationAlreadyExistsException,
+    SpecializationNotFoundException,
 )
 from app.users.schemas.specialization import SpecializationResponseSchema
 from common.pagination.schemas import PaginationResult

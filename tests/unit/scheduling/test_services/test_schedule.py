@@ -1,11 +1,12 @@
+from datetime import UTC, datetime, timedelta
+from unittest.mock import AsyncMock, call
+
 import pytest
 
-from unittest.mock import AsyncMock, call
-from datetime import date, datetime, timedelta
 from app.scheduling.exceptions.schedule import (
-    ScheduleNotFoundException,
     ScheduleAlreadyExistsException,
     ScheduleCanNotBeDeletedException,
+    ScheduleNotFoundException,
 )
 from app.users.exceptions.user import UserNotFoundException
 from common.enums.slot_status import SlotStatus
@@ -270,7 +271,7 @@ class TestScheduleService:
         )
         schedule_service.uow.schedule_slots.get_slots_after_date.assert_awaited_once_with(
             doctor_id=schedule_1.doctor_id,
-            day=date.today(),
+            day=datetime.now(UTC).date(),
             schedule_id=schedule_1.id,
         )
         schedule_service.uow.schedule_slots.delete_slot.assert_has_awaits(
@@ -303,7 +304,7 @@ class TestScheduleService:
         schedule_slot_1,
         schedule_slot_2,
     ):
-        last_booked = datetime(2026, 1, 10, 12, 0)
+        last_booked = datetime(2026, 1, 10, 12, 0, tzinfo=UTC)
         expected_day = last_booked.date() + timedelta(days=1)
 
         schedule_service.uow.schedules.get_by_doctor_id_and_weekday = AsyncMock(
@@ -403,7 +404,7 @@ class TestScheduleService:
 
         schedule_service.uow.schedule_slots.get_slots_after_date.assert_awaited_once_with(
             doctor_id=schedule_1.doctor_id,
-            day=date.today(),
+            day=datetime.now(UTC).date(),
             schedule_id=schedule_1.id,
         )
 

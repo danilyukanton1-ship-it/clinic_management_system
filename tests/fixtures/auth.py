@@ -2,10 +2,10 @@ import pytest
 
 from app.auth.schemas.login import LoginSchema
 from app.auth.schemas.register import (
-    RegisterSchema,
-    VerifyEmailSchema,
     ForgotPasswordSchema,
+    RegisterSchema,
     ResetPasswordSchema,
+    VerifyEmailSchema,
 )
 from app.auth.services.login import LoginService
 from app.auth.services.register import RegisterService

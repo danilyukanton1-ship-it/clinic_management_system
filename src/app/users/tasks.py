@@ -6,11 +6,10 @@ from infrastructure.celery import celery_app
 
 
 async def delete_unverified():
-    async with AsyncSessionLocal() as session:
-        async with UnitOfWork(session) as uow:
-            users = await uow.users.get_unverified_user()
-            for user in users:
-                await uow.users.delete_user(user)
+    async with AsyncSessionLocal() as session, UnitOfWork(session) as uow:
+        users = await uow.users.get_unverified_user()
+        for user in users:
+            await uow.users.delete_user(user)
 
 
 @celery_app.task(name="app.users.tasks.delete_unverified_users")

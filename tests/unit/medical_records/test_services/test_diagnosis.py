@@ -1,16 +1,17 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
 from app.medical_records.exceptions.diagnosis import (
-    DiagnosisNotFoundException,
     DiagnosisCantBeEmptyInPrescriptionException,
+    DiagnosisNotFoundException,
 )
 from app.medical_records.exceptions.disease import DiseaseNotFoundException
 from app.medical_records.exceptions.prescription import PrescriptionNotFoundException
 from app.medical_records.schemas.diagnosis import DiagnosisResponseSchema
-from common.permissions.exceptions import ForbiddenException
 from common.pagination.schemas import PaginationResult
+from common.permissions.exceptions import ForbiddenException
 
 
 class TestDiagnosisService:

@@ -1,24 +1,24 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.appointments.exceptions.appointment import AppointmentNotFoundException
+from app.appointments.policy.appointment import AppointmentPolicy
 from app.appointments.schemas.appointment import (
     AppointmentCreateSchema,
     AppointmentResponseSchema,
 )
-from app.users.models.user import User
+from app.appointments.tasks import send_appointment_created_notification
 from app.scheduling.exceptions.schedule_slot import (
-    SlotNotFoundException,
     SlotNotAvailableException,
+    SlotNotFoundException,
 )
 from app.users.exceptions.user import UserNotFoundException
-from app.appointments.policy.appointment import AppointmentPolicy
+from app.users.models.user import User
 from common.enums.slot_status import SlotStatus
-from common.pagination.schemas import PaginationParams, PaginatedResponse
+from common.pagination.schemas import PaginatedResponse, PaginationParams
 from common.pagination.utils import build_paginated_response
 from db.unit_of_work import UnitOfWork
-from app.appointments.tasks import send_appointment_created_notification
 
 
 class AppointmentService:
@@ -36,7 +36,7 @@ class AppointmentService:
                 raise SlotNotFoundException()
             if slot.status != SlotStatus.FREE:
                 raise SlotNotAvailableException()
-            if slot.slot_start <= datetime.now(timezone.utc):
+            if slot.slot_start <= datetime.now(UTC):
                 raise SlotNotAvailableException()
             doctor = await self.uow.users.get_doctor_by_id(doctor_id=data.doctor_id)
             if not doctor:
@@ -128,10 +128,9 @@ class AppointmentService:
             await self.uow.schedule_slots.change_slot_status(
                 slot=appointment.slot, status=SlotStatus.FREE
             )
-        return None
 
     async def get_upcoming_for_reminder(self, hours: int):
-        start = datetime.now() + timedelta(hours=hours)
+        start = datetime.now(UTC) + timedelta(hours=hours)
         end = start + timedelta(minutes=5)
 
         appointments = (

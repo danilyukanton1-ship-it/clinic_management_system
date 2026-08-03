@@ -14,20 +14,35 @@ class UserSchema(BaseModel):
     first_name: str = Field(
         min_length=1,
         max_length=100,
+        description="User first name.",
+        examples=["John"],
     )
+
     last_name: str = Field(
         min_length=1,
         max_length=100,
+        description="User last name.",
+        examples=["Doe"],
     )
+
     middle_name: str | None = Field(
         default=None,
         min_length=1,
         max_length=100,
+        description="User middle name.",
+        examples=["Michael"],
     )
-    email: EmailStr
+
+    email: EmailStr = Field(
+        description="User email address.",
+        examples=["john.doe@example.com"],
+    )
+
     phone: str | None = Field(
         default=None,
         pattern=r"^\+?[1-9]\d{6,14}$",
+        description="User phone number in international format.",
+        examples=["+375291234567"],
     )
 
     @field_validator("first_name", "last_name", mode="before")
@@ -68,13 +83,42 @@ class UserSchema(BaseModel):
 
 
 class UserResponseSchema(BaseModel):
-    id: PositiveInt
-    first_name: str
-    last_name: str
-    middle_name: str | None = None
-    email: EmailStr
-    phone: str | None = None
-    role: UserRole
+    id: PositiveInt = Field(
+        description="User identifier.",
+        examples=[1],
+    )
+
+    first_name: str = Field(
+        description="User first name.",
+        examples=["John"],
+    )
+
+    last_name: str = Field(
+        description="User last name.",
+        examples=["Doe"],
+    )
+
+    middle_name: str | None = Field(
+        default=None,
+        description="User middle name.",
+        examples=["Michael"],
+    )
+
+    email: EmailStr = Field(
+        description="User email address.",
+        examples=["john.doe@example.com"],
+    )
+
+    phone: str | None = Field(
+        default=None,
+        description="User phone number in international format.",
+        examples=["+375291234567"],
+    )
+
+    role: UserRole = Field(
+        description="User role in the system.",
+        examples=["patient"],
+    )
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -83,11 +127,16 @@ class UserCreateSchema(UserSchema):
     password: str = Field(
         min_length=8,
         max_length=128,
+        description="User account password.",
+        examples=["SecurePassword123!"],
     )
 
 
 class DoctorCreateSchema(UserCreateSchema):
-    specialization_id: PositiveInt
+    specialization_id: PositiveInt = Field(
+        description="Medical specialization identifier.",
+        examples=[3],
+    )
 
 
 class AdminCreateSchema(UserCreateSchema):
@@ -99,7 +148,10 @@ class PatientResponseSchema(UserResponseSchema):
 
 
 class DoctorResponseSchema(UserResponseSchema):
-    specialization_id: PositiveInt
+    specialization_id: PositiveInt = Field(
+        description="Medical specialization identifier.",
+        examples=[3],
+    )
 
 
 class AdminResponseSchema(UserResponseSchema):
@@ -119,4 +171,7 @@ class AdminUpdateSchema(UserUpdateSchema):
 
 
 class DoctorUpdateSchema(UserUpdateSchema):
-    specialization_id: PositiveInt
+    specialization_id: PositiveInt = Field(
+        description="Medical specialization identifier.",
+        examples=[3],
+    )

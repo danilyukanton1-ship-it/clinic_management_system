@@ -6,15 +6,26 @@ from common.enums.appointment_status import AppointmentStatus
 
 
 class AppointmentCreateSchema(BaseModel):
-    patient_id: PositiveInt
-    doctor_id: PositiveInt
+    patient_id: PositiveInt = Field(
+        description="Patient identifier",
+        examples=[15],
+    )
+    doctor_id: PositiveInt = Field(
+        description="Doctor identifier",
+        examples=[8],
+    )
 
-    slot_id: PositiveInt
+    slot_id: PositiveInt = Field(
+        description="Slot identifier",
+        examples=[42],
+    )
 
     complaint: str | None = Field(
         default=None,
         min_length=3,
         max_length=1000,
+        description="Patient complaints text",
+        examples=["Severe headache for three days."],
     )
 
     @field_validator("complaint")
@@ -29,21 +40,44 @@ class AppointmentUpdateSchema(BaseModel):
         default=None,
         min_length=3,
         max_length=1000,
+        description="Patient complaints text",
+        examples=["Severe headache for three days."],
     )
-    status: AppointmentStatus | None = None
+    status: AppointmentStatus | None = Field(
+        default=None, description="Appointment status", examples=["scheduled"]
+    )
 
 
 class AppointmentResponseSchema(BaseModel):
-    id: PositiveInt
+    id: PositiveInt = Field(description="Appointment identifier", examples=[4])
 
-    patient_id: PositiveInt
-    doctor_id: PositiveInt
+    patient_id: PositiveInt = Field(
+        description="Patient identifier",
+        examples=[15],
+    )
+    doctor_id: PositiveInt = Field(
+        description="Doctor identifier",
+        examples=[8],
+    )
 
-    status: AppointmentStatus
-    slot_id: PositiveInt
+    status: AppointmentStatus = Field(
+        description="Appointment status",
+        examples=["scheduled"],
+    )
+    slot_id: PositiveInt = Field(
+        description="Slot identifier",
+        examples=[42],
+    )
 
-    complaint: str | None = None
+    complaint: str | None = Field(
+        default=None,
+        description="Patient complaints text",
+        examples=["Severe headache for three days."],
+    )
 
-    created_at: datetime.datetime
+    created_at: datetime.datetime = Field(
+        description="Timestamp when the appointment was created.",
+        examples=["2026-08-03T14:25:31+00:00"],
+    )
 
     model_config = ConfigDict(from_attributes=True)

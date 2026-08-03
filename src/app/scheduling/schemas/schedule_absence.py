@@ -6,11 +6,28 @@ from common.enums.absence_reason import AbsenceReason
 
 
 class ScheduleAbsenceSchema(BaseModel):
-    start_date: datetime
-    end_date: datetime
+    start_date: datetime = Field(
+        description="Absence start date and time.",
+        examples=["2026-08-10T09:00:00Z"],
+    )
 
-    reason: AbsenceReason
-    description: str | None = Field(default=None, min_length=5, max_length=2000)
+    end_date: datetime = Field(
+        description="Absence end date and time.",
+        examples=["2026-08-15T18:00:00Z"],
+    )
+
+    reason: AbsenceReason = Field(
+        description="Reason for the doctor's absence.",
+        examples=["vacation"],
+    )
+
+    description: str | None = Field(
+        default=None,
+        min_length=5,
+        max_length=2000,
+        description="Additional information about the absence.",
+        examples=["Annual paid vacation."],
+    )
 
     @model_validator(mode="after")
     def validate_date(self):
@@ -20,12 +37,36 @@ class ScheduleAbsenceSchema(BaseModel):
 
 
 class ScheduleAbsenceResponseSchema(BaseModel):
-    id: PositiveInt
-    doctor_id: PositiveInt
-    start_date: datetime
-    end_date: datetime
-    reason: AbsenceReason
-    description: str | None = None
+    id: PositiveInt = Field(
+        description="Schedule absence identifier.",
+        examples=[1],
+    )
+
+    doctor_id: PositiveInt = Field(
+        description="Doctor identifier.",
+        examples=[5],
+    )
+
+    start_date: datetime = Field(
+        description="Absence start date and time.",
+        examples=["2026-08-10T09:00:00Z"],
+    )
+
+    end_date: datetime = Field(
+        description="Absence end date and time.",
+        examples=["2026-08-15T18:00:00Z"],
+    )
+
+    reason: AbsenceReason = Field(
+        description="Reason for the doctor's absence.",
+        examples=["vacation"],
+    )
+
+    description: str | None = Field(
+        default=None,
+        description="Additional information about the absence.",
+        examples=["Annual paid vacation."],
+    )
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -33,7 +74,10 @@ class ScheduleAbsenceResponseSchema(BaseModel):
 
 
 class ScheduleAbsenceCreateSchema(ScheduleAbsenceSchema):
-    doctor_id: PositiveInt
+    doctor_id: PositiveInt = Field(
+        description="Doctor identifier.",
+        examples=[5],
+    )
 
 
 class ScheduleAbsenceUpdateSchema(ScheduleAbsenceSchema):

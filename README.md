@@ -4,6 +4,13 @@ A production-oriented REST API for managing a medical clinic built with FastAPI.
 
 The project demonstrates modern backend development practices including asynchronous programming, layered architecture, JWT authentication, RBAC/ABAC authorization, Repository Pattern, Unit of Work, Docker, Redis, Celery and comprehensive unit testing.
 
+![CI](https://github.com/danilyukanton1-ship-it/clinic_management_system/actions/workflows/ci.yaml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.136-009688)
+![Poetry](https://img.shields.io/badge/Poetry-2.x-blueviolet)
+![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791)
+
 ## Stack
 
 - Python 3.12
@@ -23,6 +30,9 @@ The project demonstrates modern backend development practices including asynchro
 - Resend
 - SlowAPI
 - Jinja2
+- GitHub Actions
+- Ruff
+- Pre-commit
 
 ## Features
 
@@ -43,6 +53,8 @@ The project demonstrates modern backend development practices including asynchro
 - RESTful API with automatic Swagger documentation
 - Docker-ready deployment
 - 300+ unit tests with Pytest
+- Automated CI pipeline with GitHub Actions
+- Code quality enforcement with Ruff and pre-commit
 
 ## Project Structure
 
@@ -146,4 +158,49 @@ docker compose exec app alembic upgrade head
 
 ```bash
 pytest
+```
+
+## Code Quality
+
+The project uses automated code quality tools.
+
+### Linting
+
+```bash
+poetry run ruff check .
+```
+
+### Formatting
+
+```bash
+poetry run ruff format .
+```
+
+### Pre-commit Hooks
+
+Install git hooks:
+
+```bash
+poetry run pre-commit install
+```
+
+Run all hooks manually:
+
+```bash
+poetry run pre-commit run --all-files
+```
+
+## Continuous Integration
+
+The project uses GitHub Actions for continuous integration.
+
+Every push and pull request automatically runs:
+
+- Ruff linting
+- Pytest test suite
+
+The workflow configuration is located at:
+
+```text
+.github/workflows/ci.yml
 ```

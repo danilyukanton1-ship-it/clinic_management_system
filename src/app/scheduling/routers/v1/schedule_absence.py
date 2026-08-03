@@ -22,6 +22,12 @@ router = APIRouter(
 
 @router.post(
     path="",
+    summary="Create schedule absence",
+    description=(
+        "Creates a new schedule absence for a doctor.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_201_CREATED,
     response_model=ScheduleAbsenceResponseSchema,
 )
@@ -38,6 +44,10 @@ async def create(
 
 @router.put(
     path="/{absence_id}",
+    summary="Update schedule absence",
+    description=(
+        "Updates an existing schedule absence.\n\nAvailable for:\n- Administrator"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=ScheduleAbsenceResponseSchema,
 )
@@ -55,6 +65,8 @@ async def update(
 
 @router.delete(
     path="/{absence_id}",
+    summary="Delete schedule absence",
+    description=("Deletes a schedule absence.\n\nAvailable for:\n- Administrator"),
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(
@@ -70,6 +82,13 @@ async def delete(
 
 @router.get(
     path="/past/{doctor_id}",
+    summary="Get past schedule absences by doctor ID",
+    description=(
+        "Returns a paginated list of past schedule absences for the specified doctor.\n\n"
+        "Available for:\n"
+        "- Doctor (only their own schedule absences)\n"
+        "- Administrator (any schedule absences)"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[ScheduleAbsenceResponseSchema],
 )
@@ -88,6 +107,13 @@ async def get_past(
 
 @router.get(
     path="/future/{doctor_id}",
+    summary="Get future schedule absences by doctor ID",
+    description=(
+        "Returns a paginated list of upcoming schedule absences for the specified doctor.\n\n"
+        "Available for:\n"
+        "- Doctor (only their own schedule absences)\n"
+        "- Administrator (any schedule absences)"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[ScheduleAbsenceResponseSchema],
 )
@@ -106,6 +132,13 @@ async def get_future(
 
 @router.get(
     path="/{absence_id}",
+    summary="Get schedule absence by ID",
+    description=(
+        "Returns a schedule absence by its unique identifier.\n\n"
+        "Available for:\n"
+        "- Doctor (only their own schedule absences)\n"
+        "- Administrator (any schedule absences)"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=ScheduleAbsenceResponseSchema,
 )

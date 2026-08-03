@@ -22,6 +22,11 @@ router = APIRouter(
 
 @router.get(
     path="/all",
+    summary="Get all diseases",
+    description=(
+        "Returns a paginated list of all diseases.\n\n"
+        "Available for doctors and administrators."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[DiseaseResponseSchema],
 )
@@ -38,6 +43,11 @@ async def get_all(
 
 @router.get(
     path="/code/{disease_code}",
+    summary="Get disease by code",
+    description=(
+        "Returns a disease by its unique code.\n\n"
+        "Available for doctors and administrators."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=DiseaseResponseSchema,
 )
@@ -52,6 +62,10 @@ async def get_by_code(
 
 @router.get(
     path="/name/{disease_name}",
+    summary="Get disease by name",
+    description=(
+        "Returns a disease by its name.\n\nAvailable for doctors and administrators."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=DiseaseResponseSchema,
 )
@@ -65,7 +79,11 @@ async def get_by_name(
 
 
 @router.post(
-    path="", status_code=status.HTTP_201_CREATED, response_model=DiseaseResponseSchema
+    path="",
+    summary="Create disease",
+    description=("Creates a new disease.\n\nAvailable for administrators."),
+    status_code=status.HTTP_201_CREATED,
+    response_model=DiseaseResponseSchema,
 )
 async def create(
     data: DiseaseCreateSchema,
@@ -78,6 +96,8 @@ async def create(
 
 @router.put(
     path="/{disease_id}",
+    summary="Update disease",
+    description=("Updates an existing disease.\n\nAvailable for administrators."),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=DiseaseResponseSchema,
 )
@@ -93,6 +113,8 @@ async def update(
 
 @router.delete(
     path="/{disease_id}",
+    summary="Delete disease",
+    description=("Deletes a disease.\n\nAvailable for administrators."),
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(

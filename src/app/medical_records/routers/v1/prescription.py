@@ -18,6 +18,11 @@ router = APIRouter(
 
 @router.put(
     path="/{prescription_id}",
+    summary="Update prescription",
+    description=(
+        "Updates an existing prescription.\n\n"
+        "Available for the assigned doctor and administrators."
+    ),
     response_model=PrescriptionResponseSchema,
     status_code=status.HTTP_202_ACCEPTED,
 )

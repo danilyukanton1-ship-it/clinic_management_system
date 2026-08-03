@@ -22,6 +22,14 @@ router = APIRouter(
 
 @router.get(
     path="/prescription/{prescription_id}",
+    summary="Get prescription items by prescription ID",
+    description=(
+        "Returns a paginated list of prescription items associated with the specified prescription.\n\n"
+        "Available for:\n"
+        "- Patient (only their own prescription items)\n"
+        "- Doctor (any prescription items)\n"
+        "- Administrator (any prescription items)"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[PrescriptionItemResponseSchema],
 )
@@ -42,6 +50,14 @@ async def get_by_prescription_id(
 
 @router.get(
     path="/{prescription_item_id}",
+    summary="Get prescription item by ID",
+    description=(
+        "Returns a prescription item by its unique identifier.\n\n"
+        "Available for:\n"
+        "- Patient (only their own prescription items)\n"
+        "- Doctor (any prescription items)\n"
+        "- Administrator (any prescription items)"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PrescriptionItemResponseSchema,
 )
@@ -60,6 +76,13 @@ async def get_by_id(
 
 @router.put(
     path="/{prescription_item_id}",
+    summary="Update prescription item",
+    description=(
+        "Updates an existing prescription item.\n\n"
+        "Available for:\n"
+        "- Doctor (only prescription items they created)\n"
+        "- Administrator (any prescription items)"
+    ),
     response_model=PrescriptionItemResponseSchema,
     status_code=status.HTTP_202_ACCEPTED,
 )
@@ -78,7 +101,17 @@ async def update(
     )
 
 
-@router.delete(path="/{prescription_item_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    path="/{prescription_item_id}",
+    summary="Delete prescription item",
+    description=(
+        "Deletes a prescription item.\n\n"
+        "Available for:\n"
+        "- Doctor (only prescription items they created)\n"
+        "- Administrator (any prescription items)"
+    ),
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 async def delete(
     prescription_item_id: ID,
     prescription_item_service: PrescriptionItemService = Depends(
@@ -94,6 +127,10 @@ async def delete(
 
 @router.post(
     path="",
+    summary="Create prescription item",
+    description=(
+        "Creates a new prescription item.\n\nAvailable for:\n- Doctor\n- Administrator"
+    ),
     response_model=PrescriptionItemResponseSchema,
     status_code=status.HTTP_201_CREATED,
 )

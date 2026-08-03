@@ -19,6 +19,11 @@ router = APIRouter(prefix="/specializations", tags=["Specializations"])
 
 @router.get(
     path="",
+    summary="Get all specializations",
+    description=(
+        "Returns a paginated list of all medical specializations.\n\n"
+        "Available for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[SpecializationResponseSchema],
 )
@@ -35,6 +40,11 @@ async def get_all(
 
 @router.get(
     path="/id/{specialization_id}",
+    summary="Get specialization by ID",
+    description=(
+        "Returns a medical specialization by its unique identifier.\n\n"
+        "Available for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=SpecializationResponseSchema,
 )
@@ -47,6 +57,10 @@ async def get_by_id(
 
 @router.get(
     path="/name/{specialization_name}",
+    summary="Get specialization by name",
+    description=(
+        "Returns a medical specialization by its name.\n\nAvailable for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=SpecializationResponseSchema,
 )
@@ -61,6 +75,10 @@ async def get_by_name(
 
 @router.post(
     path="",
+    summary="Create specialization",
+    description=(
+        "Creates a new medical specialization.\n\nAvailable for:\n- Administrator"
+    ),
     status_code=status.HTTP_201_CREATED,
     response_model=SpecializationResponseSchema,
 )
@@ -78,6 +96,10 @@ async def create(
 
 @router.delete(
     path="/{specialization_id}",
+    summary="Delete specialization",
+    description=(
+        "Deletes a medical specialization.\n\nAvailable for:\n- Administrator"
+    ),
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(
@@ -94,6 +116,10 @@ async def delete(
 
 @router.put(
     path="/{specialization_id}",
+    summary="Update specialization",
+    description=(
+        "Updates an existing medical specialization.\n\nAvailable for:\n- Administrator"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=SpecializationResponseSchema,
 )

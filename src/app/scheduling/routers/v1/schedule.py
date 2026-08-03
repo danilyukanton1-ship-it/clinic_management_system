@@ -19,6 +19,10 @@ router = APIRouter(prefix="/schedule", tags=["Schedules"])
 
 @router.get(
     path="/all/{doctor_id}",
+    summary="Get all schedules by doctor ID",
+    description=(
+        "Returns all schedules for the specified doctor.\n\nAvailable for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=list[ScheduleResponseSchema],
 )
@@ -31,6 +35,12 @@ async def get_all_by_doctor_id(
 
 @router.get(
     path="/admin/all/{doctor_id}",
+    summary="Get all schedules by doctor ID (admin)",
+    description=(
+        "Returns all schedules for the specified doctor, including inactive schedules.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=list[ScheduleResponseSchema],
 )
@@ -47,6 +57,11 @@ async def get_all_by_doctor_id_for_admin(
 
 @router.get(
     path="/{doctor_id}/{weekday}",
+    summary="Get schedule by doctor ID and weekday",
+    description=(
+        "Returns the doctor's schedule for the specified weekday.\n\n"
+        "Available for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=ScheduleResponseSchema,
 )
@@ -65,6 +80,13 @@ async def get_by_doctor_id_and_weekday(
 
 @router.get(
     path="/admin/{doctor_id}/{weekday}",
+    summary="Get schedule by doctor ID and weekday (admin)",
+    description=(
+        "Returns all schedules for the specified doctor and weekday, "
+        "including inactive schedules.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=list[ScheduleResponseSchema],
 )
@@ -87,6 +109,10 @@ async def get_by_doctor_id_and_weekday_for_admin(
 
 @router.get(
     path="/id/{schedule_id}",
+    summary="Get schedule by ID",
+    description=(
+        "Returns a schedule by its unique identifier.\n\nAvailable for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=ScheduleResponseSchema,
 )
@@ -99,6 +125,12 @@ async def get_by_schedule_id(
 
 @router.get(
     path="/admin/id/{schedule_id}",
+    summary="Get schedule by ID (admin)",
+    description=(
+        "Returns a schedule by its unique identifier, including inactive schedules.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=ScheduleResponseSchema,
 )
@@ -117,7 +149,11 @@ async def get_by_schedule_id_for_admin(
 
 
 @router.post(
-    path="", status_code=status.HTTP_201_CREATED, response_model=ScheduleResponseSchema
+    path="",
+    summary="Create schedule",
+    description=("Creates a new doctor's schedule.\n\nAvailable for:\n- Administrator"),
+    status_code=status.HTTP_201_CREATED,
+    response_model=ScheduleResponseSchema,
 )
 async def create(
     schedule: ScheduleCreateSchema,
@@ -133,6 +169,12 @@ async def create(
 
 @router.put(
     path="/{doctor_id}/{weekday}",
+    summary="Update schedule",
+    description=(
+        "Updates the doctor's schedule for the specified weekday.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=ScheduleResponseSchema,
 )
@@ -154,6 +196,12 @@ async def update(
 
 @router.patch(
     path="/{schedule_id}",
+    summary="Deactivate schedule",
+    description=(
+        "Deactivates the specified schedule without deleting it.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def deactivate(

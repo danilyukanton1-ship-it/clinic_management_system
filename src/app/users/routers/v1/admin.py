@@ -22,6 +22,10 @@ router = APIRouter(
 
 @router.post(
     path="",
+    summary="Create administrator",
+    description=(
+        "Creates a new administrator account.\n\nAvailable for:\n- Administrator"
+    ),
     status_code=status.HTTP_201_CREATED,
     response_model=AdminResponseSchema,
 )
@@ -39,6 +43,12 @@ async def create(
 
 @router.get(
     path="/all",
+    summary="Get all administrators",
+    description=(
+        "Returns a paginated list of administrator accounts.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[AdminResponseSchema],
 )
@@ -56,6 +66,12 @@ async def get_all(
 
 @router.get(
     path="/{admin_id}",
+    summary="Get administrator by ID",
+    description=(
+        "Returns an administrator account by its unique identifier.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=AdminResponseSchema,
 )
@@ -73,6 +89,10 @@ async def get_admin(
 
 @router.put(
     path="/{admin_id}",
+    summary="Update administrator",
+    description=(
+        "Updates an existing administrator account.\n\nAvailable for:\n- Administrator"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=AdminResponseSchema,
 )
@@ -91,6 +111,12 @@ async def update(
 
 @router.patch(
     path="/{admin_id}/deactivate",
+    summary="Deactivate administrator",
+    description=(
+        "Deactivates an administrator account without permanently deleting it.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=AdminResponseSchema,
 )

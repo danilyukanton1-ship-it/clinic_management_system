@@ -22,6 +22,11 @@ router = APIRouter(
 
 @router.get(
     path="/id/{diagnosis_id}",
+    summary="Get diagnosis by ID",
+    description=(
+        "Returns a diagnosis by its unique identifier.\n\n"
+        "Available for users with access to the related medical record."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=DiagnosisResponseSchema,
 )
@@ -37,6 +42,11 @@ async def get_by_id(
 
 @router.get(
     path="/prescription/{prescription_id}",
+    summary="Get diagnoses by prescription",
+    description=(
+        "Returns a paginated list of diagnoses associated with the specified prescription.\n\n"
+        "Available for users with access to the related prescription."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[DiagnosisResponseSchema],
 )
@@ -55,6 +65,11 @@ async def get_by_prescription_id(
 
 @router.get(
     path="/disease/{disease_id}",
+    summary="Get diagnoses by disease",
+    description=(
+        "Returns a paginated list of diagnoses associated with the specified disease.\n\n"
+        "Available for doctors and administrators."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[DiagnosisResponseSchema],
 )
@@ -76,6 +91,11 @@ async def get_by_disease_id(
 
 @router.put(
     path="/{diagnosis_id}",
+    summary="Update diagnosis",
+    description=(
+        "Updates an existing diagnosis.\n\n"
+        "Available for the assigned doctor and administrators."
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=DiagnosisResponseSchema,
 )
@@ -92,6 +112,11 @@ async def update(
 
 @router.delete(
     path="/{diagnosis_id}",
+    summary="Delete diagnosis",
+    description=(
+        "Deletes a diagnosis by its identifier.\n\n"
+        "Available for the assigned doctor and administrators."
+    ),
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(
@@ -106,6 +131,8 @@ async def delete(
 
 @router.post(
     path="",
+    summary="Create diagnosis",
+    description=("Creates a new diagnosis.\n\nAvailable for doctors."),
     status_code=status.HTTP_201_CREATED,
     response_model=DiagnosisResponseSchema,
 )

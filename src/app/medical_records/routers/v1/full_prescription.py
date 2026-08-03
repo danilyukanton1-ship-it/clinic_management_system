@@ -20,6 +20,11 @@ router = APIRouter(
 
 @router.post(
     path="/",
+    summary="Create full prescription",
+    description=(
+        "Creates a complete prescription, including diagnoses, prescriptions items"
+        "Available for doctors and administrators."
+    ),
     response_model=FullPrescriptionResponseSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -36,6 +41,14 @@ async def create(
 
 @router.get(
     path="/appointment/{appointment_id}",
+    summary="Get full prescription by appointment",
+    description=(
+        "Returns the complete prescription associated with the specified appointment.\n\n"
+        "Available for:\n"
+        " - Patient (only their own prescriptions)\n"
+        " - Doctor (any prescriptions)\n"
+        " - Admin (any prescriptions)"
+    ),
     response_model=FullPrescriptionResponseSchema,
     status_code=status.HTTP_200_OK,
 )
@@ -54,6 +67,14 @@ async def get_by_appointment_id(
 
 @router.get(
     path="/{prescription_id}",
+    summary="Get full prescription by ID",
+    description=(
+        "Returns a complete prescription by its unique identifier.\n\n"
+        "Available for:\n"
+        " - Patient (only their own prescriptions)\n"
+        " - Doctor (any prescriptions)\n"
+        " - Admin (any prescriptions)"
+    ),
     response_model=FullPrescriptionResponseSchema,
     status_code=status.HTTP_200_OK,
 )
@@ -72,6 +93,11 @@ async def get_by_prescription_id(
 
 @router.delete(
     path="/{prescription_id}",
+    summary="Delete full prescription",
+    description=(
+        "Deletes a complete prescription, including all related entities.\n\n"
+        "Available for the assigned doctor and administrators."
+    ),
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_by_id(

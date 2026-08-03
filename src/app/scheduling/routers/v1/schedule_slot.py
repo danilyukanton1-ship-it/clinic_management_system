@@ -20,6 +20,12 @@ router = APIRouter(prefix="/schedule-slots", tags=["Schedule slots"])
 
 @router.get(
     path="/future/{doctor_id}/{slot_status}",
+    summary="Get future schedule slots by doctor ID and status",
+    description=(
+        "Returns a paginated list of future schedule slots for the specified doctor "
+        "filtered by slot status.\n\n"
+        "Available for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[ScheduleSlotResponseSchema],
 )
@@ -39,6 +45,12 @@ async def get_future_slots_by_doctor_id_status(
 
 @router.get(
     path="/past/{doctor_id}/{slot_status}",
+    summary="Get past schedule slots by doctor ID and status",
+    description=(
+        "Returns a paginated list of past schedule slots for the specified doctor "
+        "filtered by slot status.\n\n"
+        "Available for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[ScheduleSlotResponseSchema],
 )
@@ -56,6 +68,12 @@ async def get_past_slots_by_doctor_id_status(
 
 @router.post(
     path="",
+    summary="Create schedule slots",
+    description=(
+        "Creates multiple schedule slots for a doctor's schedule.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_201_CREATED,
     response_model=list[ScheduleSlotResponseSchema],
 )
@@ -71,6 +89,10 @@ async def create_schedule_slots(
 
 @router.put(
     path="/{slot_id}",
+    summary="Update schedule slot",
+    description=(
+        "Updates an existing schedule slot.\n\nAvailable for:\n- Administrator"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=ScheduleSlotResponseSchema,
 )
@@ -87,6 +109,13 @@ async def update_slot(
 
 @router.patch(
     path="/{slot_id}/{slot_status}",
+    summary="Change schedule slot status",
+    description=(
+        "Changes the status of the specified schedule slot.\n\n"
+        "Available for:\n"
+        "- Patient\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=ScheduleSlotResponseSchema,
 )

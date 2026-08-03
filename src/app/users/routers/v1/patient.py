@@ -18,6 +18,12 @@ router = APIRouter(
 
 @router.get(
     path="/all",
+    summary="Get all patients",
+    description=(
+        "Returns a paginated list of all patient accounts.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[PatientResponseSchema],
 )
@@ -35,6 +41,14 @@ async def get_patients(
 
 @router.get(
     path="/id/{patient_id}",
+    summary="Get patient by ID",
+    description=(
+        "Returns a patient account by its unique identifier.\n\n"
+        "Available for:\n"
+        "- Patient (only their own account)\n"
+        "- Doctor (any patient account)\n"
+        "- Administrator (any patient account)"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,
 )
@@ -51,6 +65,12 @@ async def get_patient_by_id(
 
 @router.get(
     path="/admin/id/{patient_id}",
+    summary="Get patient by ID (admin)",
+    description=(
+        "Returns a patient account by its unique identifier, including inactive accounts.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,
 )
@@ -72,6 +92,14 @@ async def get_patient_by_id_for_admin(
 
 @router.get(
     path="/email/{patient_email}",
+    summary="Get patient by email",
+    description=(
+        "Returns a patient account by email address.\n\n"
+        "Available for:\n"
+        "- Patient (only their own account)\n"
+        "- Doctor (any patient account)\n"
+        "- Administrator (any patient account)"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,
 )
@@ -88,6 +116,14 @@ async def get_patient_by_email(
 
 @router.get(
     path="/phone/{phone_number}",
+    summary="Get patient by phone number",
+    description=(
+        "Returns a patient account by phone number.\n\n"
+        "Available for:\n"
+        "- Patient (only their own account)\n"
+        "- Doctor (any patient account)\n"
+        "- Administrator (any patient account)"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,
 )
@@ -104,6 +140,13 @@ async def get_patient_by_phone(
 
 @router.put(
     path="/{patient_id}",
+    summary="Update patient",
+    description=(
+        "Updates an existing patient account.\n\n"
+        "Available for:\n"
+        "- Patient (only their own account)\n"
+        "- Administrator (any patient account)"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=PatientResponseSchema,
 )
@@ -122,6 +165,12 @@ async def update(
 
 @router.patch(
     path="/{patient_id}/deactivate",
+    summary="Deactivate patient",
+    description=(
+        "Deactivates a patient account without permanently deleting it.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=PatientResponseSchema,
 )

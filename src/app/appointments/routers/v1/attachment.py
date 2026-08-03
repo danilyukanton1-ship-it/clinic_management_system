@@ -25,6 +25,11 @@ router = APIRouter(
 
 @router.post(
     path="",
+    summary="Create attachment",
+    description=(
+        "Uploads a new attachment and saves the file to MinIO storage.\n\n"
+        "Available for doctors and administrators."
+    ),
     response_model=AttachmentResponseSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -50,6 +55,11 @@ async def create(
 
 @router.patch(
     path="/{attachment_id}",
+    summary="Update attachment filename",
+    description=(
+        "Updates the filename of an existing attachment.\n\n"
+        "Available for doctors and administrators."
+    ),
     response_model=AttachmentResponseSchema,
     status_code=status.HTTP_202_ACCEPTED,
 )
@@ -72,6 +82,11 @@ async def update(
 
 @router.get(
     path="/{attachment_id}",
+    summary="Get attachment by ID",
+    description=(
+        "Returns an attachment by its unique identifier.\n\n"
+        "Available for doctors and administrators."
+    ),
     response_model=AttachmentResponseSchema,
     status_code=status.HTTP_200_OK,
 )
@@ -86,6 +101,11 @@ async def get_by_id(
 
 @router.get(
     path="/appointments/{appointment_id}",
+    summary="Get appointment's attachments",
+    description=(
+        "Returns a paginated list of attachments associated with the specified appointment.\n\n"
+        "Available for doctors and administrators."
+    ),
     response_model=PaginatedResponse[AttachmentResponseSchema],
     status_code=status.HTTP_200_OK,
 )
@@ -103,6 +123,11 @@ async def get_by_appointment_id(
 
 @router.get(
     path="/patients/{patient_id}",
+    summary="Get patient's attachments",
+    description=(
+        "Returns a paginated list of all attachments belonging to the specified patient.\n\n"
+        "Available for doctors and administrators."
+    ),
     response_model=PaginatedResponse[AttachmentResponseSchema],
     status_code=status.HTTP_200_OK,
 )
@@ -121,6 +146,11 @@ async def get_by_patient_id(
 
 @router.delete(
     path="/{attachment_id}",
+    summary="Delete attachment",
+    description=(
+        "Deletes an attachment by its identifier.\n\n"
+        "Available for doctors and administrators."
+    ),
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(
@@ -140,6 +170,11 @@ async def delete(
 
 @router.get(
     path="/{attachment_id}/download",
+    summary="Get attachment download URL",
+    description=(
+        "Generates a temporary URL for downloading the specified attachment.\n\n"
+        "Available for doctors and administrators."
+    ),
     response_model=DownloadUrl,
     status_code=status.HTTP_200_OK,
 )

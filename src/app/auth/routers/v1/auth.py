@@ -32,6 +32,11 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post(
     path="/register",
+    summary="Register patient",
+    description=(
+        "Registers a new patient account and sends an email verification code.\n\n"
+        "Available for unauthenticated users."
+    ),
     status_code=status.HTTP_201_CREATED,
     response_model=PatientResponseSchema,
 )
@@ -46,6 +51,11 @@ async def register(
 
 @router.post(
     path="/email-verify",
+    summary="Verify email",
+    description=(
+        "Verifies a user's email address using the verification code sent during registration.\n\n"
+        "Available for unauthenticated users."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,
 )
@@ -60,6 +70,11 @@ async def verify_email(
 
 @router.post(
     path="/email-verify/resend",
+    summary="Resend email verification code",
+    description=(
+        "Sends a new email verification code to the specified email address.\n\n"
+        "Available for unauthenticated users."
+    ),
     status_code=status.HTTP_200_OK,
 )
 @limiter.limit("3/minute")
@@ -74,6 +89,11 @@ async def resend_email_verification_code(
 
 @router.post(
     path="/forgot-password",
+    summary="Request password reset",
+    description=(
+        "Sends a password reset code to the user's email address.\n\n"
+        "Available for unauthenticated users."
+    ),
     status_code=status.HTTP_200_OK,
 )
 @limiter.limit("5/minute")
@@ -87,6 +107,11 @@ async def forgot_password(
 
 @router.post(
     path="/reset-password",
+    summary="Reset password",
+    description=(
+        "Resets the user's password using the password reset code.\n\n"
+        "Available for unauthenticated users."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PatientResponseSchema,
 )
@@ -101,6 +126,11 @@ async def reset_password(
 
 @router.post(
     path="/login",
+    summary="Authenticate user",
+    description=(
+        "Authenticates a user and returns a pair of JWT access and refresh tokens.\n\n"
+        "Available for unauthenticated users."
+    ),
     response_model=TokenResponseSchema,
     status_code=status.HTTP_200_OK,
 )
@@ -115,6 +145,8 @@ async def login(
 
 @router.get(
     path="/me",
+    summary="Get current user",
+    description=("Returns information about the currently authenticated user."),
     response_model=UserResponseSchema,
     status_code=status.HTTP_200_OK,
 )
@@ -126,6 +158,8 @@ async def me(
 
 @router.post(
     path="/refresh",
+    summary="Refresh access token",
+    description=("Generates a new access token using a valid refresh token."),
     response_model=AccessTokenSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -138,6 +172,10 @@ async def refresh(
 
 @router.post(
     path="/logout",
+    summary="Log out",
+    description=(
+        "Invalidates the provided refresh token by adding it to the token blacklist."
+    ),
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def logout(

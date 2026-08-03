@@ -18,6 +18,14 @@ router = APIRouter(tags=["Appointments"], prefix="/appointments")
 
 @router.get(
     path="/{appointment_id}",
+    summary="Get appointment by ID",
+    description=(
+        "Returns appointment information by its identifier.\n\n"
+        "Available for:\n"
+        " - Patient (only their own appointments)\n"
+        " - Doctor (only their own appointments)\n"
+        " - Admin (any appointments)"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=AppointmentResponseSchema,
 )
@@ -40,6 +48,10 @@ async def get_by_id(
 
 @router.post(
     path="",
+    summary="Create appointment",
+    description=(
+        "Creates a new appointment.\n\nAvailable for patients and administrators."
+    ),
     status_code=status.HTTP_201_CREATED,
     response_model=AppointmentResponseSchema,
 )
@@ -59,6 +71,11 @@ async def create_appointment(
 
 @router.get(
     path="/me/past",
+    summary="Get past appointments",
+    description=(
+        "Returns a paginated list of completed appointments.\n\n"
+        "for the currently authenticated user"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[AppointmentResponseSchema],
 )
@@ -81,6 +98,11 @@ async def get_past_appointments_by_current_user(
 
 @router.get(
     path="/me/future",
+    summary="Get future appointments",
+    description=(
+        "Returns a paginated list of future appointments.\n\n"
+        "for the currently authenticated user"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[AppointmentResponseSchema],
 )
@@ -103,6 +125,10 @@ async def get_future_appointments_by_current_user(
 
 @router.delete(
     path="/{appointment_id}",
+    summary="Delete appointment",
+    description=(
+        "Deletes an appointment by its identifier\n\nAvailable only for administrators."
+    ),
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete(

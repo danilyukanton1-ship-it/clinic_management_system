@@ -22,6 +22,10 @@ router = APIRouter(
 
 @router.get(
     path="/all",
+    summary="Get all doctors",
+    description=(
+        "Returns a paginated list of active doctors.\n\nAvailable for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[DoctorResponseSchema],
 )
@@ -37,6 +41,12 @@ async def get_doctors(
 
 @router.get(
     path="/admin/all",
+    summary="Get all doctors (admin)",
+    description=(
+        "Returns a paginated list of all doctors, including inactive accounts.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[DoctorResponseSchema],
 )
@@ -51,6 +61,8 @@ async def get_doctors_for_admin(
 
 @router.post(
     path="",
+    summary="Create doctor",
+    description=("Creates a new doctor account.\n\nAvailable for:\n- Administrator"),
     status_code=status.HTTP_201_CREATED,
     response_model=DoctorResponseSchema,
 )
@@ -65,6 +77,12 @@ async def create_doctor(
 
 @router.get(
     path="/admin/id/{doctor_id}",
+    summary="Get doctor by ID (admin)",
+    description=(
+        "Returns a doctor account by its unique identifier, including inactive accounts.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=DoctorResponseSchema,
 )
@@ -84,6 +102,10 @@ async def get_doctor_by_id_for_admin(
 
 @router.get(
     path="/id/{doctor_id}",
+    summary="Get doctor by ID",
+    description=(
+        "Returns a doctor by their unique identifier.\n\nAvailable for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=DoctorResponseSchema,
 )
@@ -97,6 +119,13 @@ async def get_doctor_by_id(
 
 @router.get(
     path="/email/{doctor_email}",
+    summary="Get doctor by email",
+    description=(
+        "Returns a doctor account by email address.\n\n"
+        "Available for:\n"
+        "- Doctor (their own account)\n"
+        "- Administrator (any doctor account)"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=DoctorResponseSchema,
 )
@@ -114,6 +143,11 @@ async def get_doctor_by_email(
 
 @router.get(
     path="/specialization/{specialization_id}",
+    summary="Get doctors by specialization ID",
+    description=(
+        "Returns all doctors with the specified specialization.\n\n"
+        "Available for everyone."
+    ),
     status_code=status.HTTP_200_OK,
     response_model=list[DoctorResponseSchema],
 )
@@ -128,6 +162,12 @@ async def get_by_specialization_id(
 
 @router.get(
     path="/admin/specialization/{specialization_id}",
+    summary="Get doctors by specialization ID (admin)",
+    description=(
+        "Returns all doctors with the specified specialization, including inactive accounts.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_200_OK,
     response_model=list[DoctorResponseSchema],
 )
@@ -144,6 +184,13 @@ async def get_by_specialization_id_for_admin(
 
 @router.put(
     path="/{doctor_id}",
+    summary="Update doctor",
+    description=(
+        "Updates an existing doctor account.\n\n"
+        "Available for:\n"
+        "- Doctor (their own account)\n"
+        "- Administrator (any doctor account)"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=DoctorResponseSchema,
 )
@@ -162,6 +209,12 @@ async def update(
 
 @router.patch(
     path="/{doctor_id}/deactivate",
+    summary="Deactivate doctor",
+    description=(
+        "Deactivates a doctor account without permanently deleting it.\n\n"
+        "Available for:\n"
+        "- Administrator"
+    ),
     status_code=status.HTTP_202_ACCEPTED,
     response_model=DoctorResponseSchema,
 )

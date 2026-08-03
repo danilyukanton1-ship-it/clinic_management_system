@@ -5,7 +5,6 @@ from common.pagination.schemas import PaginationParams, PaginationResult, T
 
 
 class BaseRepository:
-
     def __init__(self, session: AsyncSession):
         self.session = session
 

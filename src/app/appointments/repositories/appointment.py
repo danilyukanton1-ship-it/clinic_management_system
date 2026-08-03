@@ -15,7 +15,6 @@ from core.repository import BaseRepository
 
 
 class AppointmentRepository(BaseRepository):
-
     async def create(self, data: AppointmentCreateSchema) -> Appointment:
         appointment = Appointment(
             patient_id=data.patient_id,

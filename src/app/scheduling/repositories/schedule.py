@@ -10,7 +10,6 @@ from core.repository import BaseRepository
 
 
 class ScheduleRepository(BaseRepository):
-
     async def create_schedule(self, schedule: ScheduleCreateSchema) -> Schedule:
         schedule = Schedule(
             doctor_id=schedule.doctor_id,

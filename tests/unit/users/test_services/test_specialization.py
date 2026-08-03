@@ -11,7 +11,6 @@ from common.pagination.schemas import PaginationResult
 
 
 class TestSpecializationService:
-
     @pytest.mark.asyncio
     async def test_get_by_id_success(
         self,

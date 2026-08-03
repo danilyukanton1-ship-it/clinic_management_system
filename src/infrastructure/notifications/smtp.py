@@ -1,4 +1,3 @@
-
 import resend
 
 from core.config import settings
@@ -6,7 +5,6 @@ from infrastructure.notifications.base import EmailService
 
 
 class SMTPEmailService(EmailService):
-
     def __init__(self) -> None:
         resend.api_key = settings.smtp.API_KEY
         self._from = settings.smtp.FROM
@@ -28,4 +26,3 @@ class SMTPEmailService(EmailService):
         if html:
             payload["html"] = html
         resend.Emails.send(payload)
-

@@ -4,7 +4,6 @@ from jinja2 import Environment, FileSystemLoader
 
 
 class TemplateRenderer:
-
     def __init__(self) -> None:
         template_dir = Path(__file__).parent.parent / "templates"
 

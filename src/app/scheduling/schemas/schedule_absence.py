@@ -6,7 +6,6 @@ from common.enums.absence_reason import AbsenceReason
 
 
 class ScheduleAbsenceSchema(BaseModel):
-
     start_date: datetime
     end_date: datetime
 

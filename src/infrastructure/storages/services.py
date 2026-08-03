@@ -10,7 +10,6 @@ from infrastructure.storages.schemas import DownloadUrl, StoredFileSchema
 
 
 class MinioStorageService(StorageInterface):
-
     def __init__(self, client: Minio, bucket: str) -> None:
         self._bucket = bucket
         self._client = client

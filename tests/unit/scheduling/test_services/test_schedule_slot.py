@@ -19,7 +19,6 @@ from common.pagination.schemas import PaginationResult
 
 
 class TestScheduleSlotService:
-
     @pytest.mark.asyncio
     async def test_change_slot_status_success(
         self, schedule_slot_service, schedule_slot_free, schedule_slot_booked
@@ -224,9 +223,7 @@ class TestScheduleSlotService:
             return_value=None,
         )
 
-        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = (
-            AsyncMock()
-        )
+        schedule_slot_service.uow.schedule_slots.get_future_slots_by_doctor_id_status = AsyncMock()
 
         with pytest.raises(UserNotFoundException):
             await schedule_slot_service.get_future_slots_by_doctor_id_status(

@@ -19,7 +19,6 @@ from db.unit_of_work import UnitOfWork
 
 
 class TokenService:
-
     def __init__(self, session: AsyncSession, redis: Redis) -> None:
         self.uow = UnitOfWork(session)
         self.redis = redis

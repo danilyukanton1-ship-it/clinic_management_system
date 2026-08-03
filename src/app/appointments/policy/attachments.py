@@ -5,7 +5,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class AttachmentPolicy:
-
     @staticmethod
     def can_delete(user: User, attachment: Attachment):
         if user.role == UserRole.ADMIN:

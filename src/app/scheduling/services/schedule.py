@@ -19,7 +19,6 @@ from db.unit_of_work import UnitOfWork
 
 
 class ScheduleService:
-
     def __init__(self, session: AsyncSession):
         self.uow = UnitOfWork(session=session)
 
@@ -93,7 +92,9 @@ class ScheduleService:
                 doctor_id=doctor_id, schedule_id=db_schedule.id
             )
             start_delete_date = (
-                last_booked.date() + timedelta(days=1) if last_booked else datetime.now(UTC).date()
+                last_booked.date() + timedelta(days=1)
+                if last_booked
+                else datetime.now(UTC).date()
             )
             slots_to_delete = await self.uow.schedule_slots.get_slots_after_date(
                 doctor_id=doctor_id, day=start_delete_date, schedule_id=db_schedule.id

@@ -15,7 +15,6 @@ from db.unit_of_work import UnitOfWork
 
 
 class DiseaseService:
-
     def __init__(self, session: AsyncSession):
         self.session = session
 

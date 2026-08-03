@@ -22,7 +22,6 @@ from db.unit_of_work import UnitOfWork
 
 
 class AppointmentService:
-
     def __init__(self, session: AsyncSession) -> None:
         self.policy = AppointmentPolicy()
         self.uow = UnitOfWork(session=session)

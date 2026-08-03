@@ -9,7 +9,6 @@ from core.repository import BaseRepository
 
 
 class PrescriptionRepository(BaseRepository):
-
     async def create_prescription(self, data: PrescriptionCreateSchema):
         prescription = Prescription(
             appointment_id=data.appointment_id,

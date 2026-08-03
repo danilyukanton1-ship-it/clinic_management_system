@@ -5,7 +5,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class ScheduleAbsencePolicy:
-
     @staticmethod
     def can_view(user: User, schedule_absence: ScheduleAbsence):
         if user.role == UserRole.ADMIN:

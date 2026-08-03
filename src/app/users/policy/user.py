@@ -4,7 +4,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class UserPolicy:
-
     @staticmethod
     def can_update(current_user: User, target_user: User):
         if current_user.role == UserRole.ADMIN:

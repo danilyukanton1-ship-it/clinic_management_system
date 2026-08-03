@@ -92,11 +92,9 @@ async def _check_appointments_for_reminder(
     async with AsyncSessionLocal() as session, UnitOfWork(session) as uow:
         start = datetime.now(UTC) + timedelta(hours=hours)
         end = start + timedelta(minutes=5)
-        appointments = (
-            await uow.appointments.get_upcoming_appointments_for_reminder(
-                start=start,
-                end=end,
-            )
+        appointments = await uow.appointments.get_upcoming_appointments_for_reminder(
+            start=start,
+            end=end,
         )
         for appointment in appointments:
             send_appointment_reminder.delay(

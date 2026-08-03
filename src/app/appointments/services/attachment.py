@@ -23,7 +23,6 @@ from infrastructure.storages.schemas import DownloadUrl
 
 
 class AttachmentService:
-
     def __init__(self, session: AsyncSession, storage: StorageInterface) -> None:
         self.policy = AttachmentPolicy()
         self.uow = UnitOfWork(session)

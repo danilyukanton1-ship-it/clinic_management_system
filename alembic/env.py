@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 from core.config import settings
+from db.database import Base
 
 config = context.config
 
@@ -19,8 +20,6 @@ config.set_main_option("sqlalchemy.url", settings.db.async_db_url)
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
-from db.database import Base
 
 target_metadata = Base.metadata
 

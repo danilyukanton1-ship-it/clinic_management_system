@@ -17,7 +17,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class TestScheduleAbsence:
-
     @pytest.mark.asyncio
     async def test_create_absence_success(
         self,

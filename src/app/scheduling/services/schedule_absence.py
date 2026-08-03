@@ -24,7 +24,6 @@ from db.unit_of_work import UnitOfWork
 
 
 class ScheduleAbsenceService:
-
     def __init__(self, session: AsyncSession):
         self.policy = ScheduleAbsencePolicy()
         self.uow = UnitOfWork(session)

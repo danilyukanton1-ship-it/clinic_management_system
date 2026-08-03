@@ -5,7 +5,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class PrescriptionPolicy:
-
     @staticmethod
     def can_update(user: User, appointment: Appointment):
         if user.role == UserRole.ADMIN:

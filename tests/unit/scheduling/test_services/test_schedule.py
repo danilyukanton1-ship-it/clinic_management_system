@@ -14,7 +14,6 @@ from common.enums.weekday import Weekday
 
 
 class TestScheduleService:
-
     @pytest.mark.asyncio
     async def test_get_schedule_by_doctor_id_and_weekday_success(
         self,

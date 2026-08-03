@@ -10,7 +10,6 @@ from core.repository import BaseRepository
 
 
 class SpecializationRepository(BaseRepository):
-
     async def get_all_specializations(
         self, pagination: PaginationParams
     ) -> PaginationResult[Specialization]:

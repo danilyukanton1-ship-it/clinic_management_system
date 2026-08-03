@@ -43,7 +43,6 @@ class AttachmentResponseSchema(BaseModel):
 
 
 class AttachmentSchema(BaseModel):
-
     filename: str = Field(
         min_length=1,
         max_length=255,

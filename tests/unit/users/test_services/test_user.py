@@ -18,7 +18,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class TestUserService:
-
     @pytest.mark.asyncio
     async def test_check_email_exists_success(
         self,

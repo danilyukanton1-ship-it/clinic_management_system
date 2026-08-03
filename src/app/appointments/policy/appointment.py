@@ -5,7 +5,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class AppointmentPolicy:
-
     @staticmethod
     def can_view(user: User, appointment: Appointment):
         if user.role == UserRole.ADMIN:

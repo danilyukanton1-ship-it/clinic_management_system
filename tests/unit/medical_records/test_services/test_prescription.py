@@ -9,7 +9,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class TestPrescriptionService:
-
     @pytest.mark.asyncio
     async def test_update_prescription_success(
         self,

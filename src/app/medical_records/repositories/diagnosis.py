@@ -10,7 +10,6 @@ from core.repository import BaseRepository
 
 
 class DiagnosisRepository(BaseRepository):
-
     async def create_diagnosis(self, data: DiagnosisCreateSchema) -> Diagnosis:
         diagnosis = Diagnosis(
             prescription_id=data.prescription_id,

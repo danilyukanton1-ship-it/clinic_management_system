@@ -12,7 +12,6 @@ from core.repository import BaseRepository
 
 
 class ScheduleAbsenceRepository(BaseRepository):
-
     async def create_absence(self, data: ScheduleAbsenceCreateSchema):
         absence = ScheduleAbsence(
             doctor_id=data.doctor_id,

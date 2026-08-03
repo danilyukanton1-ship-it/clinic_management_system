@@ -16,16 +16,17 @@ from app.medical_records.schemas.prescription import (
     FullPrescriptionCreateSchema,
     FullPrescriptionResponseSchema,
     PrescriptionCreateSchema,
-    PrescriptionItemCreateSchema,
     PrescriptionSchema,
 )
-from app.medical_records.schemas.prescription_item import PrescriptionItemResponseSchema
+from app.medical_records.schemas.prescription_item import (
+    PrescriptionItemResponseSchema,
+    PrescriptionItemCreateSchema,
+)
 from app.users.models.user import User
 from db.unit_of_work import UnitOfWork
 
 
 class FullPrescriptionService:
-
     def __init__(self, session: AsyncSession):
         self.policy = PrescriptionPolicy()
         self.uow = UnitOfWork(session)

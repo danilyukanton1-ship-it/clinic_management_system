@@ -15,7 +15,6 @@ from app.users.schemas.user import PatientResponseSchema
 
 
 class TestRegisterService:
-
     @pytest.mark.asyncio
     async def test_register_success(
         self,

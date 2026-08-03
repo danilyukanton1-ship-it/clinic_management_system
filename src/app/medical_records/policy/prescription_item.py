@@ -5,7 +5,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class PrescriptionItemPolicy:
-
     @staticmethod
     def can_delete(user: User, appointment: Appointment):
         if user.role == UserRole.ADMIN:

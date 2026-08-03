@@ -20,7 +20,6 @@ from core.config import settings
 
 
 class TestTokenService:
-
     def test_create_access_token(
         self,
         patient_1,

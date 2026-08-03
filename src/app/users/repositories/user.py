@@ -21,7 +21,6 @@ from core.repository import BaseRepository
 
 
 class UserRepository(BaseRepository):
-
     async def _create_user(
         self,
         data,

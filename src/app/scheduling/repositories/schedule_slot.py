@@ -15,7 +15,6 @@ from core.repository import BaseRepository
 
 
 class ScheduleSlotRepository(BaseRepository):
-
     async def get_slot_by_id(self, slot_id: int) -> ScheduleSlot | None:
         stmt = select(ScheduleSlot).where(ScheduleSlot.id == slot_id)
         result = await self.session.execute(stmt)

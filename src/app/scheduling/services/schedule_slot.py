@@ -28,7 +28,6 @@ from db.unit_of_work import UnitOfWork
 
 
 class ScheduleSlotService:
-
     def __init__(self, session: AsyncSession):
         self.uow = UnitOfWork(session=session)
 

@@ -19,7 +19,6 @@ from db.unit_of_work import UnitOfWork
 
 
 class PrescriptionItemService:
-
     def __init__(self, session: AsyncSession):
         self.policy = PrescriptionItemPolicy()
         self.uow = UnitOfWork(session=session)

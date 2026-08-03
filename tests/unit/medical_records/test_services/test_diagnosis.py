@@ -15,7 +15,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class TestDiagnosisService:
-
     @pytest.mark.asyncio
     async def test_create_diagnosis_success(
         self,

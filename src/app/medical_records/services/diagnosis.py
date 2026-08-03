@@ -20,7 +20,6 @@ from db.unit_of_work import UnitOfWork
 
 
 class DiagnosisService:
-
     def __init__(self, session: AsyncSession):
         self.policy = DiagnosisPolicy()
         self.uow = UnitOfWork(session)

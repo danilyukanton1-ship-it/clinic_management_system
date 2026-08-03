@@ -9,7 +9,6 @@ from common.enums.token_type import TokenType
 
 
 class TestLoginService:
-
     @pytest.mark.asyncio
     async def test_login_success(
         self,
@@ -153,10 +152,13 @@ class TestLoginService:
         login_service.redis.get.return_value = None
         login_service.redis.incr.return_value = 1
 
-        with patch(
-            "app.auth.services.login.verify_password",
-            return_value=False,
-        ), pytest.raises(InvalidCredentialsException):
+        with (
+            patch(
+                "app.auth.services.login.verify_password",
+                return_value=False,
+            ),
+            pytest.raises(InvalidCredentialsException),
+        ):
             await login_service.login(login_schema)
 
         key = f"login_attempts:{patient_1.email}"
@@ -176,10 +178,13 @@ class TestLoginService:
         login_service.redis.get.return_value = "2"
         login_service.redis.incr.return_value = 3
 
-        with patch(
-            "app.auth.services.login.verify_password",
-            return_value=False,
-        ), pytest.raises(InvalidCredentialsException):
+        with (
+            patch(
+                "app.auth.services.login.verify_password",
+                return_value=False,
+            ),
+            pytest.raises(InvalidCredentialsException),
+        ):
             await login_service.login(login_schema)
 
         key = f"login_attempts:{patient_1.email}"
@@ -234,7 +239,8 @@ class TestLoginService:
             ),
             patch(
                 "app.auth.services.login.TokenService.create_token",
-            ) as mock_create_token,pytest.raises(InvalidCredentialsException)
+            ) as mock_create_token,
+            pytest.raises(InvalidCredentialsException),
         ):
             await login_service.login(login_schema)
 
@@ -251,9 +257,12 @@ class TestLoginService:
 
         login_service.redis.get.return_value = "5"
 
-        with patch(
-            "app.auth.services.login.verify_password",
-        ) as mock_verify, pytest.raises(TooManyLoginAttemptsException):
+        with (
+            patch(
+                "app.auth.services.login.verify_password",
+            ) as mock_verify,
+            pytest.raises(TooManyLoginAttemptsException),
+        ):
             await login_service.login(login_schema)
 
         mock_verify.assert_not_called()
@@ -270,10 +279,13 @@ class TestLoginService:
         login_service.redis.get.return_value = None
         login_service.redis.incr.return_value = 1
 
-        with patch(
-            "app.auth.services.login.verify_password",
-            return_value=False,
-        ), pytest.raises(InvalidCredentialsException):
+        with (
+            patch(
+                "app.auth.services.login.verify_password",
+                return_value=False,
+            ),
+            pytest.raises(InvalidCredentialsException),
+        ):
             await login_service.login(login_schema)
 
         login_service.redis.delete.assert_not_called()

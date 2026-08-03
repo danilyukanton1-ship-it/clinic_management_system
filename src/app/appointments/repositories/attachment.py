@@ -7,7 +7,6 @@ from core.repository import BaseRepository
 
 
 class AttachmentRepository(BaseRepository):
-
     async def create_attachment(
         self, data: AttachmentSchema, uploaded_by_id: int
     ) -> Attachment:

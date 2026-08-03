@@ -19,7 +19,6 @@ from common.permissions.exceptions import ForbiddenException
 
 
 class TestAppointmentService:
-
     @pytest.mark.asyncio
     async def test_create_appointment_success(
         self,
@@ -522,9 +521,7 @@ class TestAppointmentService:
 
         appointment_service.uow.appointments.get_upcoming_appointments_for_reminder.assert_awaited_once()
 
-        call_args = (
-            appointment_service.uow.appointments.get_upcoming_appointments_for_reminder.await_args
-        )
+        call_args = appointment_service.uow.appointments.get_upcoming_appointments_for_reminder.await_args
 
         assert "start" in call_args.kwargs
         assert "end" in call_args.kwargs

@@ -16,7 +16,6 @@ from common.pagination.schemas import PaginationResult
 
 
 class TestAttachmentService:
-
     @pytest.mark.asyncio
     async def test_create_attachment_success(
         self,

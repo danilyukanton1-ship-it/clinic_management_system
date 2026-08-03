@@ -31,7 +31,6 @@ from db.unit_of_work import UnitOfWork
 
 
 class UserService:
-
     def __init__(self, session: AsyncSession, redis: Redis) -> None:
         self.policy = UserPolicy()
         self.redis = redis

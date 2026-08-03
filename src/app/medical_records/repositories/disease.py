@@ -7,7 +7,6 @@ from core.repository import BaseRepository
 
 
 class DiseaseRepository(BaseRepository):
-
     async def create_disease(self, data: DiseaseCreateSchema) -> Disease:
         disease = Disease(
             code=data.code,

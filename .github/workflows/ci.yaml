@@ -26,5 +26,8 @@ jobs:
       - name: Ruff
         run: poetry run ruff check .
 
+      - name: Create .env
+        run: cp .env.example .env
+
       - name: Tests
         run: poetry run pytest

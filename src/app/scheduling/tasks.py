@@ -1,8 +1,6 @@
-import asyncio
-
 from db.database import AsyncSessionLocal
 from db.unit_of_work import UnitOfWork
-from infrastructure.celery import celery_app
+from infrastructure.celery import celery_app, run
 
 
 async def _cleanup_inactive_old_schedules():
@@ -29,4 +27,4 @@ async def _cleanup_inactive_old_schedules():
 
 @celery_app.task(name="app.scheduling.tasks.cleanup_schedules")
 def cleanup_schedules() -> None:
-    asyncio.run(_cleanup_inactive_old_schedules())
+    run(_cleanup_inactive_old_schedules())

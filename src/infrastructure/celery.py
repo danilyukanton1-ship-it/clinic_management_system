@@ -1,5 +1,8 @@
+import asyncio
+
 from celery import Celery
 from celery.schedules import crontab
+from celery.signals import worker_process_init, worker_process_shutdown
 
 from core.config import settings
 
@@ -8,6 +11,36 @@ celery_app = Celery(
     broker=settings.celery.BROKER_URL,
     backend=settings.celery.RESULT_BACKEND,
 )
+
+_loop: asyncio.AbstractEventLoop | None = None
+
+
+def get_loop() -> asyncio.AbstractEventLoop:
+    if _loop is None:
+        raise RuntimeError("Event loop not initialized")
+    return _loop
+
+
+@worker_process_init.connect
+def init_worker(**kwargs):
+    global _loop
+    _loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(_loop)
+
+
+@worker_process_shutdown.connect
+def shutdown_worker(**kwargs):
+    global _loop
+
+    if _loop is not None:
+        asyncio.set_event_loop(None)
+        _loop.close()
+        _loop = None
+
+
+def run(coro):
+    return get_loop().run_until_complete(coro)
+
 
 celery_app.conf.update(
     task_serializer="json",

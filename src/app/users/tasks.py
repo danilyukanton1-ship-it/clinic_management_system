@@ -1,8 +1,6 @@
-import asyncio
-
 from db.database import AsyncSessionLocal
 from db.unit_of_work import UnitOfWork
-from infrastructure.celery import celery_app
+from infrastructure.celery import celery_app, run
 
 
 async def delete_unverified():
@@ -14,4 +12,4 @@ async def delete_unverified():
 
 @celery_app.task(name="app.users.tasks.delete_unverified_users")
 def delete_unverified_users():
-    asyncio.run(delete_unverified())
+    run(delete_unverified())

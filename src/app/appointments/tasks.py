@@ -1,9 +1,8 @@
-import asyncio
 from datetime import UTC, date, datetime, time, timedelta
 
 from db.database import AsyncSessionLocal
 from db.unit_of_work import UnitOfWork
-from infrastructure.celery import celery_app
+from infrastructure.celery import celery_app, run
 from infrastructure.notifications.smtp import SMTPEmailService
 from infrastructure.notifications.template_renderer import TemplateRenderer
 
@@ -31,7 +30,7 @@ def send_appointment_created_notification(
         doctor_specialization=doctor_specialization,
         year=datetime.now(UTC).year,
     )
-    asyncio.run(
+    run(
         email_service.send(
             email_receiver=email,
             subject="Doctor's appointment",
@@ -65,7 +64,7 @@ def send_appointment_reminder(
         year=datetime.now(UTC).year,
     )
 
-    asyncio.run(
+    run(
         email_service.send(
             email_receiver=email,
             subject="Appointment remind",
@@ -79,7 +78,7 @@ def send_appointment_reminder(
 def appointment_reminder(
     hours: int,
 ):
-    asyncio.run(
+    run(
         _check_appointments_for_reminder(
             hours=hours,
         )
